@@ -10,12 +10,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import java.util.Date;
 
-/**
- * Javadocs go here!
- *
- * @author Tony Burdett
- * @date 12/02/15
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class AssociationReport {

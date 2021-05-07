@@ -8,13 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-/**
- * Created by emma on 27/11/14.
- *
- * @author emma
- *         <p>
- *         Model object representing an association
- */
 @Entity
 public class Association implements Trackable {
     @Id

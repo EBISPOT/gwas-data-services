@@ -7,13 +7,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created by emma on 01/12/14.
- *
- * @author emma
- *         <p>
- *         A model object representing a gene and its attributes including associated single nucleotide polymorphisms
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class Gene {

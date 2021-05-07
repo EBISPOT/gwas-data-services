@@ -1,0 +1,28 @@
+package uk.ac.ebi.spot.gwas.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import uk.ac.ebi.spot.gwas.model.SingleNucleotidePolymorphism;
+import uk.ac.ebi.spot.gwas.projection.MappingProjection;
+
+import java.util.Collection;
+import java.util.List;
+
+
+@Repository
+public interface SingleNucleotidePolymorphismRepository extends JpaRepository<SingleNucleotidePolymorphism, Long> {
+
+    Collection<SingleNucleotidePolymorphism> findByRiskAllelesLociId(Long locusId);
+
+    @Query("select snp.rsId as snpRsid, loci.id as locusId" +
+            " FROM SingleNucleotidePolymorphism as snp" +
+
+            " JOIN snp.riskAlleles as riskAlleles " +
+            " JOIN riskAlleles.loci as loci " +
+            " WHERE loci.id in :ids")
+    List<MappingProjection> findUsingRiskAllelesLociIds(@Param("ids") List<Long> ids);
+
+}
+

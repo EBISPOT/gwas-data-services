@@ -8,13 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-/**
- * Created by emma on 21/11/14.
- *
- * @author emma
- *         <p>
- *         Model object representing a single nucleotide polymorphisms and its attributes
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class SingleNucleotidePolymorphism {

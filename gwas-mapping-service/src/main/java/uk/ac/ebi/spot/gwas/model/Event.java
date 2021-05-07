@@ -9,13 +9,6 @@ import java.sql.Date;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-/**
- * Created by emma on 28/04/2016.
- *
- * @author emma
- *         <p>
- *         Model of tracking event
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class Event {

@@ -7,13 +7,6 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/**
- * Created by emma on 26/01/15.
- *
- * @author emma
- *         <p>
- *         Locus object holds links to associated risk alleles and author reported genes
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class Locus {

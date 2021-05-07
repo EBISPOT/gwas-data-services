@@ -7,13 +7,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import javax.persistence.*;
 import java.util.Collection;
 
-/**
- * Created by emma on 09/02/15.
- *
- * @author emma
- *         <p>
- *         Model object representing a user
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class SecureUser {

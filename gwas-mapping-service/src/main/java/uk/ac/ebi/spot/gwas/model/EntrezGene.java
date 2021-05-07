@@ -5,13 +5,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 
-/**
- * Created by emma on 21/07/2015.
- *
- * @author emma
- *         <p>
- *         A model object representing a gene from Entrez database
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class EntrezGene {
