@@ -9,13 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.util.Collection;
 
-/**
- * Created by emma on 01/12/14.
- *
- * @author emma
- *         <p>
- *         Model of name information associated with a SNP
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class Region {

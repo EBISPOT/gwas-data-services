@@ -9,14 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-/**
- * Created by emma on 24/06/2016.
- *
- * @author emma
- *         <p>
- *         Model object to hold results of validating an association. An association can have both errors and warnings
- *         but errors must be resolved before saving thus are not stored in database
- */
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Entity
 public class AssociationValidationReport {
