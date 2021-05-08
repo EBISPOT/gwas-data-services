@@ -30,8 +30,6 @@ build/
 .vscode/
 
 */.mvn/*
-mvnw*
-.mvn
 
 #-------------------------------#
 # GWAS Catalog Git Ignore Rules #
