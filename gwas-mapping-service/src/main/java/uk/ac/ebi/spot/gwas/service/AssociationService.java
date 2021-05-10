@@ -4,6 +4,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.dto.MappingDto;
+import uk.ac.ebi.spot.gwas.model.Association;
 import uk.ac.ebi.spot.gwas.projection.MappingProjection;
 import uk.ac.ebi.spot.gwas.repository.AssociationRepository;
 import uk.ac.ebi.spot.gwas.repository.GeneRepository;
@@ -37,6 +39,10 @@ public class AssociationService {
     @Autowired
     private SingleNucleotidePolymorphismRepository snpRepo;
 
+    public Page<Association> getAssociationPageInfo(int start, int size) {
+        Pageable pageable = PageRequest.of(start, size);
+        return associationRepository.findAll(pageable);
+    }
 
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -70,6 +76,17 @@ public class AssociationService {
                 .reportedGenes(reportedGenes).build();
 
         return CompletableFuture.completedFuture(mappingDto);
+    }
+
+
+    @Async("asyncExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<List<Association>> getAssociations(int start, int size) {
+        log.info("Get association {} : {} starts", start, size);
+        Pageable pageable = PageRequest.of(start, size);
+        Page<Association> associations = associationRepository.findAll(pageable);
+        log.info("Get association {} : {} ends", start, size);
+        return CompletableFuture.completedFuture(associations.getContent());
     }
 
 }
