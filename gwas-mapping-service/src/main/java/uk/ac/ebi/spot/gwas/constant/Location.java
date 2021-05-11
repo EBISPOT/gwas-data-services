@@ -4,6 +4,7 @@ public class Location {
 
     public static final String VARIATION = "https://rest.ensembl.org/variation/homo_sapiens";
 
+    public static final String VARIATION_FILE = "variants.json";
 
     private Location(){
         // Never called
