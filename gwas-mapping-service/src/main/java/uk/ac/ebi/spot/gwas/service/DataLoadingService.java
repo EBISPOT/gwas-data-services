@@ -12,6 +12,7 @@ import uk.ac.ebi.spot.gwas.dto.MappingDto;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 import uk.ac.ebi.spot.gwas.model.Association;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
+import uk.ac.ebi.spot.gwas.util.MappingUtil;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -68,6 +69,22 @@ public class DataLoadingService {
         }
         log.info("Total variation api call time {}", (System.currentTimeMillis() - start));
         return report;
+    }
+
+    public Map<String, Variation> getVariationsWhoseRsidHasChanged(Map<String, Variation> variantMap, List<String> snpRsIds) throws InterruptedException {
+        int count = 1;
+        for (String snpRsId : snpRsIds) {
+            Variation variation = variantMap.get(snpRsId.trim());
+            if (variation == null) {
+                log.info("{} not found in batch or changed, now getting from Ensembl ...", snpRsId);
+                variantMap.putAll(mappingApiService.variationGet(snpRsId));
+            }else {
+                log.info("{} already retrieved in batch", snpRsId);
+            }
+            MappingUtil.statusLog(DataType.VARIATION.name(), count++, snpRsIds.size());
+        }
+        CacheUtil.saveToFile(DataType.VARIATION, cacheDir, variantMap);
+        return variantMap;
     }
 
     public MappingDto getSnpsLinkedToLocus(int threadSize, int batchSize) throws ExecutionException, InterruptedException {
