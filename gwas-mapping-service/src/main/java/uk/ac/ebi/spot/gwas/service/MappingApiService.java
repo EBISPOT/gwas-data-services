@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.gwas.constant.Location;
+import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 
 import java.net.URI;
@@ -68,6 +69,19 @@ public class MappingApiService {
         log.info("Finished getting {} snp rsIds from Ensembl", getEnsemblCount());
         return CompletableFuture.completedFuture(variantMap);
     }
+
+    @Async("asyncExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<Map<String, GeneSymbol>> geneSymbolPost(List<String> reportedGenes) {
+        log.info("Start getting next {} reported geneIds from Ensembl", reportedGenes.size());
+        Object response = postRequest(Collections.singletonMap("symbols", reportedGenes), Location.REPORTED_GENES);
+        Map<String, GeneSymbol> geneMap = mapper.convertValue(response, new TypeReference<Map<String, GeneSymbol>>() {});
+
+        setEnsemblCount(reportedGenes.size());
+        log.info("Finished getting {} reported geneIds from Ensembl", getEnsemblCount());
+        return CompletableFuture.completedFuture(geneMap);
+    }
+
 
     public Object postRequest(Map<String, Object> request, String uri) {
         Object response = null;

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import uk.ac.ebi.spot.gwas.constant.DataType;
+import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 
 import java.io.*;
@@ -36,6 +37,17 @@ public class CacheUtil {
             });
         }
         return variationMap;
+    }
+
+    public static Map<String, GeneSymbol> reportedGenes(DataType dataType, String cacheDir) {
+        Map<String, GeneSymbol> geneSymbolMap = new HashMap<>();
+        String cache = cacheDir + dataType.getFileLocation();
+
+        if (Files.exists(Paths.get(cache))) {
+            geneSymbolMap = mapper.convertValue(readJsonLocal(cache), new TypeReference<Map<String, GeneSymbol>>() {
+            });
+        }
+        return geneSymbolMap;
     }
 
     public static void saveToFile(DataType dataType, String cacheDir, Object dataToSave) {

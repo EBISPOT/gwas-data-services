@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.constant.DataType;
+import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
 import uk.ac.ebi.spot.gwas.dto.MappingDto;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 import uk.ac.ebi.spot.gwas.model.Association;
@@ -85,6 +86,40 @@ public class DataLoadingService {
         }
         CacheUtil.saveToFile(DataType.VARIATION, cacheDir, variantMap);
         return variantMap;
+    }
+
+    public Map<String, GeneSymbol> getReportedGenes(int threadSize,
+                                                    int batchSize,
+                                                    List<String> snpRsIds) throws ExecutionException, InterruptedException {
+
+        long start = System.currentTimeMillis();
+        Map<String, GeneSymbol> cached = CacheUtil.reportedGenes(DataType.REPORTED_GENES, cacheDir);
+        Map<String, GeneSymbol> report = new HashMap<>();
+        int partitionSize = threadSize * batchSize;
+
+        List<String> getFromApi = new ArrayList<>();
+        for (String snpRsId : snpRsIds) {
+            GeneSymbol geneSymbol = cached.get(snpRsId.trim());
+            if (geneSymbol != null) {
+                report.putAll(Collections.singletonMap(snpRsId, geneSymbol));
+            } else {
+                getFromApi.add(snpRsId);
+            }
+        }
+
+        for (List<String> dataPartition : ListUtils.partition(getFromApi, partitionSize)) {
+            List<CompletableFuture<Map<String, GeneSymbol>>> futureList = ListUtils.partition(dataPartition, batchSize)
+                    .stream()
+                    .map(listPart -> mappingApiService.geneSymbolPost(listPart)).collect(Collectors.toList());
+
+            CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
+            for (CompletableFuture<Map<String, GeneSymbol>> future : futureList) {
+                report.putAll(future.get());
+            }
+        }
+        log.info("Total reported gene api call time {}", (System.currentTimeMillis() - start));
+        CacheUtil.saveToFile(DataType.REPORTED_GENES, cacheDir, report);
+        return report;
     }
 
     public MappingDto getSnpsLinkedToLocus(int threadSize, int batchSize) throws ExecutionException, InterruptedException {
