@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import uk.ac.ebi.spot.gwas.constant.DataType;
 import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
+import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 
 import java.io.*;
@@ -15,6 +16,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -48,6 +50,17 @@ public class CacheUtil {
             });
         }
         return geneSymbolMap;
+    }
+
+
+    public static Map<String, List<OverlapRegion>> cytoGeneticBand(DataType dataType, String cacheDir) {
+        Map<String, List<OverlapRegion>> cytoGeneticBand = new HashMap<>();
+        String cache = cacheDir + dataType.getFileLocation();
+        if (Files.exists(Paths.get(cache))) {
+            cytoGeneticBand = mapper.convertValue(readJsonLocal(cache), new TypeReference<Map<String, List<OverlapRegion>>>() {
+            });
+        }
+        return cytoGeneticBand;
     }
 
     public static void saveToFile(DataType dataType, String cacheDir, Object dataToSave) {

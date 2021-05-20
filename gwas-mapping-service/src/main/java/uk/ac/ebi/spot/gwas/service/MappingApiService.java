@@ -17,6 +17,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.gwas.constant.Location;
 import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
+import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 
 import java.net.URI;
@@ -45,6 +46,21 @@ public class MappingApiService {
     @Value("${mapping.ncbi_db_type}")
     private String ncbiDbType;
 
+    public void setEnsemblCount(Integer ensemblCount) {
+        this.ensemblCount += ensemblCount;
+    }
+
+    public Map<String, List<OverlapRegion>> overlapBandRegion(String mappingLocation) throws InterruptedException {
+
+        String uri = String.format(Location.OVERLAP_BAND_REGION, mappingLocation);
+        List<OverlapRegion> overlapRegions = this.getRequest(uri)
+                .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapRegion>>() {}))
+                .orElseGet(ArrayList::new);
+
+        Map<String, List<OverlapRegion>> bands = new HashMap<>();
+        bands.put(mappingLocation, overlapRegions);
+        return bands;
+    }
 
     public Map<String, Variation> variationGet(String snpRsId) throws InterruptedException {
         Map<String, Variation> variationMap = new HashMap<>();
