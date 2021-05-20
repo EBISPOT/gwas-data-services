@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.constant.DataType;
-import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
-import uk.ac.ebi.spot.gwas.dto.MappingDto;
-import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
-import uk.ac.ebi.spot.gwas.dto.Variation;
+import uk.ac.ebi.spot.gwas.dto.*;
 import uk.ac.ebi.spot.gwas.model.Association;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
@@ -139,6 +136,25 @@ public class DataLoadingService {
         }
         CacheUtil.saveToFile(dataType, cacheDir, cytoGeneticBand);
         return cytoGeneticBand;
+    }
+
+
+    public Map<String, AssemblyInfo> getAssemblyInfo(DataType dataType, List<String> chromosomes) throws InterruptedException { // Get Chromosome End
+        int count = 1;
+        Map<String, AssemblyInfo> cached = CacheUtil.assemblyInfo(dataType, cacheDir);
+        Map<String, AssemblyInfo> assemblyInfos = new HashMap<>();
+
+        for (String chromosome : chromosomes) {
+            AssemblyInfo assemblyInfo = cached.get(chromosome);
+            if (assemblyInfo == null) {
+                assemblyInfos.putAll(mappingApiService.assemblyInfo(chromosome));
+            } else {
+                assemblyInfos.putAll(Collections.singletonMap(chromosome, assemblyInfo));
+            }
+            MappingUtil.statusLog(dataType.name(), count++, chromosomes.size());
+        }
+        CacheUtil.saveToFile(dataType, cacheDir, assemblyInfos);
+        return assemblyInfos;
     }
 
     public MappingDto getSnpsLinkedToLocus(int threadSize, int batchSize) throws ExecutionException, InterruptedException {
