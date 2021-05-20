@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.gwas.constant.Location;
+import uk.ac.ebi.spot.gwas.dto.AssemblyInfo;
 import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
 import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
 import uk.ac.ebi.spot.gwas.dto.Variation;
@@ -60,6 +61,18 @@ public class MappingApiService {
         Map<String, List<OverlapRegion>> bands = new HashMap<>();
         bands.put(mappingLocation, overlapRegions);
         return bands;
+    }
+
+    // fix manip here
+    public Map<String, AssemblyInfo> assemblyInfo(String chromosome) throws InterruptedException { // chromosomeEnd
+        String uri = String.format(Location.INFO_ASSEMBLY, chromosome);
+        Map<String, AssemblyInfo> assemblyInfoMap = new HashMap<>();
+
+        AssemblyInfo assemblyInfo = this.getRequest(uri)
+                .map(response -> mapper.convertValue(response.getBody(), AssemblyInfo.class))
+                .orElseGet(AssemblyInfo::new);
+        assemblyInfoMap.put(chromosome, assemblyInfo);
+        return assemblyInfoMap;
     }
 
     public Map<String, Variation> variationGet(String snpRsId) throws InterruptedException {

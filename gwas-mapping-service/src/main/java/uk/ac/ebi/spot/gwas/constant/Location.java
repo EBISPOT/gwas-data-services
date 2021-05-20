@@ -8,6 +8,8 @@ public class Location {
 
     public static final String OVERLAP_BAND_REGION = "https://rest.ensembl.org/overlap/region/homo_sapiens/%s?feature=band";
 
+    public static final String INFO_ASSEMBLY = "https://rest.ensembl.org/info/assembly/homo_sapiens/%s";
+
     public static final String VARIATION_FILE = "variants.json";
 
     public static final String REPORTED_GENES_FILE = "reported-genes.json";
