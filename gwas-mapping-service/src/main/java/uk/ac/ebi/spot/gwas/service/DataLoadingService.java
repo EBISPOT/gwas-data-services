@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.constant.DataType;
 import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
 import uk.ac.ebi.spot.gwas.dto.MappingDto;
+import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 import uk.ac.ebi.spot.gwas.model.Association;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
@@ -120,6 +121,24 @@ public class DataLoadingService {
         log.info("Total reported gene api call time {}", (System.currentTimeMillis() - start));
         CacheUtil.saveToFile(DataType.REPORTED_GENES, cacheDir, report);
         return report;
+    }
+
+    public Map<String, List<OverlapRegion>> getCytoGeneticBands(DataType dataType, List<String> locations) throws InterruptedException {
+        int count = 1;
+        Map<String, List<OverlapRegion>> cached = CacheUtil.cytoGeneticBand(dataType, cacheDir);
+        Map<String, List<OverlapRegion>> cytoGeneticBand = new HashMap<>();
+
+        for (String location : locations) {
+            List<OverlapRegion> regions = cached.get(location);
+            if (regions == null) {
+                cytoGeneticBand.putAll(mappingApiService.overlapBandRegion(location));
+            } else {
+                cytoGeneticBand.putAll(Collections.singletonMap(location, regions));
+            }
+            MappingUtil.statusLog(dataType.name(), count++, locations.size());
+        }
+        CacheUtil.saveToFile(dataType, cacheDir, cytoGeneticBand);
+        return cytoGeneticBand;
     }
 
     public MappingDto getSnpsLinkedToLocus(int threadSize, int batchSize) throws ExecutionException, InterruptedException {
