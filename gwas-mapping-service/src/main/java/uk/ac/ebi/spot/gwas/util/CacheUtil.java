@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import uk.ac.ebi.spot.gwas.constant.DataType;
-import uk.ac.ebi.spot.gwas.dto.AssemblyInfo;
-import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
-import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
-import uk.ac.ebi.spot.gwas.dto.Variation;
+import uk.ac.ebi.spot.gwas.dto.*;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -73,6 +70,18 @@ public class CacheUtil {
             });
         }
         return assemblyInfos;
+    }
+
+
+    public static Map<String, List<OverlapGene>> overlappingGenes(DataType dataType, String cacheDir) {
+
+        Map<String, List<OverlapGene>> overlappingGenes = new HashMap<>();
+        String cache = cacheDir + dataType.getFileLocation();
+        if (Files.exists(Paths.get(cache))) {
+            overlappingGenes = mapper.convertValue(readJsonLocal(cache), new TypeReference<Map<String, List<OverlapGene>>>() {
+            });
+        }
+        return overlappingGenes;
     }
 
     public static void saveToFile(DataType dataType, String cacheDir, Object dataToSave) {

@@ -157,6 +157,26 @@ public class DataLoadingService {
         return assemblyInfos;
     }
 
+    public Map<String, List<OverlapGene>> getOverlappingGenes(DataType dataType,
+                                                              String source,
+                                                              List<String> locations) throws InterruptedException {
+        int count = 1;
+        Map<String, List<OverlapGene>> cached = CacheUtil.overlappingGenes(dataType, cacheDir);
+        Map<String, List<OverlapGene>> overlappingGenes = new HashMap<>();
+
+        for (String location : locations) {
+            List<OverlapGene> genes = cached.get(location);
+            if (genes == null) {
+                overlappingGenes.putAll(mappingApiService.overlapGeneRegion(location, source));
+            } else {
+                overlappingGenes.putAll(Collections.singletonMap(location, genes));
+            }
+            MappingUtil.statusLog(dataType.name(), count++, locations.size());
+        }
+        CacheUtil.saveToFile(dataType, cacheDir, overlappingGenes);
+        return overlappingGenes;
+    }
+
     public MappingDto getSnpsLinkedToLocus(int threadSize, int batchSize) throws ExecutionException, InterruptedException {
         int pageStart = 0;
         int pageEnd = threadSize;

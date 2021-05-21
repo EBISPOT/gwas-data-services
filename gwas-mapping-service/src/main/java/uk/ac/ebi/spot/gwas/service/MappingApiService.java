@@ -16,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.gwas.constant.Location;
-import uk.ac.ebi.spot.gwas.dto.AssemblyInfo;
-import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
-import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
-import uk.ac.ebi.spot.gwas.dto.Variation;
+import uk.ac.ebi.spot.gwas.dto.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -73,6 +70,20 @@ public class MappingApiService {
                 .orElseGet(AssemblyInfo::new);
         assemblyInfoMap.put(chromosome, assemblyInfo);
         return assemblyInfoMap;
+    }
+
+    public Map<String, List<OverlapGene>> overlapGeneRegion(String mappingLocation, String source) throws InterruptedException { // Ensembl Overlapping Genes
+        String uri = String.format(Location.OVERLAPPING_GENE_REGION, mappingLocation);
+        if (source.equals(ncbiSource)) {
+            uri = String.format("%s&logic_name=%s&db_type=%s", uri, ncbiLogicName, ncbiDbType);
+        }
+
+        Map<String, List<OverlapGene>> geneOverlap = new HashMap<>();
+        List<OverlapGene> geneOverlapList = this.getRequest(uri)
+                .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapGene>>() {}))
+                .orElseGet(ArrayList::new);
+        geneOverlap.put(mappingLocation, geneOverlapList);
+        return geneOverlap;
     }
 
     public Map<String, Variation> variationGet(String snpRsId) throws InterruptedException {
