@@ -2,6 +2,12 @@ package uk.ac.ebi.spot.gwas.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.spot.gwas.dto.Mapping;
+import uk.ac.ebi.spot.gwas.dto.Variation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MappingUtil {
 
@@ -17,6 +23,25 @@ public class MappingUtil {
         }
     }
 
+    public static List<String> getAllChromosomesAndPositions(List<Variation> variants) {
+        List<String> locations = new ArrayList<>();
+        variants.forEach(variant -> locations.addAll(variant.getMappings().stream()
+                                                             .map(mapping -> String.format("%s:%s-%s",
+                                                                                           mapping.getSeqRegionName(),
+                                                                                           mapping.getStart(),
+                                                                                           mapping.getStart()))
+                                                             .collect(Collectors.toList())));
+        return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
+    }
+
+
+    public static List<String> getAllChromosomes(List<Variation> variants) {
+        List<String> locations = new ArrayList<>();
+        variants.forEach(variant -> locations.addAll(variant.getMappings().stream()
+                                                             .map(Mapping::getSeqRegionName)
+                                                             .collect(Collectors.toList())));
+        return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
+    }
 
 }
 

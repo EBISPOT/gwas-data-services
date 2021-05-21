@@ -16,6 +16,11 @@ public class Location {
 
     public static final String REPORTED_GENES_FILE = "reported-genes.json";
 
+    public static final String CYTOGENETIC_BAND_FILE = "cytogenetic-band.json";
+
+    public static final String ASSEMBLY_INFO_FILE = "gwas-assembly-info.json";
+
+
     private Location(){
         // Never called
     }
