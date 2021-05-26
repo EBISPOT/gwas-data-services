@@ -2,11 +2,13 @@ package uk.ac.ebi.spot.gwas.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.spot.gwas.dto.AssemblyInfo;
 import uk.ac.ebi.spot.gwas.dto.Mapping;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MappingUtil {
@@ -34,12 +36,40 @@ public class MappingUtil {
         return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
     }
 
-
     public static List<String> getAllChromosomes(List<Variation> variants) {
         List<String> locations = new ArrayList<>();
         variants.forEach(variant -> locations.addAll(variant.getMappings().stream()
                                                              .map(Mapping::getSeqRegionName)
                                                              .collect(Collectors.toList())));
+        return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
+    }
+
+    public static List<String> getUpstreamLocations(List<Variation> variants, int genomicDistance) {
+        int chromStart = 1;
+        List<String> locations = new ArrayList<>();
+        variants.forEach(variant -> variant.getMappings().forEach(mapping -> {
+
+            String chromosome = mapping.getSeqRegionName();
+            int position = mapping.getStart();
+            int positionUp = ((position - genomicDistance) < 0) ? chromStart : position - genomicDistance;
+            locations.add(String.format("%s:%s-%s", chromosome, positionUp, position));
+        }));
+        return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
+    }
+
+    public static List<String> getDownstreamLocations(List<Variation> variants, Map<String, AssemblyInfo> assemblyInfoMap, int genomicDistance) {
+        List<String> locations = new ArrayList<>();
+        variants.forEach(variant -> variant.getMappings().forEach(mapping -> {
+            String chromosome = mapping.getSeqRegionName();
+            int position = mapping.getStart();
+
+            int chrEnd = assemblyInfoMap.get(chromosome).getLength();
+            if (chrEnd != 0) {
+                int positionDown = position + genomicDistance;
+                positionDown = Math.min(positionDown, chrEnd);
+                locations.add(String.format("%s:%s-%s", chromosome, position, positionDown));
+            }
+        }));
         return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
     }
 
