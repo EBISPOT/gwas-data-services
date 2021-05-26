@@ -54,11 +54,28 @@ public class EnsemblService {
         List<String> chromosomes = MappingUtil.getAllChromosomes(variants);
         Map<String, AssemblyInfo> assemblyInfos = dataLoadingService.getAssemblyInfo(DataType.ASSEMBLY_INFO, chromosomes);
 
+        // Get Overlapping genes
+        Map<String, List<OverlapGene>> ensemblOverlappingGenes = dataLoadingService.getOverlappingGenes(DataType.ENSEMBL_OVERLAP_GENES, config.getEnsemblSource(), locations);
+        Map<String, List<OverlapGene>> ncbiOverlappingGenes = dataLoadingService.getOverlappingGenes(DataType.NCBI_OVERLAP_GENES, config.getNcbiSource(), locations);
+
+        // Get Upstream Genes
+        List<String> upstreamLocations = MappingUtil.getUpstreamLocations(variants, config.getGenomicDistance());
+        ensemblOverlappingGenes.putAll(dataLoadingService.getOverlappingGenes(DataType.ENSEMBL_UPSTREAM_GENES, config.getEnsemblSource(), upstreamLocations));
+        ncbiOverlappingGenes.putAll(dataLoadingService.getOverlappingGenes(DataType.NCBI_UPSTREAM_GENES, config.getNcbiSource(), upstreamLocations));
+
+        // Get Downstream Genes
+        List<String> downStreamLocations = MappingUtil.getDownstreamLocations(variants, assemblyInfos, config.getGenomicDistance());
+        ensemblOverlappingGenes.putAll(dataLoadingService.getOverlappingGenes(DataType.ENSEMBL_DOWNSTREAM_GENES, config.getEnsemblSource(), downStreamLocations));
+        ncbiOverlappingGenes.putAll(dataLoadingService.getOverlappingGenes(DataType.NCBI_DOWNSTREAM_GENES, config.getNcbiSource(), downStreamLocations));
+
+
         return EnsemblData.builder()
                 .variations(variantMap)
                 .reportedGenes(reportedGeneMap)
                 .cytoGeneticBand(cytoGeneticBand)
                 .assemblyInfo(assemblyInfos)
+                .ensemblOverlapGene(ensemblOverlappingGenes)
+                .ncbiOverlapGene(ncbiOverlappingGenes)
                 .build();
     }
 }

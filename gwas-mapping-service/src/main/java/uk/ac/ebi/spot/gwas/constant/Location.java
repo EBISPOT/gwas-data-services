@@ -20,6 +20,17 @@ public class Location {
 
     public static final String ASSEMBLY_INFO_FILE = "gwas-assembly-info.json";
 
+    public static final String ENSEMBL_OVERLAP_FILE = "ensembl-overlapping-genes.json";
+
+    public static final String NCBI_OVERLAP_FILE = "ncbi-overlapping-genes.json";
+
+    public static final String ENSEMBL_UPSTREAM_FILE = "ensembl-upstream-genes.json";
+
+    public static final String NCBI_UPSTREAM_FILE = "ncbi-upstream-genes.json";
+
+    public static final String ENSEMBL_DOWNSTREAM_FILE = "ensembl-downstream-genes.json";
+
+    public static final String NCBI_DOWNSTREAM_FILE = "ncbi-downstream-genes.json";
 
     private Location(){
         // Never called
