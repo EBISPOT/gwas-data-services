@@ -9,6 +9,8 @@ import uk.ac.ebi.spot.gwas.dto.Variation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MappingUtil {
@@ -71,6 +73,18 @@ public class MappingUtil {
             }
         }));
         return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
+    }
+
+    // Using regular expression to parse description:
+    public static String parseNCBIid( String description, String geneName){
+        Pattern refseqIdPattern = Pattern.compile("Acc:(\\d+)]");
+        Matcher matcher = refseqIdPattern.matcher(description);
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            log.info("[Warning] NCBI ID for {} Was not found. ", geneName);
+            return "NCBI ID was not found for this gene.";
+        }
     }
 
     public static List<String> removeBlackListedVariants(List<String> snpRsIds){
