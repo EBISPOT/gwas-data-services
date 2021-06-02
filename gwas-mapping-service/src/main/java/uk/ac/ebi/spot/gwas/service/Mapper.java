@@ -32,6 +32,17 @@ public class Mapper {
 
     private String eRelease;
 
+    public int getChromosomeEnd(Location snpLocation) {
+        Map<String, AssemblyInfo> assemblyInfoData = ensemblData.getAssemblyInfo();
+        int chrEnd = 0;
+        String chromosome = snpLocation.getChromosomeName();
+        AssemblyInfo assemblyInfo = assemblyInfoData.get(chromosome);
+        if (Optional.ofNullable(assemblyInfo).isPresent()) {
+            chrEnd = assemblyInfo.getLength();
+        }
+        return chrEnd;
+    }
+
     public Collection<Location> getMappings(Variation variant) {
         Map<String, List<OverlapRegion>> cytoGeneticBand = ensemblData.getCytoGeneticBand();
         Collection<Location> locations = new ArrayList<>();
@@ -58,6 +69,96 @@ public class Mapper {
             }
         }
         return locations;
+    }
+
+
+    public MappingDto getOverlapGenes(Location snpLocation, String source, EnsemblMappingResult mappingResult) {
+        Map<String, List<OverlapGene>> overlapGeneData =
+                (source.equals(ncbiSource) ? ensemblData.getNcbiOverlapGene() : ensemblData.getEnsemblOverlapGene());
+
+        Set<String> geneNames = new HashSet<>();
+        String chromosome = snpLocation.getChromosomeName();
+        Integer position = snpLocation.getChromosomePosition();
+        String location = String.format("%s:%s-%s", chromosome, position, position);
+        List<OverlapGene> overlapGenes = overlapGeneData.get(location);
+
+        MappingDto mappingDto = MappingDto.builder()
+                .genomicContexts(new ArrayList<>())
+                .build();
+        if (!overlapGenes.isEmpty() && !Optional.ofNullable(overlapGenes.get(0).getError()).isPresent()) {
+            overlapGenes.forEach(overlapGene -> geneNames.add(overlapGene.getExternalName()));
+            mappingDto = addGenomicContext(overlapGenes, snpLocation, source, "overlap", mappingResult);
+        }
+        mappingDto.setGeneNames(geneNames);
+        return mappingDto;
+    }
+
+    public List<GenomicContext> getUpstreamGenes(Location snpLocation, String source,
+                                                 EnsemblMappingResult mappingResult) {
+        Map<String, List<OverlapGene>> overlapGeneData =
+                (source.equals(ncbiSource) ? ensemblData.getNcbiOverlapGene() : ensemblData.getEnsemblOverlapGene());
+
+        String type = "upstream";
+        int chrStart = 1;
+        String chromosome = snpLocation.getChromosomeName();
+        Integer position = snpLocation.getChromosomePosition();
+        int positionUp = position - genomicDistance;
+        int posUp = (positionUp < 0) ? chrStart : positionUp;
+
+        List<GenomicContext> genomicContexts = new ArrayList<>();
+        String location = String.format("%s:%s-%s", chromosome, posUp, position);
+        List<OverlapGene> overlapGenes = overlapGeneData.get(location);
+        if (overlapGenes.isEmpty() || !Optional.ofNullable(overlapGenes.get(0).getError()).isPresent()) {
+
+            MappingDto mappingDto = addGenomicContext(overlapGenes, snpLocation, source, type, mappingResult);
+            boolean closestFound = mappingDto.getClosestFound();
+            genomicContexts.addAll(mappingDto.getGenomicContexts());
+
+            if (!closestFound && positionUp > chrStart) {
+                List<OverlapGene> closestGene = getNearestGene(chromosome, position, posUp, 1, type, source, mappingResult);
+                if (Optional.ofNullable(closestGene).isPresent()) {
+                    mappingDto = addGenomicContext(closestGene, snpLocation, source, type, mappingResult);
+                    genomicContexts.addAll(mappingDto.getGenomicContexts());
+                }
+            }
+        }
+        return genomicContexts;
+    }
+
+    public List<GenomicContext> getDownstreamGenes(Location snpLocation, String source, EnsemblMappingResult mappingResult) {
+
+        Map<String, List<OverlapGene>> overlapGeneData =
+                (source.equals(ncbiSource) ? ensemblData.getNcbiOverlapGene() : ensemblData.getEnsemblOverlapGene());
+
+        String type = "downstream";
+        int chrEnd = this.getChromosomeEnd(snpLocation);
+
+        // Check the downstream position to avoid having a position over the 3' end of the chromosome
+        List<GenomicContext> genomicContexts = new ArrayList<>();
+        if (chrEnd != 0) {
+            String chromosome = snpLocation.getChromosomeName();
+            Integer position = snpLocation.getChromosomePosition();
+            int positionDown = position + genomicDistance;
+            positionDown = Math.min(positionDown, chrEnd);
+
+            // Check if there are overlap genes
+            String location = String.format("%s:%s-%s", chromosome, position, positionDown);
+            List<OverlapGene> overlapGenes = overlapGeneData.get(location);
+            if (overlapGenes.isEmpty() || !Optional.ofNullable(overlapGenes.get(0).getError()).isPresent()) {
+                MappingDto pair = addGenomicContext(overlapGenes, snpLocation, source, type, mappingResult);
+                boolean closestFound = pair.getClosestFound();
+                genomicContexts.addAll(pair.getGenomicContexts());
+
+                if (!closestFound && positionDown != chrEnd) {
+                    List<OverlapGene> closestGene = getNearestGene(chromosome, position, positionDown, chrEnd, type, source, mappingResult);
+                    if (Optional.ofNullable(closestGene).isPresent()) {
+                        pair = addGenomicContext(closestGene, snpLocation, source, type, mappingResult);
+                        genomicContexts.addAll(pair.getGenomicContexts());
+                    }
+                }
+            }
+        }
+        return genomicContexts;
     }
 
     private MappingDto addGenomicContext(List<OverlapGene> geneList,
