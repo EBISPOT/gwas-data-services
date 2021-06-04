@@ -14,6 +14,10 @@ import java.util.List;
 @Repository
 public interface SingleNucleotidePolymorphismRepository extends JpaRepository<SingleNucleotidePolymorphism, Long> {
 
+    SingleNucleotidePolymorphism findByRsId(@Param("rsId") String rsId);
+
+    SingleNucleotidePolymorphism findByRsIdIgnoreCase(@Param("rsId") String rsId);
+
     Collection<SingleNucleotidePolymorphism> findByRiskAllelesLociId(Long locusId);
 
     @Query("select snp.rsId as snpRsid, loci.id as locusId" +
@@ -23,6 +27,10 @@ public interface SingleNucleotidePolymorphismRepository extends JpaRepository<Si
             " JOIN riskAlleles.loci as loci " +
             " WHERE loci.id in :ids")
     List<MappingProjection> findUsingRiskAllelesLociIds(@Param("ids") List<Long> ids);
+
+    @Query("select new SingleNucleotidePolymorphism(s.id) from SingleNucleotidePolymorphism s join s.locations loc " +
+            "where loc.id = :locationId")
+    List<SingleNucleotidePolymorphism> findIdsByLocationId(Long locationId);
 
 }
 
