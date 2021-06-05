@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.gwas.service;
+package uk.ac.ebi.spot.gwas.service.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,15 +6,20 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
 import uk.ac.ebi.spot.gwas.dto.*;
+import uk.ac.ebi.spot.gwas.model.Association;
+import uk.ac.ebi.spot.gwas.model.Gene;
+import uk.ac.ebi.spot.gwas.model.Locus;
+import uk.ac.ebi.spot.gwas.model.SingleNucleotidePolymorphism;
+import uk.ac.ebi.spot.gwas.service.data.MappingRecordService;
+import uk.ac.ebi.spot.gwas.service.data.SingleNucleotidePolymorphismQueryService;
+import uk.ac.ebi.spot.gwas.service.data.TrackingOperationService;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -26,6 +31,17 @@ public class EnsemblService {
     private DataLoadingService dataLoadingService;
     @Autowired
     private AppConfig config;
+    @Autowired
+    private DataMappingService dataMappingService;
+    @Autowired
+    private  DataSavingService dataSavingService;
+    @Autowired
+    private SingleNucleotidePolymorphismQueryService singleNucleotidePolymorphismQueryService
+
+    @Autowired
+    private TrackingOperationService trackingOperationService;
+    @Autowired
+    private MappingRecordService mappingRecordService;
 
     public EnsemblData loadMappingData(List<String> snpRsIds,
                                        List<String> reportedGenes,
@@ -77,5 +93,40 @@ public class EnsemblService {
                 .ensemblOverlapGene(ensemblOverlappingGenes)
                 .ncbiOverlapGene(ncbiOverlappingGenes)
                 .build();
+    }
+
+    public MappingDto mapAndSaveData(Association association, EnsemblData ensemblData) {
+
+        log.info("commenced saving Association {} Data", association.getId());
+        MappingDto mappingDto = MappingDto.builder().build();
+        Collection<Locus> studyAssociationLoci = association.getLoci();
+        for (Locus associationLocus : studyAssociationLoci) {
+            Long locusId = associationLocus.getId();
+            log.info("Locus ID for this asscoiation {} is {}", association.getId(), locusId);
+            Collection<SingleNucleotidePolymorphism> snpsLinkedToLocus = singleNucleotidePolymorphismQueryService.findByRiskAllelesLociId(locusId);
+            Collection<Gene> authorReportedGenesLinkedToSnp = associationLocus.getAuthorReportedGenes();
+
+            Collection<String> authorReportedGeneNamesLinkedToSnp = new ArrayList<>();
+            authorReportedGenesLinkedToSnp.forEach(g -> {
+                if (g.getGeneName() != null) {
+                    authorReportedGeneNamesLinkedToSnp.add(g.getGeneName().trim());
+                }
+            });
+            log.info("Reported Genes for this asscoiation {} ", authorReportedGeneNamesLinkedToSnp);
+            for (SingleNucleotidePolymorphism snpLinkedToLocus : snpsLinkedToLocus) {
+                String snpRsId = snpLinkedToLocus.getRsId();
+                EnsemblMappingResult mappingResult = dataMappingService.mappingPipeline(ensemblData, snpRsId, authorReportedGeneNamesLinkedToSnp);
+                mappingDto = dataSavingService.saveMappedData(snpLinkedToLocus, mappingResult);
+            }
+        }
+
+        dataSavingService.createAssociationReports(association, mappingDto);
+
+        trackingOperationService.update(association, user, "ASSOCIATION_MAPPING");
+        log.debug("Update mapping record");
+        mappingRecordService.updateAssociationMappingRecord(association, new Date(), performer);
+
+        log.info(" Mapping was successful ");
+        return mappingDto;
     }
 }

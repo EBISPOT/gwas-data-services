@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.gwas.service;
+package uk.ac.ebi.spot.gwas.service.mapping;
 
 import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
