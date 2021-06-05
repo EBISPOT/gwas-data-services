@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.gwas.service;
+package uk.ac.ebi.spot.gwas.service.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

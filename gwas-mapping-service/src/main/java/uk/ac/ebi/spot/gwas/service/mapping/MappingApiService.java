@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.gwas.service;
+package uk.ac.ebi.spot.gwas.service.mapping;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
