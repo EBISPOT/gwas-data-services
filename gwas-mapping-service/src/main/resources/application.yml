@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ''
+    username: ''
+    password: ''
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    hikari:
+      maximumPoolSize: 30
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+ensembl:
+  datasource:
+    driver-class: org.mariadb.jdbc.Driver
+    url: jdbc:mysql://useastdb.ensembl.org:3306
+  db_version: '99_38'
+  server: http://rest.ensembl.org
+
+mapping:
+  dbsnp_endpoint: /info/variation/homo_sapiens?content-type=application/json;filter=dbSNP
+  ensembl_source: Ensembl
+  gene_lookup_endpoint: lookup_symbol
+  genome_build_endpoint: /info/assembly/homo_sapiens?content-type=application/json
+  genomic_distance: 100000
+  maxSleepTime: 1000
+  method: Ensembl_pipeline
+  ncbi_db_type: otherfeatures
+  ncbi_logic_name: refseq_import
+  ncbi_source: NCBI
+  release_endpoint: /info/data/?content-type=application/json
+  requestCount: 0
+  requestPerSecond: 15
+  snp_lookup_endpoint: variation
+  version: 104
+  cache: /Users/abayomi/Documents
