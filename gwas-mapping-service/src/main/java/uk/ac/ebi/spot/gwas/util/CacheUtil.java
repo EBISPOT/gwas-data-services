@@ -89,6 +89,9 @@ public class CacheUtil {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String backup = cacheDir + String.format("backup-%s/%s", dateFormat.format(uniq), dataType.getFileLocation());
         try {
+            if (Files.exists(Paths.get(backup))) {
+                Files.delete(Paths.get(backup));
+            }
             if (Files.exists(Paths.get(fileName))) {
                 FileUtils.moveFile(FileUtils.getFile(fileName), FileUtils.getFile(backup));
             }
