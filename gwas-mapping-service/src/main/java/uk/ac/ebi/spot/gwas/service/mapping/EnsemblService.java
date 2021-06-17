@@ -6,11 +6,9 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
 import uk.ac.ebi.spot.gwas.dto.*;
-import uk.ac.ebi.spot.gwas.model.Association;
-import uk.ac.ebi.spot.gwas.model.Gene;
-import uk.ac.ebi.spot.gwas.model.Locus;
-import uk.ac.ebi.spot.gwas.model.SingleNucleotidePolymorphism;
+import uk.ac.ebi.spot.gwas.model.*;
 import uk.ac.ebi.spot.gwas.service.data.MappingRecordService;
+import uk.ac.ebi.spot.gwas.service.data.SecureUserRepository;
 import uk.ac.ebi.spot.gwas.service.data.SingleNucleotidePolymorphismQueryService;
 import uk.ac.ebi.spot.gwas.service.data.TrackingOperationService;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
@@ -36,12 +34,45 @@ public class EnsemblService {
     @Autowired
     private  DataSavingService dataSavingService;
     @Autowired
-    private SingleNucleotidePolymorphismQueryService singleNucleotidePolymorphismQueryService
+    private SingleNucleotidePolymorphismQueryService singleNucleotidePolymorphismQueryService;
 
     @Autowired
     private TrackingOperationService trackingOperationService;
     @Autowired
+    private SecureUserRepository secureUserRepository;
+    @Autowired
     private MappingRecordService mappingRecordService;
+    @Autowired
+    private DataLoadingService dataService;
+
+    private static final Integer API_BATCH_SIZE = 200;
+    private static final Integer DB_BATCH_SIZE = 1000;
+
+    public Object fullEnsemblRemapping() throws ExecutionException, InterruptedException, IOException {
+        log.info("Full remap commenced");
+        int threadSize = 15;
+
+        EnsemblData ensemblData = cacheEnsemblData(threadSize);
+        Association association = dataService.getOneAssocTest();
+        return this.mapAndSaveData(association, ensemblData);
+    }
+
+    public EnsemblData cacheEnsemblData(int threadSize) throws ExecutionException, InterruptedException, IOException{
+        MappingDto mappingDto = dataService.getSnpsLinkedToLocus(threadSize, DB_BATCH_SIZE);
+        List<String> snpRsIds = mappingDto.getSnpRsIds();
+        List<String> reportedGenes = mappingDto.getReportedGenes();
+        return this.loadMappingData(snpRsIds, reportedGenes, threadSize, API_BATCH_SIZE);
+    }
+
+
+
+
+
+
+
+
+
+
 
     public EnsemblData loadMappingData(List<String> snpRsIds,
                                        List<String> reportedGenes,
@@ -84,7 +115,6 @@ public class EnsemblService {
         ensemblOverlappingGenes.putAll(dataLoadingService.getOverlappingGenes(DataType.ENSEMBL_DOWNSTREAM_GENES, config.getEnsemblSource(), downStreamLocations));
         ncbiOverlappingGenes.putAll(dataLoadingService.getOverlappingGenes(DataType.NCBI_DOWNSTREAM_GENES, config.getNcbiSource(), downStreamLocations));
 
-
         return EnsemblData.builder()
                 .variations(variantMap)
                 .reportedGenes(reportedGeneMap)
@@ -121,6 +151,9 @@ public class EnsemblService {
         }
 
         dataSavingService.createAssociationReports(association, mappingDto);
+
+        SecureUser user = secureUserRepository.findByEmail("automatic_mapping_process");
+        String performer = "automatic_mapping_process";
 
         trackingOperationService.update(association, user, "ASSOCIATION_MAPPING");
         log.debug("Update mapping record");

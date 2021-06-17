@@ -89,5 +89,10 @@ public class AssociationService {
         return CompletableFuture.completedFuture(associations.getContent());
     }
 
+    public Association assocx(){
+        return associationRepository.findById(80771097L).get();
+    }
+
+
 }
 

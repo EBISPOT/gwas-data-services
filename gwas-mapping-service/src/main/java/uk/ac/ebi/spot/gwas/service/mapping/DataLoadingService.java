@@ -244,4 +244,13 @@ public class DataLoadingService {
         return associations;
     }
 
+    public Association getOneAssocTest() {
+
+        long start = System.currentTimeMillis();
+        Association association = service.assocx();
+
+        log.info("Total time {}", (System.currentTimeMillis() - start));
+        return association;
+    }
+
 }
