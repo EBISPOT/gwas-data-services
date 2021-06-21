@@ -8,7 +8,7 @@ spring:
     password: ''
     driver-class-name: oracle.jdbc.driver.OracleDriver
     hikari:
-      maximumPoolSize: 30
+      maximumPoolSize: 80
   jpa:
     hibernate:
       ddl-auto: none
