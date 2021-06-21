@@ -2,7 +2,13 @@ package uk.ac.ebi.spot.gwas.service.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
 import uk.ac.ebi.spot.gwas.dto.*;
@@ -18,12 +24,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
 public class EnsemblService {
-
 
     @Autowired
     private DataLoadingService dataLoadingService;
@@ -32,7 +39,7 @@ public class EnsemblService {
     @Autowired
     private DataMappingService dataMappingService;
     @Autowired
-    private  DataSavingService dataSavingService;
+    private DataSavingService dataSavingService;
     @Autowired
     private SingleNucleotidePolymorphismQueryService singleNucleotidePolymorphismQueryService;
 
@@ -47,31 +54,13 @@ public class EnsemblService {
 
     private static final Integer API_BATCH_SIZE = 200;
     private static final Integer DB_BATCH_SIZE = 1000;
+    private static final Integer THREAD_SIZE = 15;
 
-    public Object fullEnsemblRemapping() throws ExecutionException, InterruptedException, IOException {
-        log.info("Full remap commenced");
-        int threadSize = 15;
-
-        EnsemblData ensemblData = cacheEnsemblData(threadSize);
-        Association association = dataService.getOneAssocTest();
-        return this.mapAndSaveData(association, ensemblData);
-    }
-
-    public EnsemblData cacheEnsemblData(int threadSize) throws ExecutionException, InterruptedException, IOException{
-        MappingDto mappingDto = dataService.getSnpsLinkedToLocus(threadSize, DB_BATCH_SIZE);
+    public EnsemblData cacheEnsemblData(MappingDto mappingDto) throws ExecutionException, InterruptedException, IOException {
         List<String> snpRsIds = mappingDto.getSnpRsIds();
         List<String> reportedGenes = mappingDto.getReportedGenes();
-        return this.loadMappingData(snpRsIds, reportedGenes, threadSize, API_BATCH_SIZE);
+        return this.loadMappingData(snpRsIds, reportedGenes, THREAD_SIZE, API_BATCH_SIZE);
     }
-
-
-
-
-
-
-
-
-
 
 
     public EnsemblData loadMappingData(List<String> snpRsIds,
@@ -125,14 +114,16 @@ public class EnsemblService {
                 .build();
     }
 
-    public MappingDto mapAndSaveData(Association association, EnsemblData ensemblData) {
+    @Async("asyncExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<MappingDto> mapAndSaveData(Association association, EnsemblData ensemblData) {
 
-        log.info("commenced saving Association {} Data", association.getId());
+        log.info("commenced mapping and saving Association {} Data", association.getId());
         MappingDto mappingDto = MappingDto.builder().build();
         Collection<Locus> studyAssociationLoci = association.getLoci();
+
         for (Locus associationLocus : studyAssociationLoci) {
             Long locusId = associationLocus.getId();
-            log.info("Locus ID for this asscoiation {} is {}", association.getId(), locusId);
             Collection<SingleNucleotidePolymorphism> snpsLinkedToLocus = singleNucleotidePolymorphismQueryService.findByRiskAllelesLociId(locusId);
             Collection<Gene> authorReportedGenesLinkedToSnp = associationLocus.getAuthorReportedGenes();
 
@@ -142,7 +133,6 @@ public class EnsemblService {
                     authorReportedGeneNamesLinkedToSnp.add(g.getGeneName().trim());
                 }
             });
-            log.info("Reported Genes for this asscoiation {} ", authorReportedGeneNamesLinkedToSnp);
             for (SingleNucleotidePolymorphism snpLinkedToLocus : snpsLinkedToLocus) {
                 String snpRsId = snpLinkedToLocus.getRsId();
                 EnsemblMappingResult mappingResult = dataMappingService.mappingPipeline(ensemblData, snpRsId, authorReportedGeneNamesLinkedToSnp);
@@ -160,6 +150,6 @@ public class EnsemblService {
         mappingRecordService.updateAssociationMappingRecord(association, new Date(), performer);
 
         log.info(" Mapping was successful ");
-        return mappingDto;
+        return CompletableFuture.completedFuture(mappingDto);
     }
 }

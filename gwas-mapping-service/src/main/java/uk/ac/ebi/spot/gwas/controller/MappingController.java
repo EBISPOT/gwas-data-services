@@ -38,7 +38,7 @@ public class MappingController {
 
         MappingDto mappingDto = dataService.getSnpsLinkedToLocus(threadSize, dbBatchSize);
 
-        // List<Association> associations = dataService.getAssociationObjects(threadSize, dbBatchSize, mappingDto.getTotalPagesToMap());
+        List<Association> associations = dataService.getAssociationObjects(threadSize, dbBatchSize, mappingDto.getTotalPagesToMap());
         Association association = dataService.getOneAssocTest();
 
         List<String> snpRsIds = mappingDto.getSnpRsIds();
