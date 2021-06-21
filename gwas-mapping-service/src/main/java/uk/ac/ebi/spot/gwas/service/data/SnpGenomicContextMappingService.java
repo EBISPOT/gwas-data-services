@@ -90,7 +90,12 @@ public class SnpGenomicContextMappingService {
         for (GenomicContext genomicContext : genomicContexts) {
 
             // Check gene exists
-            String geneName = genomicContext.getGene().getGeneName().trim();
+            String geneName = "undefined";
+            try {
+                geneName = genomicContext.getGene().getGeneName().trim();
+            }catch (Exception e){
+                log.error(e.getMessage());
+            }
 
             if (!geneName.equalsIgnoreCase("undefined")) {
 
@@ -264,7 +269,12 @@ public class SnpGenomicContextMappingService {
                 for (GenomicContext genomicContextFromMapping : genomicContextsFromMapping) {
 
                     // Gene should already have been created
-                    String geneName = genomicContextFromMapping.getGene().getGeneName().trim();
+                    String geneName = "undefined";
+                    try {
+                        geneName = genomicContextFromMapping.getGene().getGeneName().trim();
+                    }catch (Exception e){
+                        log.error(e.getMessage());
+                    }
 
                     if (!geneName.equalsIgnoreCase("undefined")) {
 
