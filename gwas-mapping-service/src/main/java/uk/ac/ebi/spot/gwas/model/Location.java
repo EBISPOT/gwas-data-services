@@ -1,13 +1,12 @@
 package uk.ac.ebi.spot.gwas.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * Created by Laurent on 15/05/15.
+ */
 @Entity
 public class Location {
 

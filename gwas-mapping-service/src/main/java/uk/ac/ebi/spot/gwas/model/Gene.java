@@ -1,13 +1,17 @@
 package uk.ac.ebi.spot.gwas.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * Created by emma on 01/12/14.
+ *
+ * @author emma
+ *         <p>
+ *         A model object representing a gene and its attributes including associated single nucleotide polymorphisms
+ */
+
 @Entity
 public class Gene {
     @Id

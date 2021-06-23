@@ -1,13 +1,15 @@
 package uk.ac.ebi.spot.gwas.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import javax.persistence.*;
 import java.util.Collection;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * Created by emma on 09/02/15.
+ *
+ * @author emma
+ *         <p>
+ *         Model object representing a user
+ */
 @Entity
 public class SecureUser {
 
@@ -19,14 +21,12 @@ public class SecureUser {
     @Column(unique = true)
     private String email;
 
-    @JsonIgnore
     private String passwordHash;
 
     @OneToOne
     private SecureRole role;
 
     @OneToMany(mappedBy = "user")
-    @JsonIgnore
     private Collection<Event> events;
 
     // JPA no-args constructor
