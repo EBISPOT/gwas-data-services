@@ -1,15 +1,18 @@
 package uk.ac.ebi.spot.gwas.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.util.Collection;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * Created by emma on 01/12/14.
+ *
+ * @author emma
+ *         <p>
+ *         Model of name information associated with a SNP
+ */
 @Entity
 public class Region {
     @Id
@@ -62,8 +65,7 @@ public class Region {
         this.locations = locations;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "Region{" +
                 "id=" + id +
                 ", name='" + name + '\'' +

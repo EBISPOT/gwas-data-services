@@ -1,12 +1,11 @@
 package uk.ac.ebi.spot.gwas.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import javax.persistence.*;
 import java.util.Collection;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * Created by emma on 26/01/15.
+ */
 @Entity
 public class RiskAllele {
 
@@ -125,8 +124,7 @@ public class RiskAllele {
         return limitedList;
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "RiskAllele{" +
                 "id=" + id +
                 ", riskAlleleName='" + riskAlleleName + '\'' +
