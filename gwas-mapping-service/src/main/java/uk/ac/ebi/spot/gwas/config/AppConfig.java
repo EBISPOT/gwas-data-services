@@ -8,6 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AppConfig {
 
+
+    @Value("${ensembl.server}")
+    private String server;
+
     @Value("${mapping.genomic_distance}")
     private int genomicDistance; // 100kb
 
@@ -17,8 +21,17 @@ public class AppConfig {
     @Value("${mapping.ncbi_source}")
     private String ncbiSource;
 
+    @Value("${mapping.ncbi_logic_name}")
+    private String ncbiLogicName;
+
+    @Value("${mapping.ncbi_db_type}")
+    private String ncbiDbType;
+
     @Value("${mapping.method}")
     private String mappingMethod;
+
+    @Value("${mapping.version}")
+    private String eRelease;
 
     @Value("${mapping.cache}/${mapping.version}/")
     private String cacheDir;

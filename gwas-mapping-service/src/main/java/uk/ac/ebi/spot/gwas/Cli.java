@@ -7,17 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
-import uk.ac.ebi.spot.gwas.controller.MappingController;
 import uk.ac.ebi.spot.gwas.dto.EnsemblData;
-import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
 import uk.ac.ebi.spot.gwas.dto.MappingDto;
 import uk.ac.ebi.spot.gwas.model.Association;
-import uk.ac.ebi.spot.gwas.service.data.MappingRecordService;
-import uk.ac.ebi.spot.gwas.service.data.SecureUserRepository;
-import uk.ac.ebi.spot.gwas.service.data.SingleNucleotidePolymorphismQueryService;
-import uk.ac.ebi.spot.gwas.service.data.TrackingOperationService;
 import uk.ac.ebi.spot.gwas.service.mapping.DataLoadingService;
-import uk.ac.ebi.spot.gwas.service.mapping.DataMappingService;
 import uk.ac.ebi.spot.gwas.service.mapping.DataSavingService;
 import uk.ac.ebi.spot.gwas.service.mapping.EnsemblService;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
@@ -25,12 +18,9 @@ import uk.ac.ebi.spot.gwas.util.CommandUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -38,9 +28,13 @@ import java.util.stream.IntStream;
 public class Cli implements CommandLineRunner {
 
     @Autowired
+    private AppConfig config;
+    @Autowired
     private EnsemblService ensemblService;
     @Autowired
     private DataLoadingService dataService;
+    @Autowired
+    private DataSavingService dataSavingService;
 
     private static final Integer DB_BATCH_SIZE = 1000;
     private static final Integer THREAD_SIZE = 40;
@@ -60,8 +54,6 @@ public class Cli implements CommandLineRunner {
         boolean runCache = commandLine.hasOption(CommandUtil.CACHE_OPT);
         boolean runNight = commandLine.hasOption(CommandUtil.NIGHT_OPT);
         String performer = String.valueOf(commandLine.getArgList().get(0));
-
-        log.error("ugyugyugy");
 
         if (viewHelp) {
             help.printHelp(APP_COMMAND, options, true);
@@ -108,16 +100,15 @@ public class Cli implements CommandLineRunner {
             } catch (Exception e) {
                 log.error("Association was not mapped due to error {}", e.getMessage());
             }
-
             count += THREAD_SIZE;
             log.info("Finished Processing {} Association", count);
         }
 
         log.info("Total Association mapping time {}", (System.currentTimeMillis() - start));
+
+        dataSavingService.saveRestHistory(ensemblData, config.getERelease());
         return mappingDtoList;
     }
-
-
 }
 
 

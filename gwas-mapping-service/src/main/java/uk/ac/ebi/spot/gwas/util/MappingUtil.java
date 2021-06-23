@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.spot.gwas.dto.AssemblyInfo;
 import uk.ac.ebi.spot.gwas.dto.Mapping;
+import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 
 import java.util.ArrayList;
@@ -94,6 +95,12 @@ public class MappingUtil {
         return snpRsIds;
     }
 
+    public static RestResponseResult successResult(String url, String restResult){
+        return RestResponseResult.builder().status(200)
+                .url(url)
+                .restResult(restResult)
+                .build();
+    }
 
 }
 
