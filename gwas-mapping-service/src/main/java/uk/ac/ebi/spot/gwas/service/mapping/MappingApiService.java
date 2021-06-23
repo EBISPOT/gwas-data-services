@@ -6,7 +6,6 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -15,7 +14,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-import uk.ac.ebi.spot.gwas.constant.Location;
+import uk.ac.ebi.spot.gwas.config.AppConfig;
+import uk.ac.ebi.spot.gwas.constant.Uri;
 import uk.ac.ebi.spot.gwas.dto.*;
 
 import java.net.URI;
@@ -35,14 +35,8 @@ public class MappingApiService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${mapping.ncbi_source}")
-    private String ncbiSource;
-
-    @Value("${mapping.ncbi_logic_name}")
-    private String ncbiLogicName;
-
-    @Value("${mapping.ncbi_db_type}")
-    private String ncbiDbType;
+    @Autowired
+    private AppConfig config;
 
     public void setEnsemblCount(Integer ensemblCount) {
         this.ensemblCount += ensemblCount;
@@ -50,7 +44,7 @@ public class MappingApiService {
 
     public Map<String, List<OverlapRegion>> overlapBandRegion(String mappingLocation) throws InterruptedException {
 
-        String uri = String.format(Location.OVERLAP_BAND_REGION, mappingLocation);
+        String uri = String.format("%s/%s/%s", config.getServer(),Uri.OVERLAP_BAND_REGION, mappingLocation);
         List<OverlapRegion> overlapRegions = this.getRequest(uri)
                 .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapRegion>>() {}))
                 .orElseGet(ArrayList::new);
@@ -62,7 +56,7 @@ public class MappingApiService {
 
     // fix manip here
     public Map<String, AssemblyInfo> assemblyInfo(String chromosome) throws InterruptedException { // chromosomeEnd
-        String uri = String.format(Location.INFO_ASSEMBLY, chromosome);
+        String uri = String.format("%s/%s/%s", config.getServer(), Uri.INFO_ASSEMBLY, chromosome);
         Map<String, AssemblyInfo> assemblyInfoMap = new HashMap<>();
 
         AssemblyInfo assemblyInfo = this.getRequest(uri)
@@ -73,9 +67,9 @@ public class MappingApiService {
     }
 
     public Map<String, List<OverlapGene>> overlapGeneRegion(String mappingLocation, String source) throws InterruptedException { // Ensembl Overlapping Genes
-        String uri = String.format(Location.OVERLAPPING_GENE_REGION, mappingLocation);
-        if (source.equals(ncbiSource)) {
-            uri = String.format("%s&logic_name=%s&db_type=%s", uri, ncbiLogicName, ncbiDbType);
+        String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAPPING_GENE_REGION, mappingLocation);
+        if (source.equals(config.getNcbiSource())) {
+            uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());
         }
 
         Map<String, List<OverlapGene>> geneOverlap = new HashMap<>();
@@ -88,7 +82,7 @@ public class MappingApiService {
 
     public Map<String, Variation> variationGet(String snpRsId) throws InterruptedException {
         Map<String, Variation> variationMap = new HashMap<>();
-        String uri = String.format("%s/%s", Location.VARIATION, snpRsId);
+        String uri = String.format("%s/%s/%s", config.getServer(), Uri.VARIATION, snpRsId);
 
         Variation variation = this.getRequest(uri)
                 .map(response -> mapper.convertValue(response.getBody(), Variation.class))
@@ -102,7 +96,7 @@ public class MappingApiService {
     public CompletableFuture<Map<String, Variation>> variationPost(List<String> snpRsIds) {
         List<Object> cleaned = snpRsIds.stream().map(String::trim).collect(Collectors.toList());
         log.info("Start getting next {} snp rsIds from Ensembl", cleaned.size());
-        Object response = postRequest(Collections.singletonMap("ids", cleaned), Location.VARIATION);
+        Object response = postRequest(Collections.singletonMap("ids", cleaned), String.format("%s/%s", config.getServer(), Uri.VARIATION));
         Map<String, Variation> variantMap = mapper.convertValue(response, new TypeReference<Map<String, Variation>>() {});
 
         setEnsemblCount(cleaned.size());
@@ -114,7 +108,8 @@ public class MappingApiService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<Map<String, GeneSymbol>> geneSymbolPost(List<String> reportedGenes) {
         log.info("Start getting next {} reported geneIds from Ensembl", reportedGenes.size());
-        Object response = postRequest(Collections.singletonMap("symbols", reportedGenes), Location.REPORTED_GENES);
+        Object response = postRequest(Collections.singletonMap("symbols", reportedGenes),
+                                      String.format("%s/%s", config.getServer(), Uri.REPORTED_GENES));
         Map<String, GeneSymbol> geneMap = mapper.convertValue(response, new TypeReference<Map<String, GeneSymbol>>() {});
 
         setEnsemblCount(reportedGenes.size());

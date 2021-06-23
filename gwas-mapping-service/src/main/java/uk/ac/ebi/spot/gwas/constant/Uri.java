@@ -1,16 +1,16 @@
 package uk.ac.ebi.spot.gwas.constant;
 
-public class Location {
+public class Uri {
 
-    public static final String VARIATION = "https://rest.ensembl.org/variation/homo_sapiens";
+    public static final String VARIATION = "variation/homo_sapiens";
 
-    public static final String REPORTED_GENES = "https://rest.ensembl.org/lookup/symbol/homo_sapiens";
+    public static final String REPORTED_GENES = "lookup/symbol/homo_sapiens";
 
-    public static final String OVERLAP_BAND_REGION = "https://rest.ensembl.org/overlap/region/homo_sapiens/%s?feature=band";
+    public static final String OVERLAP_BAND_REGION = "overlap/region/homo_sapiens/%s?feature=band";
 
-    public static final String INFO_ASSEMBLY = "https://rest.ensembl.org/info/assembly/homo_sapiens/%s";
+    public static final String INFO_ASSEMBLY = "info/assembly/homo_sapiens/%s";
 
-    public static final String OVERLAPPING_GENE_REGION = "https://rest.ensembl.org/overlap/region/homo_sapiens/%s?feature=gene";
+    public static final String OVERLAPPING_GENE_REGION = "overlap/region/homo_sapiens/%s?feature=gene";
 
     public static final String VARIATION_FILE = "variants.json";
 
@@ -32,7 +32,7 @@ public class Location {
 
     public static final String NCBI_DOWNSTREAM_FILE = "ncbi-downstream-genes.json";
 
-    private Location(){
+    private Uri(){
         // Never called
     }
 
