@@ -73,6 +73,14 @@ public class MappingUtil {
         return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
     }
 
+    public static List<String> removeBlackListedVariants(List<String> snpRsIds){
+        snpRsIds.removeIf(s -> s.contains("chr"));
+        snpRsIds.removeIf(s -> s.contains("exm"));
+        snpRsIds.removeIf(s -> s.contains("drb"));
+        return snpRsIds;
+    }
+
+
 }
 
 
