@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.spot.gwas.model.Association;
 import uk.ac.ebi.spot.gwas.projection.MappingProjection;
+
 import java.util.List;
 
 @Repository
@@ -15,4 +16,9 @@ public interface AssociationRepository extends JpaRepository<Association, Long> 
             " FROM Association as association")
     List<MappingProjection> findAllWithFewAttributes(Pageable pageable);
 
+    @Query("select association.id as associationId" +
+            " FROM Association as association where association.lastMappingDate is null ")
+    List<MappingProjection> findUnmappedWithFewAttributes(Pageable pageable);
+
+    List<Association> findBylastMappingDateIsNull(Pageable pageable);
 }

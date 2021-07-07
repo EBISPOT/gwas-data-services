@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.gwas.service.mapping;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
@@ -12,6 +13,9 @@ import uk.ac.ebi.spot.gwas.service.data.*;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -119,6 +123,10 @@ public class DataSavingService {
     }
 
 
+    public void createErrors(Association association){
+        associationReportService.processAssociationErrors(association, new ArrayList<>());
+    }
+
     void createAssociationReports(Association association, MappingDto mappingDto) {
 
         Collection<GenomicContext> allGenomicContexts = mappingDto.getAllGenomicContexts();
@@ -130,7 +138,7 @@ public class DataSavingService {
             log.info("Processing association errors");
             associationReportService.processAssociationErrors(association, associationPipelineErrors);
         } else {
-            log.info("Updating association details");
+            log.info("Updating association details with Reports");
             associationReportService.updateAssociationReportDetails(association);
         }
 
@@ -146,10 +154,11 @@ public class DataSavingService {
             log.info("Updating genomic context details complete");
         }
     }
-    
 
-    public void saveRestHistory(EnsemblData ensembleData, String eRelease) {
-        
+
+    public void saveRestHistory(EnsemblData ensembleData, String eRelease, int threadSize) throws ExecutionException, InterruptedException {
+
+        log.info(" Commence aggregating variation Rest History");
         List<EnsemblRestcallHistory> histories = new ArrayList<>();
         ensembleData.getVariations().forEach((snpRsId, variation) -> {
             if (variation.getMappings() != null) {
@@ -159,41 +168,61 @@ public class DataSavingService {
             }
         });
 
+        log.info(" Commence aggregating reported Gene Rest History");
         ensembleData.getReportedGenes().forEach((gene, geneSymbol) -> {
             String url = String.format("%s/%s", config.getServer(), Uri.REPORTED_GENES);
             RestResponseResult result = MappingUtil.successResult(url, geneSymbol.toString());
             histories.add(historyService.build(result, "lookup_symbol", gene, eRelease));
         });
 
+        log.info(" Commence aggregating assemblyInfo Rest History");
         ensembleData.getAssemblyInfo().forEach((chromosome, assemblyInfo) -> {
             String url = String.format("%s/%s/%s", config.getServer(), Uri.INFO_ASSEMBLY, chromosome);
             RestResponseResult result = MappingUtil.successResult(url, assemblyInfo.toString());
-            histories.add(historyService.create(result, "info_assembly", chromosome, eRelease));
+            histories.add(historyService.build(result, "info_assembly", chromosome, eRelease));
         });
 
+        log.info(" Commence aggregating cytogenetic band Rest History");
         ensembleData.getCytoGeneticBand().forEach((location, overlapRegions) -> {
-            String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAP_BAND_REGION, location);
             String param = String.format("%s?feature=band", location);
+            String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAP_BAND_REGION, param);
             RestResponseResult result = MappingUtil.successResult(uri, String.valueOf(overlapRegions));
-            histories.add(historyService.create(result, "overlap_region", param, eRelease));
+            histories.add(historyService.build(result, "overlap_region", param, eRelease));
         });
 
+        log.info(" Commence aggregating ensembl overlapping gene Rest History");
         ensembleData.getEnsemblOverlapGene().forEach((location, overlapGenes) -> {
-            String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAPPING_GENE_REGION, location);
             String param = String.format("%s?feature=gene", location);
+            String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAPPING_GENE_REGION, param);
             RestResponseResult result = MappingUtil.successResult(uri, String.valueOf(overlapGenes));
-            histories.add(historyService.create(result, "overlap_region", param, eRelease));
+            histories.add(historyService.build(result, "overlap_region", param, eRelease));
         });
 
+        log.info(" Commence aggregating ncbi overlapping gene Rest History");
         ensembleData.getNcbiOverlapGene().forEach((location, overlapGenes) -> {
             String param = String.format("%s?feature=gene", location);
-            String uri = String.format("%s&logic_name=%s&db_type=%s", param, config.getNcbiLogicName(), config.getNcbiDbType());
+            String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAPPING_GENE_REGION, param);
+            uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());
             RestResponseResult result = MappingUtil.successResult(uri, String.valueOf(overlapGenes));
-            histories.add(historyService.create(result, "overlap_region", param, eRelease));
+            histories.add(historyService.build(result, "overlap_region", param, eRelease));
         });
+        log.info("Saving {} ensembl call histories in batch ", histories.size());
 
-        historyService.create(histories);
+        List<EnsemblRestcallHistory> restcallHistories = new ArrayList<>();
+
+        int batchSize = 10;
+        int partitionSize = threadSize * batchSize;
+        for (List<EnsemblRestcallHistory> dataPartition : ListUtils.partition(histories, partitionSize)) {
+            List<CompletableFuture<List<EnsemblRestcallHistory>>> futureList = ListUtils.partition(dataPartition, batchSize)
+                    .stream()
+                    .map(listPart -> historyService.create(listPart)).collect(Collectors.toList());
+
+            CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
+            for (CompletableFuture<List<EnsemblRestcallHistory>> future : futureList) {
+                restcallHistories.addAll(future.get());
+            }
+            log.info("Finished Processing {} History", restcallHistories.size());
+        }
     }
-
 
 }

@@ -44,7 +44,7 @@ public class MappingApiService {
 
     public Map<String, List<OverlapRegion>> overlapBandRegion(String mappingLocation) throws InterruptedException {
 
-        String uri = String.format("%s/%s/%s", config.getServer(),Uri.OVERLAP_BAND_REGION, mappingLocation);
+        String uri = String.format("%s/%s/%s?feature=band", config.getServer(),Uri.OVERLAP_BAND_REGION, mappingLocation);
         List<OverlapRegion> overlapRegions = this.getRequest(uri)
                 .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapRegion>>() {}))
                 .orElseGet(ArrayList::new);
@@ -67,7 +67,7 @@ public class MappingApiService {
     }
 
     public Map<String, List<OverlapGene>> overlapGeneRegion(String mappingLocation, String source) throws InterruptedException { // Ensembl Overlapping Genes
-        String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAPPING_GENE_REGION, mappingLocation);
+        String uri = String.format("%s/%s/%s?feature=gene", config.getServer(), Uri.OVERLAPPING_GENE_REGION, mappingLocation);
         if (source.equals(config.getNcbiSource())) {
             uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());
         }
