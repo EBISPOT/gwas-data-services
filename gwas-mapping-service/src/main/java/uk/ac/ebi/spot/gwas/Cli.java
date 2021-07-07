@@ -17,6 +17,7 @@ import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -38,7 +39,8 @@ public class Cli implements CommandLineRunner {
 
     private static final Integer DB_BATCH_SIZE = 1000;
     private static final Integer THREAD_SIZE = 40;
-    private static final String APP_COMMAND = "java -jar gwas-mapping-service.jar";
+    private static final Integer MAPPING_THREAD_SIZE = 1;
+    private static final String APP_COMMAND = "java -jar gwas-mapping-service.jar -m automatic_mapping_process";
     private final CommandLineParser parser = new DefaultParser();
     private final HelpFormatter help = new HelpFormatter();
     private final Options options = CommandUtil.bindOptions();
@@ -74,25 +76,25 @@ public class Cli implements CommandLineRunner {
         log.info("Application executed successfully!");
     }
 
-
     public Object fullEnsemblRemapping() throws ExecutionException, InterruptedException, IOException {
         log.info("Full remap commenced");
         long start = System.currentTimeMillis();
 
-        MappingDto mappingDto = dataService.getSnpsLinkedToLocus(THREAD_SIZE, DB_BATCH_SIZE);
+        MappingDto mappingDto = dataService.getSnpsLinkedToLocus(THREAD_SIZE, DB_BATCH_SIZE, CommandUtil.MAPPING_OPT);
         EnsemblData ensemblData = ensemblService.cacheEnsemblData(mappingDto);
-        List<Association> associations = dataService.getAssociationObjects(THREAD_SIZE, DB_BATCH_SIZE, mappingDto.getTotalPagesToMap());
+        List<Association> associations = dataService.getAssociationObjects(THREAD_SIZE,
+                                                                           DB_BATCH_SIZE,
+                                                                           mappingDto.getTotalPagesToMap(),
+                                                                           CommandUtil.MAPPING_OPT);
 
         List<MappingDto> mappingDtoList = new ArrayList<>();
-        int count = THREAD_SIZE;
-        for (List<Association> associationList : ListUtils.partition(associations, THREAD_SIZE)) {
-
+        int count = MAPPING_THREAD_SIZE;
+        for (List<Association> associationList : ListUtils.partition(associations, MAPPING_THREAD_SIZE)) {
             try {
                 List<CompletableFuture<MappingDto>> futureList =
                         associationList.stream()
                                 .map(association -> ensemblService.mapAndSaveData(association, ensemblData))
                                 .collect(Collectors.toList());
-
                 CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
                 for (CompletableFuture<MappingDto> future : futureList) {
                     mappingDtoList.add(future.get());
@@ -100,13 +102,15 @@ public class Cli implements CommandLineRunner {
             } catch (Exception e) {
                 log.error("Association was not mapped due to error {}", e.getMessage());
             }
-            count += THREAD_SIZE;
+            count += MAPPING_THREAD_SIZE;
             log.info("Finished Processing {} Association", count);
         }
 
         log.info("Total Association mapping time {}", (System.currentTimeMillis() - start));
 
-        dataSavingService.saveRestHistory(ensemblData, config.getERelease());
+       // dataSavingService.saveRestHistory(ensemblData, config.getERelease(), THREAD_SIZE);
+
+        log.info("Full Remapping Done {}", associations.size());
         return mappingDtoList;
     }
 }

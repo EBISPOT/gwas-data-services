@@ -1,8 +1,12 @@
 package uk.ac.ebi.spot.gwas.service.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.model.EnsemblRestcallHistory;
 import uk.ac.ebi.spot.gwas.repository.EnsemblRestcallHistoryRepository;
@@ -10,7 +14,9 @@ import uk.ac.ebi.spot.gwas.repository.EnsemblRestcallHistoryRepository;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 public class EnsemblRestcallHistoryService {
 
@@ -55,8 +61,18 @@ public class EnsemblRestcallHistoryService {
         return ensemblRestcallHistory;
     }
 
-    public List<EnsemblRestcallHistory> create(List<EnsemblRestcallHistory> ensemblRestcallHistories) {
-        return ensemblRestcallHistoryRepository.saveAll(ensemblRestcallHistories);
+    @Async("asyncExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<EnsemblRestcallHistory> create(EnsemblRestcallHistory ensemblRestcallHistory) {
+        EnsemblRestcallHistory history = ensemblRestcallHistoryRepository.save(ensemblRestcallHistory);
+        return CompletableFuture.completedFuture(history);
+    }
+
+    @Async("asyncExecutor")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CompletableFuture<List<EnsemblRestcallHistory>> create(List<EnsemblRestcallHistory> ensemblRestcallHistory) {
+        List<EnsemblRestcallHistory> history = ensemblRestcallHistoryRepository.saveAll(ensemblRestcallHistory);
+        return CompletableFuture.completedFuture(history);
     }
 
     public EnsemblRestcallHistory build(RestResponseResult result, String type, String param, String eRelease) {

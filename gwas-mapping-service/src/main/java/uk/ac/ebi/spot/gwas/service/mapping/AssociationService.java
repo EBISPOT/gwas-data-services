@@ -18,6 +18,7 @@ import uk.ac.ebi.spot.gwas.repository.AssociationRepository;
 import uk.ac.ebi.spot.gwas.repository.GeneRepository;
 import uk.ac.ebi.spot.gwas.repository.LocusRepository;
 import uk.ac.ebi.spot.gwas.repository.SingleNucleotidePolymorphismRepository;
+import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,13 +47,19 @@ public class AssociationService {
 
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<MappingDto> getAssociationsBatch(int start, int size) {
+    public CompletableFuture<MappingDto> getAssociationsBatch(int start, int size, String mapType) {
 
         log.info("Get data part {} : {} starts", start, size);
         Pageable pageable = PageRequest.of(start, size);
 
         List<Long> associationIds = new ArrayList<>();
-        List<MappingProjection> associations = associationRepository.findAllWithFewAttributes(pageable);
+        List<MappingProjection> associations;
+        if (mapType.equals(CommandUtil.MAPPING_OPT)) {
+            associations = associationRepository.findUnmappedWithFewAttributes(pageable);
+        } else {
+            associations = associationRepository.findAllWithFewAttributes(pageable);
+        }
+
         associations.forEach(association -> associationIds.add(association.getAssociationId()));
 
         List<MappingProjection> authorReportedGeneNames = generepository.findUsingAssociationIds(associationIds);
@@ -81,18 +88,25 @@ public class AssociationService {
 
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<List<Association>> getAssociations(int start, int size) {
+    public CompletableFuture<List<Association>> getAssociations(int start, int size, String mapType) {
         log.info("Get association {} : {} starts", start, size);
         Pageable pageable = PageRequest.of(start, size);
-        Page<Association> associations = associationRepository.findAll(pageable);
+
+        List<Association> associations;
+        if (mapType.equals(CommandUtil.MAPPING_OPT)) {
+            associations = associationRepository.findBylastMappingDateIsNull(pageable);
+        } else {
+            Page<Association> associationPages = associationRepository.findAll(pageable);
+            associations = associationPages.getContent();
+        }
+
         log.info("Get association {} : {} ends", start, size);
-        return CompletableFuture.completedFuture(associations.getContent());
+        return CompletableFuture.completedFuture(associations);
     }
 
-    public Association assocx(){
-        return associationRepository.findById(80771097L).get();
+    public Association assocx() {
+        return associationRepository.findById(87272585L).get();
     }
-
 
 }
 

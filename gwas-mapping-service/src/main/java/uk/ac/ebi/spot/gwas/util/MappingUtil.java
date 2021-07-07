@@ -23,7 +23,7 @@ public class MappingUtil {
     }
 
     public static void statusLog(String dataType, int count, int total) {
-        if (count % 20 == 0 || total - count < 20) {
+        if (count % 200 == 0 || total - count < 200) {
             log.info("Got {} {} data out of {}", count, dataType,  total);
         }
     }

@@ -39,16 +39,12 @@ public class DataLoadingService {
 
         long start = System.currentTimeMillis();
         Map<String, Variation> cached = CacheUtil.variation(DataType.VARIATION, cacheDir);
-        Map<String, Variation> report = new HashMap<>();
         int partitionSize = threadSize * batchSize;
 
         List<String> getFromApi = new ArrayList<>();
         for (String snpRsId : snpRsIds) {
             Variation variation = cached.get(snpRsId.trim());
-            if (variation != null) {
-                report.putAll(Collections.singletonMap(snpRsId, variation));
-                log.info("found {}", snpRsId);
-            } else {
+            if (variation == null) {
                 log.info("not found {}", snpRsId);
                 getFromApi.add(snpRsId);
             }
@@ -62,12 +58,12 @@ public class DataLoadingService {
 
             CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
             for (CompletableFuture<Map<String, Variation>> future : futureList) {
-                report.putAll(future.get());
+                cached.putAll(future.get());
             }
-            CacheUtil.saveToFile(DataType.VARIATION, cacheDir, report);
+            CacheUtil.saveToFile(DataType.VARIATION, cacheDir, cached);
         }
         log.info("Total variation api call time {}", (System.currentTimeMillis() - start));
-        return report;
+        return cached;
     }
 
     public Map<String, Variation> getVariationsWhoseRsidHasChanged(Map<String, Variation> variantMap, List<String> snpRsIds) throws InterruptedException {
@@ -92,15 +88,12 @@ public class DataLoadingService {
 
         long start = System.currentTimeMillis();
         Map<String, GeneSymbol> cached = CacheUtil.reportedGenes(DataType.REPORTED_GENES, cacheDir);
-        Map<String, GeneSymbol> report = new HashMap<>();
         int partitionSize = threadSize * batchSize;
 
         List<String> getFromApi = new ArrayList<>();
         for (String snpRsId : snpRsIds) {
             GeneSymbol geneSymbol = cached.get(snpRsId.trim());
-            if (geneSymbol != null) {
-                report.putAll(Collections.singletonMap(snpRsId, geneSymbol));
-            } else {
+            if (geneSymbol == null) {
                 getFromApi.add(snpRsId);
             }
         }
@@ -109,52 +102,44 @@ public class DataLoadingService {
             List<CompletableFuture<Map<String, GeneSymbol>>> futureList = ListUtils.partition(dataPartition, batchSize)
                     .stream()
                     .map(listPart -> mappingApiService.geneSymbolPost(listPart)).collect(Collectors.toList());
-
             CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
             for (CompletableFuture<Map<String, GeneSymbol>> future : futureList) {
-                report.putAll(future.get());
+                cached.putAll(future.get());
             }
         }
         log.info("Total reported gene api call time {}", (System.currentTimeMillis() - start));
-        CacheUtil.saveToFile(DataType.REPORTED_GENES, cacheDir, report);
-        return report;
+        CacheUtil.saveToFile(DataType.REPORTED_GENES, cacheDir, cached);
+        return cached;
     }
 
     public Map<String, List<OverlapRegion>> getCytoGeneticBands(DataType dataType, List<String> locations) throws InterruptedException {
         int count = 1;
         Map<String, List<OverlapRegion>> cached = CacheUtil.cytoGeneticBand(dataType, cacheDir);
-        Map<String, List<OverlapRegion>> cytoGeneticBand = new HashMap<>();
 
         for (String location : locations) {
             List<OverlapRegion> regions = cached.get(location);
             if (regions == null) {
-                cytoGeneticBand.putAll(mappingApiService.overlapBandRegion(location));
-            } else {
-                cytoGeneticBand.putAll(Collections.singletonMap(location, regions));
+                cached.putAll(mappingApiService.overlapBandRegion(location));
             }
             MappingUtil.statusLog(dataType.name(), count++, locations.size());
         }
-        CacheUtil.saveToFile(dataType, cacheDir, cytoGeneticBand);
-        return cytoGeneticBand;
+        CacheUtil.saveToFile(dataType, cacheDir, cached);
+        return cached;
     }
 
 
     public Map<String, AssemblyInfo> getAssemblyInfo(DataType dataType, List<String> chromosomes) throws InterruptedException { // Get Chromosome End
         int count = 1;
         Map<String, AssemblyInfo> cached = CacheUtil.assemblyInfo(dataType, cacheDir);
-        Map<String, AssemblyInfo> assemblyInfos = new HashMap<>();
-
         for (String chromosome : chromosomes) {
             AssemblyInfo assemblyInfo = cached.get(chromosome);
             if (assemblyInfo == null) {
-                assemblyInfos.putAll(mappingApiService.assemblyInfo(chromosome));
-            } else {
-                assemblyInfos.putAll(Collections.singletonMap(chromosome, assemblyInfo));
+                cached.putAll(mappingApiService.assemblyInfo(chromosome));
             }
             MappingUtil.statusLog(dataType.name(), count++, chromosomes.size());
         }
-        CacheUtil.saveToFile(dataType, cacheDir, assemblyInfos);
-        return assemblyInfos;
+        CacheUtil.saveToFile(dataType, cacheDir, cached);
+        return cached;
     }
 
     public Map<String, List<OverlapGene>> getOverlappingGenes(DataType dataType,
@@ -162,22 +147,18 @@ public class DataLoadingService {
                                                               List<String> locations) throws InterruptedException {
         int count = 1;
         Map<String, List<OverlapGene>> cached = CacheUtil.overlappingGenes(dataType, cacheDir);
-        Map<String, List<OverlapGene>> overlappingGenes = new HashMap<>();
-
         for (String location : locations) {
             List<OverlapGene> genes = cached.get(location);
             if (genes == null) {
-                overlappingGenes.putAll(mappingApiService.overlapGeneRegion(location, source));
-            } else {
-                overlappingGenes.putAll(Collections.singletonMap(location, genes));
+                cached.putAll(mappingApiService.overlapGeneRegion(location, source));
             }
             MappingUtil.statusLog(dataType.name(), count++, locations.size());
         }
-        CacheUtil.saveToFile(dataType, cacheDir, overlappingGenes);
-        return overlappingGenes;
+        CacheUtil.saveToFile(dataType, cacheDir, cached);
+        return cached;
     }
 
-    public MappingDto getSnpsLinkedToLocus(int threadSize, int batchSize) throws ExecutionException, InterruptedException {
+    public MappingDto getSnpsLinkedToLocus(int threadSize, int batchSize, String mapType) throws ExecutionException, InterruptedException {
         int pageStart = 0;
         int pageEnd = threadSize;
         long start = System.currentTimeMillis();
@@ -192,7 +173,7 @@ public class DataLoadingService {
 
             List<CompletableFuture<MappingDto>> futureList =
                     dataPages.stream()
-                            .map(dataPage -> service.getAssociationsBatch(dataPage, batchSize)).collect(Collectors.toList());
+                            .map(dataPage -> service.getAssociationsBatch(dataPage, batchSize, mapType)).collect(Collectors.toList());
 
             CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
             for (CompletableFuture<MappingDto> future : futureList) {
@@ -218,7 +199,9 @@ public class DataLoadingService {
                 .reportedGenes(reportedGenes).build();
     }
 
-    public List<Association> getAssociationObjects(int threadSize, int batchSize, int totalPages) throws ExecutionException, InterruptedException {
+    public List<Association> getAssociationObjects(int threadSize,
+                                                   int batchSize,
+                                                   int totalPages, String mapType) throws ExecutionException, InterruptedException {
         int pageStart = 0;
         int pageEnd = threadSize;
         long start = System.currentTimeMillis();
@@ -230,7 +213,7 @@ public class DataLoadingService {
 
             List<CompletableFuture<List<Association>>> futureList =
                     dataPages.stream()
-                            .map(dataPage -> service.getAssociations(dataPage, batchSize)).collect(Collectors.toList());
+                            .map(dataPage -> service.getAssociations(dataPage, batchSize, mapType)).collect(Collectors.toList());
 
             CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
             for (CompletableFuture<List<Association>> future : futureList) {
@@ -252,5 +235,4 @@ public class DataLoadingService {
         log.info("Total time {}", (System.currentTimeMillis() - start));
         return association;
     }
-
 }

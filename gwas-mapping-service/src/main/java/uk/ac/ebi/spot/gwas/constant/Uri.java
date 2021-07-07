@@ -6,11 +6,11 @@ public class Uri {
 
     public static final String REPORTED_GENES = "lookup/symbol/homo_sapiens";
 
-    public static final String OVERLAP_BAND_REGION = "overlap/region/homo_sapiens/%s?feature=band";
+    public static final String OVERLAP_BAND_REGION = "overlap/region/homo_sapiens";
 
-    public static final String INFO_ASSEMBLY = "info/assembly/homo_sapiens/%s";
+    public static final String INFO_ASSEMBLY = "info/assembly/homo_sapiens";
 
-    public static final String OVERLAPPING_GENE_REGION = "overlap/region/homo_sapiens/%s?feature=gene";
+    public static final String OVERLAPPING_GENE_REGION = "overlap/region/homo_sapiens";
 
     public static final String VARIATION_FILE = "variants.json";
 
