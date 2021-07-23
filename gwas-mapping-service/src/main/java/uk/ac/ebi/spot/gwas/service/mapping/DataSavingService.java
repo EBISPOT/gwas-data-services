@@ -1,5 +1,7 @@
 package uk.ac.ebi.spot.gwas.service.mapping;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,56 +158,87 @@ public class DataSavingService {
     }
 
 
-    public void saveRestHistory(EnsemblData ensembleData, String eRelease, int threadSize) throws ExecutionException, InterruptedException {
+    public void saveRestHistory(EnsemblData ensembleData,
+                                String eRelease,
+                                int threadSize) throws ExecutionException, InterruptedException, JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
 
         log.info(" Commence aggregating variation Rest History");
         List<EnsemblRestcallHistory> histories = new ArrayList<>();
-        ensembleData.getVariations().forEach((snpRsId, variation) -> {
+        for (Map.Entry<String, Variation> entry : ensembleData.getVariations().entrySet()) {
+            String snpRsId = entry.getKey();
+            Variation variation = entry.getValue();
             if (variation.getMappings() != null) {
                 String url = String.format("%s/%s/%s", config.getServer(), Uri.VARIATION, snpRsId);
-                RestResponseResult result = MappingUtil.successResult(url, variation.toString());
+                RestResponseResult result = MappingUtil.successResult(url, mapper.writeValueAsString(variation));
                 histories.add(historyService.build(result, "snp", snpRsId, eRelease));
             }
-        });
+        }
+        this.save(histories, threadSize);
 
+        histories = new ArrayList<>();
         log.info(" Commence aggregating reported Gene Rest History");
-        ensembleData.getReportedGenes().forEach((gene, geneSymbol) -> {
+        for (Map.Entry<String, GeneSymbol> entry : ensembleData.getReportedGenes().entrySet()) {
+            String gene = entry.getKey();
+            GeneSymbol geneSymbol = entry.getValue();
             String url = String.format("%s/%s", config.getServer(), Uri.REPORTED_GENES);
-            RestResponseResult result = MappingUtil.successResult(url, geneSymbol.toString());
+            RestResponseResult result = MappingUtil.successResult(url, mapper.writeValueAsString(geneSymbol));
             histories.add(historyService.build(result, "lookup_symbol", gene, eRelease));
-        });
+        }
+        this.save(histories, threadSize);
 
+        histories = new ArrayList<>();
         log.info(" Commence aggregating assemblyInfo Rest History");
-        ensembleData.getAssemblyInfo().forEach((chromosome, assemblyInfo) -> {
+        for (Map.Entry<String, AssemblyInfo> entry : ensembleData.getAssemblyInfo().entrySet()) {
+            String chromosome = entry.getKey();
+            AssemblyInfo assemblyInfo = entry.getValue();
             String url = String.format("%s/%s/%s", config.getServer(), Uri.INFO_ASSEMBLY, chromosome);
-            RestResponseResult result = MappingUtil.successResult(url, assemblyInfo.toString());
+            RestResponseResult result = MappingUtil.successResult(url, mapper.writeValueAsString(assemblyInfo));
             histories.add(historyService.build(result, "info_assembly", chromosome, eRelease));
-        });
+        }
+        this.save(histories, threadSize);
 
+        histories = new ArrayList<>();
         log.info(" Commence aggregating cytogenetic band Rest History");
-        ensembleData.getCytoGeneticBand().forEach((location, overlapRegions) -> {
-            String param = String.format("%s?feature=band", location);
+        for (Map.Entry<String, List<OverlapRegion>> entry : ensembleData.getCytoGeneticBand().entrySet()) {
+            String key = entry.getKey();
+            List<OverlapRegion> overlapRegions = entry.getValue();
+            String param = String.format("%s?feature=band", key);
             String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAP_BAND_REGION, param);
-            RestResponseResult result = MappingUtil.successResult(uri, String.valueOf(overlapRegions));
+            RestResponseResult result = MappingUtil.successResult(uri, mapper.writeValueAsString(overlapRegions));
             histories.add(historyService.build(result, "overlap_region", param, eRelease));
-        });
+        }
+        this.save(histories, threadSize);
 
+        histories = new ArrayList<>();
         log.info(" Commence aggregating ensembl overlapping gene Rest History");
-        ensembleData.getEnsemblOverlapGene().forEach((location, overlapGenes) -> {
-            String param = String.format("%s?feature=gene", location);
+        for (Map.Entry<String, List<OverlapGene>> entry : ensembleData.getEnsemblOverlapGene().entrySet()) {
+            String key = entry.getKey();
+            List<OverlapGene> value = entry.getValue();
+            String param = String.format("%s?feature=gene", key);
             String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAPPING_GENE_REGION, param);
-            RestResponseResult result = MappingUtil.successResult(uri, String.valueOf(overlapGenes));
+            RestResponseResult result = MappingUtil.successResult(uri, mapper.writeValueAsString(value));
             histories.add(historyService.build(result, "overlap_region", param, eRelease));
-        });
+        }
+        this.save(histories, threadSize);
 
+        histories = new ArrayList<>();
         log.info(" Commence aggregating ncbi overlapping gene Rest History");
-        ensembleData.getNcbiOverlapGene().forEach((location, overlapGenes) -> {
+        for (Map.Entry<String, List<OverlapGene>> entry : ensembleData.getNcbiOverlapGene().entrySet()) {
+            String location = entry.getKey();
+            List<OverlapGene> overlapGenes = entry.getValue();
             String param = String.format("%s?feature=gene", location);
             String uri = String.format("%s/%s/%s", config.getServer(), Uri.OVERLAPPING_GENE_REGION, param);
             uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());
-            RestResponseResult result = MappingUtil.successResult(uri, String.valueOf(overlapGenes));
+            RestResponseResult result = MappingUtil.successResult(uri, mapper.writeValueAsString(overlapGenes));
             histories.add(historyService.build(result, "overlap_region", param, eRelease));
-        });
+        }
+        this.save(histories, threadSize);
+
+    }
+
+    void save(List<EnsemblRestcallHistory> histories, int threadSize) throws ExecutionException, InterruptedException {
         log.info("Saving {} ensembl call histories in batch ", histories.size());
 
         List<EnsemblRestcallHistory> restcallHistories = new ArrayList<>();
