@@ -157,7 +157,6 @@ public class DataSavingService {
         }
     }
 
-
     public void saveRestHistory(EnsemblData ensembleData,
                                 String eRelease,
                                 int threadSize) throws ExecutionException, InterruptedException, JsonProcessingException {

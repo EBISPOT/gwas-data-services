@@ -1,14 +1,17 @@
 package uk.ac.ebi.spot.gwas.service.mapping;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
+import uk.ac.ebi.spot.gwas.constant.OperationMode;
 import uk.ac.ebi.spot.gwas.dto.EnsemblData;
 import uk.ac.ebi.spot.gwas.dto.EnsemblMappingResult;
 import uk.ac.ebi.spot.gwas.dto.MappingDto;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 import uk.ac.ebi.spot.gwas.model.Location;
+import uk.ac.ebi.spot.gwas.service.loader.VariationService;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -22,14 +25,22 @@ public class DataMappingService {
 
     @Autowired
     private AppConfig config;
+    @Autowired
+    private VariationService variationService;
 
-    public EnsemblMappingResult mappingPipeline(EnsemblData ensemblData, String snpRsId, Collection<String> reportedGenes) {
+    public EnsemblMappingResult mappingPipeline(EnsemblData ensemblData,
+                                                String snpRsId, Collection<String> reportedGenes,
+                                                OperationMode mode) throws JsonProcessingException, InterruptedException {
 
         log.info("Mapping pipeline commenced");
+        Variation variation;
+        if (mode == OperationMode.FULL_DB_MAPPING){
+            mapper.setEnsemblData(ensemblData);
+            variation = ensemblData.getVariations().get(snpRsId);
+        }else {
+            variation = variationService.getVariationFromDB(snpRsId);
+        }
 
-        mapper.setEnsemblData(ensemblData);
-
-        Variation variation = ensemblData.getVariations().get(snpRsId);
         EnsemblMappingResult mappingResult = new EnsemblMappingResult();
         mappingResult.setRsId(snpRsId);
 
@@ -49,7 +60,7 @@ public class DataMappingService {
                 }
 
                 // Mapping and genomic context calls
-                Collection<Location> locations = mapper.getMappings(variation);
+                Collection<Location> locations = mapper.getMappings(variation, mode);
                 mappingResult.setLocations(locations);
 
                 // Add genomic context
@@ -62,21 +73,21 @@ public class DataMappingService {
                     for (Location snpLocation : locations) {
 
                         // Overlapping genes
-                        MappingDto ncbiOverlap = mapper.getOverlapGenes(snpLocation, config.getNcbiSource(), mappingResult);
+                        MappingDto ncbiOverlap = mapper.getOverlapGenes(snpLocation, config.getNcbiSource(), mappingResult, mode);
                         ncbiOverlap.getGeneNames().forEach(mappingResult::addNcbiOverlappingGene);
                         ncbiOverlap.getGenomicContexts().forEach(mappingResult::addGenomicContext);
 
-                        MappingDto ensemblOverlap = mapper.getOverlapGenes(snpLocation, config.getEnsemblSource(), mappingResult);
+                        MappingDto ensemblOverlap = mapper.getOverlapGenes(snpLocation, config.getEnsemblSource(), mappingResult, mode);
                         ensemblOverlap.getGeneNames().forEach(mappingResult::addEnsemblOverlappingGene);
                         ensemblOverlap.getGenomicContexts().forEach(mappingResult::addGenomicContext);
 
                         // Upstream Genes
-                        mapper.getUpstreamGenes(snpLocation, config.getNcbiSource(), mappingResult).forEach(mappingResult::addGenomicContext);
-                        mapper.getUpstreamGenes(snpLocation, config.getEnsemblSource(), mappingResult).forEach(mappingResult::addGenomicContext);
+                        mapper.getUpstreamGenes(snpLocation, config.getNcbiSource(), mappingResult, mode).forEach(mappingResult::addGenomicContext);
+                        mapper.getUpstreamGenes(snpLocation, config.getEnsemblSource(), mappingResult, mode).forEach(mappingResult::addGenomicContext);
 
                         // Downstream Genes
-                        mapper.getDownstreamGenes(snpLocation, config.getNcbiSource(), mappingResult).forEach(mappingResult::addGenomicContext);
-                        mapper.getDownstreamGenes(snpLocation, config.getEnsemblSource(), mappingResult).forEach(mappingResult::addGenomicContext);
+                        mapper.getDownstreamGenes(snpLocation, config.getNcbiSource(), mappingResult, mode).forEach(mappingResult::addGenomicContext);
+                        mapper.getDownstreamGenes(snpLocation, config.getEnsemblSource(), mappingResult, mode).forEach(mappingResult::addGenomicContext);
                     }
                 }
             }
@@ -85,7 +96,7 @@ public class DataMappingService {
         }
 
         if (reportedGenes.isEmpty()) {
-            String pipelineError = mapper.checkReportedGenes(reportedGenes, mappingResult.getLocations());
+            String pipelineError = mapper.checkReportedGenes(reportedGenes, mappingResult.getLocations(), mode);
             mappingResult.addPipelineErrors(pipelineError);
         }
 
