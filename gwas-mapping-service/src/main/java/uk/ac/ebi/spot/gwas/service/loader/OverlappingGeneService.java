@@ -1,22 +1,24 @@
 package uk.ac.ebi.spot.gwas.service.loader;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
+import uk.ac.ebi.spot.gwas.constant.Type;
 import uk.ac.ebi.spot.gwas.constant.Uri;
 import uk.ac.ebi.spot.gwas.dto.OverlapGene;
+import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
+import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
+import uk.ac.ebi.spot.gwas.dto.Variation;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.service.mapping.MappingApiService;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -49,6 +51,16 @@ public class OverlappingGeneService {
         }
         CacheUtil.saveToFile(dataType, config.getCacheDir(), cached);
         return cached;
+    }
+
+    public List<OverlapGene> getOverlappingGeneFromDB(String location, String source) throws JsonProcessingException, InterruptedException {
+        String param = String.format("%s?feature=gene", location);
+        RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.OVERLAP_REGION, param, config.getERelease());
+        if (result == null) {
+            return this.restApiCall(location, source).get(location);
+        } else {
+            return Arrays.asList(mapper.readValue(result.getRestResult(), OverlapGene[].class));
+        }
     }
 
     public Map<String, List<OverlapGene>> restApiCall(String mappingLocation, String source) throws InterruptedException { // Ensembl Overlapping Genes

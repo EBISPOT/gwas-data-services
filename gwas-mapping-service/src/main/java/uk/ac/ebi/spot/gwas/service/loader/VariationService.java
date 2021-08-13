@@ -1,22 +1,24 @@
 package uk.ac.ebi.spot.gwas.service.loader;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
+import uk.ac.ebi.spot.gwas.constant.Type;
 import uk.ac.ebi.spot.gwas.constant.Uri;
+import uk.ac.ebi.spot.gwas.dto.AssemblyInfo;
+import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
+import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.service.mapping.MappingApiService;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -85,6 +87,15 @@ public class VariationService {
         }
         CacheUtil.saveToFile(DataType.VARIATION, config.getCacheDir(), variantMap);
         return variantMap;
+    }
+
+    public Variation getVariationFromDB(String snpRsId) throws InterruptedException, JsonProcessingException {
+        RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.SNP, snpRsId, config.getERelease());
+        if (result == null) {
+            return this.restApiCall(snpRsId).get(snpRsId);
+        } else {
+            return mapper.readValue(result.getRestResult(), Variation.class);
+        }
     }
 
     public Map<String, Variation> restApiCall(String snpRsId) throws InterruptedException {

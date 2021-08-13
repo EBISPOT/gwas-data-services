@@ -1,11 +1,16 @@
 package uk.ac.ebi.spot.gwas.service.loader;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
+import uk.ac.ebi.spot.gwas.constant.Type;
+import uk.ac.ebi.spot.gwas.constant.Uri;
 import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
+import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.service.mapping.MappingApiService;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
@@ -20,6 +25,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ReportedGeneService {
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     private final AppConfig config;
     private final EnsemblRestcallHistoryService historyService;
@@ -62,4 +69,21 @@ public class ReportedGeneService {
         CacheUtil.saveToFile(DataType.REPORTED_GENES, config.getCacheDir(), cached);
         return cached;
     }
+
+    public GeneSymbol getReportedGeneFromDB(String gene) throws JsonProcessingException, InterruptedException {
+        RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.LOOKUP_SYMBOL, gene, config.getERelease());
+        if (result == null) {
+            return this.restApiCall(gene);
+        } else {
+            return mapper.readValue(result.getRestResult(), GeneSymbol.class);
+        }
+    }
+
+    public GeneSymbol restApiCall(String gene) throws InterruptedException { // chromosomeEnd
+        String uri = String.format("%s/%s/%s", config.getServer(), Uri.REPORTED_GENES, gene);
+        return mappingApiService.getRequest(uri)
+                .map(response -> mapper.convertValue(response.getBody(), GeneSymbol.class))
+                .orElseGet(GeneSymbol::new);
+    }
+
 }

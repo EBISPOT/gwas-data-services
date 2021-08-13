@@ -1,12 +1,15 @@
 package uk.ac.ebi.spot.gwas.service.loader;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
+import uk.ac.ebi.spot.gwas.constant.Type;
 import uk.ac.ebi.spot.gwas.constant.Uri;
 import uk.ac.ebi.spot.gwas.dto.AssemblyInfo;
+import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.service.mapping.MappingApiService;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
@@ -39,7 +42,7 @@ public class AssemblyInfoService {
         for (String chromosome : chromosomes) {
             AssemblyInfo assemblyInfo = cached.get(chromosome);
             if (assemblyInfo == null) {
-                cached.putAll(this.apiCall(chromosome));
+                cached.putAll(this.restApiCall(chromosome));
             }
             MappingUtil.statusLog(dataType.name(), count++, chromosomes.size());
         }
@@ -47,8 +50,17 @@ public class AssemblyInfoService {
         return cached;
     }
 
+    public AssemblyInfo getAssemblyInfoFromDB(String chromosome) throws InterruptedException, JsonProcessingException {
+        RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.INFO_ASSEMBLY, chromosome, config.getERelease());
+        if (result == null) {
+            return this.restApiCall(chromosome).get(chromosome);
+        } else {
+            return mapper.readValue(result.getRestResult(), AssemblyInfo.class);
+        }
+    }
+
     // fix manip here
-    public Map<String, AssemblyInfo> apiCall(String chromosome) throws InterruptedException { // chromosomeEnd
+    public Map<String, AssemblyInfo> restApiCall(String chromosome) throws InterruptedException { // chromosomeEnd
         String uri = String.format("%s/%s/%s", config.getServer(), Uri.INFO_ASSEMBLY, chromosome);
         Map<String, AssemblyInfo> assemblyInfoMap = new HashMap<>();
 
