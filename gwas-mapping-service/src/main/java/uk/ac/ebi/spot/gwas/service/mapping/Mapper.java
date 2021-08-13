@@ -45,6 +45,7 @@ public class Mapper {
 
     public Collection<Location> getMappings(Variation variant) {
         Map<String, List<OverlapRegion>> cytoGeneticBand = ensemblData.getCytoGeneticBand();
+
         Collection<Location> locations = new ArrayList<>();
         List<Mapping> mappings = variant.getMappings();
         for (Mapping mapping : mappings) {
