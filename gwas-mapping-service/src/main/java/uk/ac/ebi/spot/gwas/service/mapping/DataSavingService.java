@@ -175,7 +175,7 @@ public class DataSavingService {
                 histories.add(historyService.build(result, "snp", snpRsId, eRelease));
             }
         }
-        this.save(histories, threadSize);
+        this.saveHistory(histories, threadSize);
 
         histories = new ArrayList<>();
         log.info(" Commence aggregating reported Gene Rest History");
@@ -186,7 +186,7 @@ public class DataSavingService {
             RestResponseResult result = MappingUtil.successResult(url, mapper.writeValueAsString(geneSymbol));
             histories.add(historyService.build(result, "lookup_symbol", gene, eRelease));
         }
-        this.save(histories, threadSize);
+        this.saveHistory(histories, threadSize);
 
         histories = new ArrayList<>();
         log.info(" Commence aggregating assemblyInfo Rest History");
@@ -197,7 +197,7 @@ public class DataSavingService {
             RestResponseResult result = MappingUtil.successResult(url, mapper.writeValueAsString(assemblyInfo));
             histories.add(historyService.build(result, "info_assembly", chromosome, eRelease));
         }
-        this.save(histories, threadSize);
+        this.saveHistory(histories, threadSize);
 
         histories = new ArrayList<>();
         log.info(" Commence aggregating cytogenetic band Rest History");
@@ -209,7 +209,7 @@ public class DataSavingService {
             RestResponseResult result = MappingUtil.successResult(uri, mapper.writeValueAsString(overlapRegions));
             histories.add(historyService.build(result, "overlap_region", param, eRelease));
         }
-        this.save(histories, threadSize);
+        this.saveHistory(histories, threadSize);
 
         histories = new ArrayList<>();
         log.info(" Commence aggregating ensembl overlapping gene Rest History");
@@ -221,7 +221,7 @@ public class DataSavingService {
             RestResponseResult result = MappingUtil.successResult(uri, mapper.writeValueAsString(value));
             histories.add(historyService.build(result, "overlap_region", param, eRelease));
         }
-        this.save(histories, threadSize);
+        this.saveHistory(histories, threadSize);
 
         histories = new ArrayList<>();
         log.info(" Commence aggregating ncbi overlapping gene Rest History");
@@ -234,11 +234,11 @@ public class DataSavingService {
             RestResponseResult result = MappingUtil.successResult(uri, mapper.writeValueAsString(overlapGenes));
             histories.add(historyService.build(result, "overlap_region", param, eRelease));
         }
-        this.save(histories, threadSize);
+        this.saveHistory(histories, threadSize);
 
     }
 
-    void save(List<EnsemblRestcallHistory> histories, int threadSize) throws ExecutionException, InterruptedException {
+    void saveHistory(List<EnsemblRestcallHistory> histories, int threadSize) throws ExecutionException, InterruptedException {
         log.info("Saving {} ensembl call histories in batch ", histories.size());
 
         List<EnsemblRestcallHistory> restcallHistories = new ArrayList<>();

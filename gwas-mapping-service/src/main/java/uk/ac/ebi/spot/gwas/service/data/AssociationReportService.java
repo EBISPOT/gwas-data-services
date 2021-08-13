@@ -130,7 +130,6 @@ public class AssociationReportService {
         if (existingReport != null) {
             associationReportRepository.delete(existingReport);
         }
-
         associationReport.setAssociation(association);
 
         // Save association report
@@ -219,13 +218,13 @@ public class AssociationReportService {
         // Create association report object
         AssociationReport associationReport = new AssociationReport();
         associationReport.setLastUpdateDate(new Date());
+        associationReport.setAssociation(association);
 
         // Before setting link to association remove any existing reports linked to this association
         AssociationReport existingReport = associationReportRepository.findByAssociationId(association.getId());
         if (existingReport != null) {
-            associationReportRepository.delete(existingReport);
+            associationReport.setId(existingReport.getId());
         }
-        associationReport.setAssociation(association);
 
         // Save association report
         associationReportRepository.save(associationReport);
