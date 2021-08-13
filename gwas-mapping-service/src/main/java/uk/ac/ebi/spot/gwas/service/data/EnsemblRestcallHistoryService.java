@@ -93,7 +93,7 @@ public class EnsemblRestcallHistoryService {
     }
 
     // BEWARE:If the Ensembl release is valid, the system can try to retrieve the data from the table
-    public RestResponseResult getEnsemblRestCallByTypeAndParamAndVersion(String type, String param, String eRelease) {
+    public RestResponseResult getHistoryByTypeParamAndVersion(String type, String param, String eRelease) {
         RestResponseResult restResponseResult = null;
 
         // Without release it is pointless stores the info.

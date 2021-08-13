@@ -1,7 +1,6 @@
 package uk.ac.ebi.spot.gwas.service.mapping;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -43,56 +42,6 @@ public class MappingApiService {
         this.ensemblCount += ensemblCount;
     }
 
-    public Map<String, List<OverlapRegion>> overlapBandRegion(String mappingLocation) throws InterruptedException {
-
-        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-        String uri = String.format("%s/%s/%s?feature=band", config.getServer(),Uri.OVERLAP_BAND_REGION, mappingLocation);
-        List<OverlapRegion> overlapRegions = this.getRequest(uri)
-                .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapRegion>>() {}))
-                .orElseGet(ArrayList::new);
-
-        Map<String, List<OverlapRegion>> bands = new HashMap<>();
-        bands.put(mappingLocation, overlapRegions);
-        return bands;
-    }
-
-    // fix manip here
-    public Map<String, AssemblyInfo> assemblyInfo(String chromosome) throws InterruptedException { // chromosomeEnd
-        String uri = String.format("%s/%s/%s", config.getServer(), Uri.INFO_ASSEMBLY, chromosome);
-        Map<String, AssemblyInfo> assemblyInfoMap = new HashMap<>();
-
-        AssemblyInfo assemblyInfo = this.getRequest(uri)
-                .map(response -> mapper.convertValue(response.getBody(), AssemblyInfo.class))
-                .orElseGet(AssemblyInfo::new);
-        assemblyInfoMap.put(chromosome, assemblyInfo);
-        return assemblyInfoMap;
-    }
-
-    public Map<String, List<OverlapGene>> overlapGeneRegion(String mappingLocation, String source) throws InterruptedException { // Ensembl Overlapping Genes
-        String uri = String.format("%s/%s/%s?feature=gene", config.getServer(), Uri.OVERLAPPING_GENE_REGION, mappingLocation);
-        if (source.equals(config.getNcbiSource())) {
-            uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());
-        }
-
-        Map<String, List<OverlapGene>> geneOverlap = new HashMap<>();
-        List<OverlapGene> geneOverlapList = this.getRequest(uri)
-                .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapGene>>() {}))
-                .orElseGet(ArrayList::new);
-        geneOverlap.put(mappingLocation, geneOverlapList);
-        return geneOverlap;
-    }
-
-    public Map<String, Variation> variationGet(String snpRsId) throws InterruptedException {
-        Map<String, Variation> variationMap = new HashMap<>();
-        String uri = String.format("%s/%s/%s", config.getServer(), Uri.VARIATION, snpRsId);
-
-        Variation variation = this.getRequest(uri)
-                .map(response -> mapper.convertValue(response.getBody(), Variation.class))
-                .orElseGet(Variation::new);
-        variationMap.put(snpRsId, variation);
-        return variationMap;
-    }
-
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<Map<String, Variation>> variationPost(List<String> snpRsIds) {
@@ -118,7 +67,6 @@ public class MappingApiService {
         log.info("Finished getting {} reported geneIds from Ensembl", getEnsemblCount());
         return CompletableFuture.completedFuture(geneMap);
     }
-
 
     public Object postRequest(Map<String, Object> request, String uri) {
         Object response = null;

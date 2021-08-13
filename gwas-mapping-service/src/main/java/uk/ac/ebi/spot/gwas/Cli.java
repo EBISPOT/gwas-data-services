@@ -7,15 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
-import uk.ac.ebi.spot.gwas.constant.DataType;
 import uk.ac.ebi.spot.gwas.dto.*;
 import uk.ac.ebi.spot.gwas.model.Association;
 import uk.ac.ebi.spot.gwas.model.AssociationReport;
 import uk.ac.ebi.spot.gwas.repository.AssociationReportRepository;
-import uk.ac.ebi.spot.gwas.service.mapping.DataLoadingService;
+import uk.ac.ebi.spot.gwas.service.loader.DataLoadingService;
 import uk.ac.ebi.spot.gwas.service.mapping.DataSavingService;
 import uk.ac.ebi.spot.gwas.service.mapping.EnsemblService;
-import uk.ac.ebi.spot.gwas.util.CacheUtil;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
 import java.io.IOException;
@@ -66,7 +64,7 @@ public class Cli implements CommandLineRunner {
             help.printHelp(APP_COMMAND, options, true);
 
         } else if (runMapping) {
-            Object report = this.fullEnsemblRemapping();
+            Object report = ""; //this.fullEnsemblRemapping();
             log.info(String.valueOf(report));
 
         } else if (runNight) {

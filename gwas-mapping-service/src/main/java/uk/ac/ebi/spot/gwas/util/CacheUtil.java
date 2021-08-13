@@ -55,8 +55,7 @@ public class CacheUtil {
         Map<String, List<OverlapRegion>> cytoGeneticBand = new HashMap<>();
         String cache = cacheDir + dataType.getFileLocation();
         if (Files.exists(Paths.get(cache))) {
-            cytoGeneticBand = mapper.convertValue(readJsonLocal(cache), new TypeReference<Map<String, List<OverlapRegion>>>() {
-            });
+            cytoGeneticBand = mapper.convertValue(readJsonLocal(cache), new TypeReference<Map<String, List<OverlapRegion>>>() {});
         }
         return cytoGeneticBand;
     }

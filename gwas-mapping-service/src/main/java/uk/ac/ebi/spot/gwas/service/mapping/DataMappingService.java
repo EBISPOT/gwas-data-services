@@ -28,14 +28,12 @@ public class DataMappingService {
         log.info("Mapping pipeline commenced");
 
         mapper.setEnsemblData(ensemblData);
-        //log.info("{} looped", snpRsId);
 
         Variation variation = ensemblData.getVariations().get(snpRsId);
         EnsemblMappingResult mappingResult = new EnsemblMappingResult();
         mappingResult.setRsId(snpRsId);
 
         if (variation != null) {
-            //log.info("{} found", variation.getName());
             if (Optional.ofNullable(variation.getError()).isPresent()) {
                 mappingResult.addPipelineErrors(variation.getError());
             } else {
