@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.gwas.service.mapping;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class MappingApiService {
 
     public Map<String, List<OverlapRegion>> overlapBandRegion(String mappingLocation) throws InterruptedException {
 
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         String uri = String.format("%s/%s/%s?feature=band", config.getServer(),Uri.OVERLAP_BAND_REGION, mappingLocation);
         List<OverlapRegion> overlapRegions = this.getRequest(uri)
                 .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapRegion>>() {}))

@@ -2,9 +2,6 @@ package uk.ac.ebi.spot.gwas.service.mapping;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,7 +23,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -59,20 +55,12 @@ public class EnsemblService {
     public EnsemblData cacheEnsemblData(MappingDto mappingDto) throws ExecutionException, InterruptedException, IOException {
         List<String> snpRsIds = mappingDto.getSnpRsIds();
         List<String> reportedGenes = mappingDto.getReportedGenes();
-        return this.loadMappingData(snpRsIds, reportedGenes, THREAD_SIZE, API_BATCH_SIZE);
-    }
-
-
-    public EnsemblData loadMappingData(List<String> snpRsIds,
-                                       List<String> reportedGenes,
-                                       int threadSize,
-                                       int apiBatchSize) throws ExecutionException, InterruptedException, IOException {
 
         Path path = Paths.get(config.getCacheDir());
         Files.createDirectories(path);
 
-        Map<String, GeneSymbol> reportedGeneMap = dataLoadingService.getReportedGenes(threadSize, apiBatchSize, reportedGenes);
-        Map<String, Variation> variantMap = dataLoadingService.getVariation(threadSize, apiBatchSize, snpRsIds);
+        Map<String, GeneSymbol> reportedGeneMap = dataLoadingService.getReportedGenes(THREAD_SIZE, API_BATCH_SIZE, reportedGenes);
+        Map<String, Variation> variantMap = dataLoadingService.getVariation(THREAD_SIZE, API_BATCH_SIZE, snpRsIds);
         variantMap = dataLoadingService.getVariationsWhoseRsidHasChanged(variantMap, snpRsIds);
 
         List<Variation> variants = new ArrayList<>();
