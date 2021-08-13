@@ -40,7 +40,6 @@ public class CytoGeneticBandService {
     public Map<String, List<OverlapRegion>> getCytoGeneticBands(DataType dataType, List<String> locations) throws InterruptedException {
         int count = 1;
         Map<String, List<OverlapRegion>> cached = CacheUtil.cytoGeneticBand(dataType, config.getCacheDir());
-
         for (String location : locations) {
             List<OverlapRegion> regions = cached.get(location);
             if (regions == null) {
@@ -52,18 +51,17 @@ public class CytoGeneticBandService {
         return cached;
     }
 
-    public Map<String, List<OverlapRegion>> getCytoGeneticBandsFromDB(String location) throws InterruptedException, JsonProcessingException {
+    public List<OverlapRegion> getCytoGeneticBandsFromDB(String location) throws InterruptedException, JsonProcessingException {
         String param = String.format("%s?feature=band", location);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.OVERLAP_REGION, param, config.getERelease());
         if (result == null) {
-            return this.restApiCall(location);
+            return this.restApiCall(location).get(location);
         } else {
-            return Collections.singletonMap(location, Arrays.asList(mapper.readValue(result.getRestResult(), OverlapRegion[].class)));
+            return Arrays.asList(mapper.readValue(result.getRestResult(), OverlapRegion[].class));
         }
     }
 
     public Map<String, List<OverlapRegion>> restApiCall(String mappingLocation) throws InterruptedException {
-
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         String uri = String.format("%s/%s/%s?feature=band", config.getServer(), Uri.OVERLAP_BAND_REGION, mappingLocation);
         List<OverlapRegion> overlapRegions = mappingApiService.getRequest(uri)
