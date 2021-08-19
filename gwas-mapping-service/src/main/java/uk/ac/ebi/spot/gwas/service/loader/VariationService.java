@@ -9,12 +9,10 @@ import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
 import uk.ac.ebi.spot.gwas.constant.Type;
 import uk.ac.ebi.spot.gwas.constant.Uri;
-import uk.ac.ebi.spot.gwas.dto.AssemblyInfo;
-import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
 import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.dto.Variation;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
-import uk.ac.ebi.spot.gwas.service.mapping.MappingApiService;
+import uk.ac.ebi.spot.gwas.service.mapping.ApiService;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
 
@@ -30,11 +28,11 @@ public class VariationService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final AppConfig config;
     private final EnsemblRestcallHistoryService historyService;
-    private final MappingApiService mappingApiService;
+    private final ApiService mappingApiService;
 
     public VariationService(AppConfig config,
                             EnsemblRestcallHistoryService historyService,
-                            MappingApiService mappingApiService) {
+                            ApiService mappingApiService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
@@ -89,16 +87,20 @@ public class VariationService {
         return variantMap;
     }
 
-    public Variation getVariationFromDB(String snpRsId) throws InterruptedException, JsonProcessingException {
+    public Variation getVariationFromDB(String snpRsId) {
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.SNP, snpRsId, config.getERelease());
+        Variation variation = new Variation();
         if (result == null) {
-            return this.restApiCall(snpRsId).get(snpRsId);
+            variation = this.restApiCall(snpRsId).get(snpRsId);
         } else {
-            return mapper.readValue(result.getRestResult(), Variation.class);
+            try {
+                variation = mapper.readValue(result.getRestResult(), Variation.class);
+            } catch (JsonProcessingException e) {  log.error(e.getMessage()); }
         }
+        return variation;
     }
 
-    public Map<String, Variation> restApiCall(String snpRsId) throws InterruptedException {
+    public Map<String, Variation> restApiCall(String snpRsId) {
         Map<String, Variation> variationMap = new HashMap<>();
         String uri = String.format("%s/%s/%s", config.getServer(), Uri.VARIATION, snpRsId);
 

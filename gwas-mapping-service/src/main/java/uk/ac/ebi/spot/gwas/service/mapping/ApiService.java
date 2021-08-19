@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Data
 @Service
-public class MappingApiService {
+public class ApiService {
 
     private Integer ensemblCount = 0;
     private ObjectMapper mapper = new ObjectMapper();
@@ -78,14 +78,18 @@ public class MappingApiService {
         return response;
     }
 
-    public Optional<ResponseEntity<Object>> getRequest(String uri) throws InterruptedException {
+    public Optional<ResponseEntity<Object>> getRequest(String uri) {
         ResponseEntity<Object> response = null;
         try {
             response = restTemplate.getForEntity(uri, Object.class);
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
                 log.info("warning: too many request {} retrying ...", uri);
-                Thread.sleep(500);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                }
                 return this.getRequest(uri);
             }else{
                 response = new ResponseEntity<>(Collections.singletonMap("error", e.getResponseBodyAsString()), HttpStatus.OK);

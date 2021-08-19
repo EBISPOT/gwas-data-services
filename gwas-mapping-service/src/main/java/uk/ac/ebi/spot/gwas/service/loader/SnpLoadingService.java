@@ -5,9 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import uk.ac.ebi.spot.gwas.constant.OperationMode;
 import uk.ac.ebi.spot.gwas.dto.*;
 import uk.ac.ebi.spot.gwas.model.Association;
-import uk.ac.ebi.spot.gwas.service.mapping.AssociationService;
+import uk.ac.ebi.spot.gwas.service.data.AssociationService;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -16,14 +17,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
-public class DataLoadingService {
+public class SnpLoadingService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private AssociationService service;
 
-    public MappingDto getSnpsLinkedToLocus(int threadSize, int batchSize, String mapType) throws ExecutionException, InterruptedException {
+    public MappingDto getSnpsLinkedToLocus(OperationMode mode, int threadSize, int batchSize) throws ExecutionException, InterruptedException {
         int pageStart = 0;
         int pageEnd = threadSize;
         long start = System.currentTimeMillis();
@@ -38,7 +39,7 @@ public class DataLoadingService {
 
             List<CompletableFuture<MappingDto>> futureList =
                     dataPages.stream()
-                            .map(dataPage -> service.getAssociationsBatch(dataPage, batchSize, mapType)).collect(Collectors.toList());
+                            .map(dataPage -> service.getAssociationsBatch(dataPage, batchSize, mode)).collect(Collectors.toList());
 
             CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
             for (CompletableFuture<MappingDto> future : futureList) {
@@ -64,9 +65,10 @@ public class DataLoadingService {
                 .reportedGenes(reportedGenes).build();
     }
 
-    public List<Association> getAssociationObjects(int threadSize,
+    public List<Association> getAssociationObjects(OperationMode mode,
+                                                   int threadSize,
                                                    int batchSize,
-                                                   int totalPages, String mapType) throws ExecutionException, InterruptedException {
+                                                   int totalPages) throws ExecutionException, InterruptedException {
         int pageStart = 0;
         int pageEnd = threadSize;
         long start = System.currentTimeMillis();
@@ -78,7 +80,7 @@ public class DataLoadingService {
 
             List<CompletableFuture<List<Association>>> futureList =
                     dataPages.stream()
-                            .map(dataPage -> service.getAssociations(dataPage, batchSize, mapType)).collect(Collectors.toList());
+                            .map(dataPage -> service.getAssociations(dataPage, batchSize, mode)).collect(Collectors.toList());
 
             CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
             for (CompletableFuture<List<Association>> future : futureList) {

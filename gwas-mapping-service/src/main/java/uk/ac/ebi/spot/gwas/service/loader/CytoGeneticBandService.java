@@ -13,7 +13,7 @@ import uk.ac.ebi.spot.gwas.constant.Uri;
 import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
 import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
-import uk.ac.ebi.spot.gwas.service.mapping.MappingApiService;
+import uk.ac.ebi.spot.gwas.service.mapping.ApiService;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
 
@@ -27,11 +27,11 @@ public class CytoGeneticBandService {
 
     private final AppConfig config;
     private final EnsemblRestcallHistoryService historyService;
-    private final MappingApiService mappingApiService;
+    private final ApiService mappingApiService;
 
     public CytoGeneticBandService(AppConfig config,
                                   EnsemblRestcallHistoryService historyService,
-                                  MappingApiService mappingApiService) {
+                                  ApiService mappingApiService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
@@ -51,17 +51,21 @@ public class CytoGeneticBandService {
         return cached;
     }
 
-    public List<OverlapRegion> getCytoGeneticBandsFromDB(String location) throws InterruptedException, JsonProcessingException {
+    public List<OverlapRegion> getCytoGeneticBandsFromDB(String location) {
         String param = String.format("%s?feature=band", location);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.OVERLAP_REGION, param, config.getERelease());
+        List<OverlapRegion> overlapRegions = new ArrayList<>();
         if (result == null) {
-            return this.restApiCall(location).get(location);
+            overlapRegions = this.restApiCall(location).get(location);
         } else {
-            return Arrays.asList(mapper.readValue(result.getRestResult(), OverlapRegion[].class));
+            try {
+                overlapRegions = Arrays.asList(mapper.readValue(result.getRestResult(), OverlapRegion[].class));
+            } catch (JsonProcessingException e) { log.error(e.getMessage()); }
         }
+        return overlapRegions;
     }
 
-    public Map<String, List<OverlapRegion>> restApiCall(String mappingLocation) throws InterruptedException {
+    public Map<String, List<OverlapRegion>> restApiCall(String mappingLocation) {
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         String uri = String.format("%s/%s/%s?feature=band", config.getServer(), Uri.OVERLAP_BAND_REGION, mappingLocation);
         List<OverlapRegion> overlapRegions = mappingApiService.getRequest(uri)

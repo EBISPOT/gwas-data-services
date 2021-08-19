@@ -1,6 +1,5 @@
 package uk.ac.ebi.spot.gwas.service.mapping;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ public class DataMappingService {
 
     @Autowired
     private Mapper mapper;
-
     @Autowired
     private AppConfig config;
     @Autowired
@@ -30,11 +28,11 @@ public class DataMappingService {
 
     public EnsemblMappingResult mappingPipeline(EnsemblData ensemblData,
                                                 String snpRsId, Collection<String> reportedGenes,
-                                                OperationMode mode) throws JsonProcessingException, InterruptedException {
+                                                OperationMode mode) {
 
         log.info("Mapping pipeline commenced");
         Variation variation;
-        if (mode == OperationMode.FULL_DB_MAPPING){
+        if (mode == OperationMode.MAP_ALL_SNPS_INDB){
             mapper.setEnsemblData(ensemblData);
             variation = ensemblData.getVariations().get(snpRsId);
         }else {

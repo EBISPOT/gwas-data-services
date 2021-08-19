@@ -12,7 +12,7 @@ import uk.ac.ebi.spot.gwas.constant.Uri;
 import uk.ac.ebi.spot.gwas.dto.GeneSymbol;
 import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
-import uk.ac.ebi.spot.gwas.service.mapping.MappingApiService;
+import uk.ac.ebi.spot.gwas.service.mapping.ApiService;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
 
 import java.util.ArrayList;
@@ -30,11 +30,11 @@ public class ReportedGeneService {
 
     private final AppConfig config;
     private final EnsemblRestcallHistoryService historyService;
-    private final MappingApiService mappingApiService;
+    private final ApiService mappingApiService;
 
     public ReportedGeneService(AppConfig config,
-                            EnsemblRestcallHistoryService historyService,
-                            MappingApiService mappingApiService) {
+                               EnsemblRestcallHistoryService historyService,
+                               ApiService mappingApiService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
@@ -70,16 +70,20 @@ public class ReportedGeneService {
         return cached;
     }
 
-    public GeneSymbol getReportedGeneFromDB(String gene) throws JsonProcessingException, InterruptedException {
+    public GeneSymbol getReportedGeneFromDB(String gene) {
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.LOOKUP_SYMBOL, gene, config.getERelease());
+        GeneSymbol geneSymbol = new GeneSymbol();
         if (result == null) {
-            return this.restApiCall(gene);
+            geneSymbol = this.restApiCall(gene);
         } else {
-            return mapper.readValue(result.getRestResult(), GeneSymbol.class);
+            try {
+                geneSymbol = mapper.readValue(result.getRestResult(), GeneSymbol.class);
+            } catch (JsonProcessingException e) { log.error(e.getMessage()); }
         }
+        return geneSymbol;
     }
 
-    public GeneSymbol restApiCall(String gene) throws InterruptedException { // chromosomeEnd
+    public GeneSymbol restApiCall(String gene) { // chromosomeEnd
         String uri = String.format("%s/%s/%s", config.getServer(), Uri.REPORTED_GENES, gene);
         return mappingApiService.getRequest(uri)
                 .map(response -> mapper.convertValue(response.getBody(), GeneSymbol.class))
