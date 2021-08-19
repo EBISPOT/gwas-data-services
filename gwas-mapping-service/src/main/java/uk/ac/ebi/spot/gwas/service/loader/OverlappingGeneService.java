@@ -12,9 +12,8 @@ import uk.ac.ebi.spot.gwas.constant.Uri;
 import uk.ac.ebi.spot.gwas.dto.OverlapGene;
 import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
 import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
-import uk.ac.ebi.spot.gwas.dto.Variation;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
-import uk.ac.ebi.spot.gwas.service.mapping.MappingApiService;
+import uk.ac.ebi.spot.gwas.service.mapping.ApiService;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
 
@@ -27,11 +26,11 @@ public class OverlappingGeneService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final AppConfig config;
     private final EnsemblRestcallHistoryService historyService;
-    private final MappingApiService mappingApiService;
+    private final ApiService mappingApiService;
 
     public OverlappingGeneService(AppConfig config,
-                               EnsemblRestcallHistoryService historyService,
-                               MappingApiService mappingApiService) {
+                                  EnsemblRestcallHistoryService historyService,
+                                  ApiService mappingApiService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
@@ -53,17 +52,21 @@ public class OverlappingGeneService {
         return cached;
     }
 
-    public List<OverlapGene> getOverlappingGeneFromDB(String location, String source) throws JsonProcessingException, InterruptedException {
+    public List<OverlapGene> getOverlappingGeneFromDB(String location, String source) {
         String param = String.format("%s?feature=gene", location);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.OVERLAP_REGION, param, config.getERelease());
+        List<OverlapGene> overlapGenes = new ArrayList<>();
         if (result == null) {
-            return this.restApiCall(location, source).get(location);
+            overlapGenes = this.restApiCall(location, source).get(location);
         } else {
-            return Arrays.asList(mapper.readValue(result.getRestResult(), OverlapGene[].class));
+            try {
+                overlapGenes = Arrays.asList(mapper.readValue(result.getRestResult(), OverlapGene[].class));
+            } catch (JsonProcessingException e) { log.error(e.getMessage()); }
         }
+        return overlapGenes;
     }
 
-    public Map<String, List<OverlapGene>> restApiCall(String mappingLocation, String source) throws InterruptedException { // Ensembl Overlapping Genes
+    public Map<String, List<OverlapGene>> restApiCall(String mappingLocation, String source) { // Ensembl Overlapping Genes
         String uri = String.format("%s/%s/%s?feature=gene", config.getServer(), Uri.OVERLAPPING_GENE_REGION, mappingLocation);
         if (source.equals(config.getNcbiSource())) {
             uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());

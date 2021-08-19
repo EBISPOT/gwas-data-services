@@ -1,6 +1,5 @@
 package uk.ac.ebi.spot.gwas.service.mapping;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +49,9 @@ public class Mapper {
     @Autowired
     private ReportedGeneService reportedGeneService;
 
-    private List<OverlapGene> getFromCacheOrDB(String location, String source, OperationMode mode) throws JsonProcessingException, InterruptedException {
+    private List<OverlapGene> getFromCacheOrDB(String location, String source, OperationMode mode) {
         List<OverlapGene> overlapGenes;
-        if (mode == OperationMode.FULL_DB_MAPPING){
+        if (mode == OperationMode.MAP_ALL_SNPS_INDB){
             Map<String, List<OverlapGene>> overlapGeneData =
                     (source.equals(ncbiSource) ? ensemblData.getNcbiOverlapGene() : ensemblData.getEnsemblOverlapGene());
             overlapGenes = overlapGeneData.get(location);
@@ -62,12 +61,12 @@ public class Mapper {
         return overlapGenes;
     }
 
-    public int getChromosomeEnd(Location snpLocation, OperationMode mode) throws JsonProcessingException, InterruptedException {
+    public int getChromosomeEnd(Location snpLocation, OperationMode mode) {
         int chrEnd = 0;
         String chromosome = snpLocation.getChromosomeName();
 
         AssemblyInfo assemblyInfo;
-        if (mode == OperationMode.FULL_DB_MAPPING){
+        if (mode == OperationMode.MAP_ALL_SNPS_INDB){
             assemblyInfo = ensemblData.getAssemblyInfo().get(chromosome);
         }else {
             assemblyInfo = assemblyInfoService.getAssemblyInfoFromDB(chromosome);
@@ -79,7 +78,7 @@ public class Mapper {
         return chrEnd;
     }
 
-    public Collection<Location> getMappings(Variation variant, OperationMode mode) throws InterruptedException, JsonProcessingException {
+    public Collection<Location> getMappings(Variation variant, OperationMode mode) {
 
         Map<String, List<OverlapRegion>> cytoGeneticBand = ensemblData.getCytoGeneticBand();
         Collection<Location> locations = new ArrayList<>();
@@ -92,7 +91,7 @@ public class Mapper {
                 String chrLocation = String.format("%s:%s-%s", chromosome, position, position);
                 List<OverlapRegion> overlapRegions;
 
-                if (mode == OperationMode.FULL_DB_MAPPING) {
+                if (mode == OperationMode.MAP_ALL_SNPS_INDB) {
                     overlapRegions = cytoGeneticBand.get(chrLocation);
                 } else {
                     overlapRegions = cytoGeneticBandService.getCytoGeneticBandsFromDB(chrLocation);
@@ -116,7 +115,7 @@ public class Mapper {
     public MappingDto getOverlapGenes(Location snpLocation,
                                       String source,
                                       EnsemblMappingResult mappingResult,
-                                      OperationMode mode) throws JsonProcessingException, InterruptedException {
+                                      OperationMode mode) {
 
         Set<String> geneNames = new HashSet<>();
         String chromosome = snpLocation.getChromosomeName();
@@ -138,7 +137,7 @@ public class Mapper {
     public List<GenomicContext> getUpstreamGenes(Location snpLocation,
                                                  String source,
                                                  EnsemblMappingResult mappingResult,
-                                                 OperationMode mode) throws JsonProcessingException, InterruptedException {
+                                                 OperationMode mode) {
 
         String type = "upstream";
         int chrStart = 1;
@@ -171,7 +170,7 @@ public class Mapper {
     public List<GenomicContext> getDownstreamGenes(Location snpLocation,
                                                    String source,
                                                    EnsemblMappingResult mappingResult,
-                                                   OperationMode mode) throws JsonProcessingException, InterruptedException {
+                                                   OperationMode mode) {
 
         String type = "downstream";
         int chrEnd = this.getChromosomeEnd(snpLocation, mode);
@@ -325,7 +324,7 @@ public class Mapper {
                                              int boundary,
                                              String type, String source,
                                              EnsemblMappingResult mappingResult,
-                                             OperationMode mode) throws JsonProcessingException, InterruptedException {
+                                             OperationMode mode) {
         int position1 = position;
         int position2 = position;
         int snpPos = snpPosition;
@@ -395,7 +394,7 @@ public class Mapper {
     }
 
     // Check that the reported gene symbols exist and that they are located in the same chromosome as the variant
-    public String checkReportedGenes(Collection<String> reportedGenes, Collection<Location> locations, OperationMode mode) throws JsonProcessingException, InterruptedException {
+    public String checkReportedGenes(Collection<String> reportedGenes, Collection<Location> locations, OperationMode mode) {
 
         String pipelineError = "";
 
@@ -406,7 +405,7 @@ public class Mapper {
 
             if (!reportedGenesToIgnore.contains(reportedGene)) {
                 GeneSymbol reportedGeneApiResult;
-                if (mode == OperationMode.FULL_DB_MAPPING) {
+                if (mode == OperationMode.MAP_ALL_SNPS_INDB) {
                     reportedGeneApiResult = ensemblData.getReportedGenes().get(reportedGene);
                 }else {
                     reportedGeneApiResult = reportedGeneService.getReportedGeneFromDB(reportedGene);

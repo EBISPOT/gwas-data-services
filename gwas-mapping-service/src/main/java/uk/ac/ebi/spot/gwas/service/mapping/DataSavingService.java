@@ -125,8 +125,8 @@ public class DataSavingService {
     }
 
 
-    public void createErrors(Association association){
-        associationReportService.processAssociationErrors(association, new ArrayList<>());
+    public void postMappingReportCheck(List<Association> associations){
+        associationReportService.reportCheck(associations);
     }
 
     void createAssociationReports(Association association, MappingDto mappingDto) {

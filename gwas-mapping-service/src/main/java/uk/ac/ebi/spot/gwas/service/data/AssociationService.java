@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.gwas.service.mapping;
+package uk.ac.ebi.spot.gwas.service.data;
 
 import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.spot.gwas.constant.OperationMode;
 import uk.ac.ebi.spot.gwas.dto.MappingDto;
 import uk.ac.ebi.spot.gwas.model.Association;
 import uk.ac.ebi.spot.gwas.projection.MappingProjection;
@@ -18,7 +19,6 @@ import uk.ac.ebi.spot.gwas.repository.AssociationRepository;
 import uk.ac.ebi.spot.gwas.repository.GeneRepository;
 import uk.ac.ebi.spot.gwas.repository.LocusRepository;
 import uk.ac.ebi.spot.gwas.repository.SingleNucleotidePolymorphismRepository;
-import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,17 +47,17 @@ public class AssociationService {
 
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<MappingDto> getAssociationsBatch(int start, int size, String mapType) {
+    public CompletableFuture<MappingDto> getAssociationsBatch(int start, int size, OperationMode mode) {
 
         log.info("Get data part {} : {} starts", start, size);
         Pageable pageable = PageRequest.of(start, size);
 
         List<Long> associationIds = new ArrayList<>();
         List<MappingProjection> associations;
-        if (mapType.equals(CommandUtil.MAPPING_OPT)) {
-            associations = associationRepository.findUnmappedWithFewAttributes(pageable);
-        } else {
+        if (mode == OperationMode.MAP_ALL_SNPS_INDB) {
             associations = associationRepository.findAllWithFewAttributes(pageable);
+        } else {
+            associations = associationRepository.findUnmappedWithFewAttributes(pageable);
         }
 
         associations.forEach(association -> associationIds.add(association.getAssociationId()));
@@ -88,24 +88,20 @@ public class AssociationService {
 
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<List<Association>> getAssociations(int start, int size, String mapType) {
+    public CompletableFuture<List<Association>> getAssociations(int start, int size, OperationMode mode) {
         log.info("Get association {} : {} starts", start, size);
         Pageable pageable = PageRequest.of(start, size);
 
         List<Association> associations;
-        if (mapType.equals(CommandUtil.MAPPING_OPT)) {
-            associations = associationRepository.findBylastMappingDateIsNull(pageable);
-        } else {
+        if (mode == OperationMode.MAP_ALL_SNPS_INDB) {
             Page<Association> associationPages = associationRepository.findAll(pageable);
             associations = associationPages.getContent();
+        } else {
+            associations = associationRepository.findBylastMappingDateIsNull(pageable);
         }
 
         log.info("Get association {} : {} ends", start, size);
         return CompletableFuture.completedFuture(associations);
-    }
-
-    public Association assocx() {
-        return associationRepository.findById(87272585L).get();
     }
 
 }

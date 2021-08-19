@@ -7,8 +7,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.spot.gwas.config.AppConfig;
-import uk.ac.ebi.spot.gwas.constant.DataType;
 import uk.ac.ebi.spot.gwas.constant.OperationMode;
 import uk.ac.ebi.spot.gwas.dto.*;
 import uk.ac.ebi.spot.gwas.model.*;
@@ -17,40 +15,19 @@ import uk.ac.ebi.spot.gwas.service.data.SecureUserRepository;
 import uk.ac.ebi.spot.gwas.service.data.SingleNucleotidePolymorphismQueryService;
 import uk.ac.ebi.spot.gwas.service.data.TrackingOperationService;
 import uk.ac.ebi.spot.gwas.service.loader.*;
-import uk.ac.ebi.spot.gwas.util.MappingUtil;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
 public class EnsemblService {
 
     @Autowired
-    private CytoGeneticBandService cytoGeneticBandService;
-    @Autowired
-    private VariationService variationService;
-    @Autowired
-    private ReportedGeneService reportedGeneService;
-    @Autowired
-    private AssemblyInfoService assemblyInfoService;
-    @Autowired
-    private OverlappingGeneService overlappingGeneService;
-
-    @Autowired
-    private AppConfig config;
-    @Autowired
     private DataMappingService dataMappingService;
     @Autowired
     private DataSavingService dataSavingService;
     @Autowired
     private SingleNucleotidePolymorphismQueryService singleNucleotidePolymorphismQueryService;
-
     @Autowired
     private TrackingOperationService trackingOperationService;
     @Autowired
@@ -58,63 +35,9 @@ public class EnsemblService {
     @Autowired
     private MappingRecordService mappingRecordService;
 
-    private static final Integer API_BATCH_SIZE = 200;
-    private static final Integer DB_BATCH_SIZE = 1000;
-    private static final Integer THREAD_SIZE = 15;
-
-    public EnsemblData cacheEnsemblData(MappingDto mappingDto) throws ExecutionException, InterruptedException, IOException {
-        List<String> snpRsIds = mappingDto.getSnpRsIds();
-        List<String> reportedGenes = mappingDto.getReportedGenes();
-
-        Path path = Paths.get(config.getCacheDir());
-        Files.createDirectories(path);
-
-        Map<String, GeneSymbol> reportedGeneMap = reportedGeneService.getReportedGenes(THREAD_SIZE, API_BATCH_SIZE, reportedGenes);
-        Map<String, Variation> variantMap = variationService.getVariation(THREAD_SIZE, API_BATCH_SIZE, snpRsIds);
-        variantMap = variationService.getVariationsWhoseRsidHasChanged(variantMap, snpRsIds);
-
-        List<Variation> variants = new ArrayList<>();
-        variantMap.forEach((k, v) -> {
-            if (v.getMappings() != null) {
-                variants.add(v);
-            }
-        });
-
-        // Get CytoGenetic Bands
-        List<String> locations = MappingUtil.getAllChromosomesAndPositions(variants);
-        Map<String, List<OverlapRegion>> cytoGeneticBand = cytoGeneticBandService.getCytoGeneticBands(DataType.CYTOGENETIC_BAND, locations);
-
-        // Get Chromosome End
-        List<String> chromosomes = MappingUtil.getAllChromosomes(variants);
-        Map<String, AssemblyInfo> assemblyInfos = assemblyInfoService.getAssemblyInfo(DataType.ASSEMBLY_INFO, chromosomes);
-
-        // Get Overlapping genes
-        Map<String, List<OverlapGene>> ensemblOverlappingGenes = overlappingGeneService.getOverlappingGenes(DataType.ENSEMBL_OVERLAP_GENES, config.getEnsemblSource(), locations);
-        Map<String, List<OverlapGene>> ncbiOverlappingGenes = overlappingGeneService.getOverlappingGenes(DataType.NCBI_OVERLAP_GENES, config.getNcbiSource(), locations);
-
-        // Get Upstream Genes
-        List<String> upstreamLocations = MappingUtil.getUpstreamLocations(variants, config.getGenomicDistance());
-        ensemblOverlappingGenes.putAll(overlappingGeneService.getOverlappingGenes(DataType.ENSEMBL_UPSTREAM_GENES, config.getEnsemblSource(), upstreamLocations));
-        ncbiOverlappingGenes.putAll(overlappingGeneService.getOverlappingGenes(DataType.NCBI_UPSTREAM_GENES, config.getNcbiSource(), upstreamLocations));
-
-        // Get Downstream Genes
-        List<String> downStreamLocations = MappingUtil.getDownstreamLocations(variants, assemblyInfos, config.getGenomicDistance());
-        ensemblOverlappingGenes.putAll(overlappingGeneService.getOverlappingGenes(DataType.ENSEMBL_DOWNSTREAM_GENES, config.getEnsemblSource(), downStreamLocations));
-        ncbiOverlappingGenes.putAll(overlappingGeneService.getOverlappingGenes(DataType.NCBI_DOWNSTREAM_GENES, config.getNcbiSource(), downStreamLocations));
-
-        return EnsemblData.builder()
-                .variations(variantMap)
-                .reportedGenes(reportedGeneMap)
-                .cytoGeneticBand(cytoGeneticBand)
-                .assemblyInfo(assemblyInfos)
-                .ensemblOverlapGene(ensemblOverlappingGenes)
-                .ncbiOverlapGene(ncbiOverlappingGenes)
-                .build();
-    }
-
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<MappingDto> mapAndSaveData(Association association, EnsemblData ensemblData, OperationMode mode) throws JsonProcessingException, InterruptedException {
+    public CompletableFuture<MappingDto> mapAndSaveData(Association association, EnsemblData ensemblData, OperationMode mode) {
 
         log.info("commenced mapping and saving Association {} Data", association.getId());
         MappingDto mappingDto = MappingDto.builder().build();

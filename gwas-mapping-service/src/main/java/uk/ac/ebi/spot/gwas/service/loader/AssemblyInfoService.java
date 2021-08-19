@@ -11,7 +11,7 @@ import uk.ac.ebi.spot.gwas.constant.Uri;
 import uk.ac.ebi.spot.gwas.dto.AssemblyInfo;
 import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
-import uk.ac.ebi.spot.gwas.service.mapping.MappingApiService;
+import uk.ac.ebi.spot.gwas.service.mapping.ApiService;
 import uk.ac.ebi.spot.gwas.util.CacheUtil;
 import uk.ac.ebi.spot.gwas.util.MappingUtil;
 
@@ -26,17 +26,17 @@ public class AssemblyInfoService {
     private final ObjectMapper mapper = new ObjectMapper();
     private final AppConfig config;
     private final EnsemblRestcallHistoryService historyService;
-    private final MappingApiService mappingApiService;
+    private final ApiService mappingApiService;
 
     public AssemblyInfoService(AppConfig config,
                                EnsemblRestcallHistoryService historyService,
-                               MappingApiService mappingApiService) {
+                               ApiService mappingApiService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
     }
 
-    public Map<String, AssemblyInfo> getAssemblyInfo(DataType dataType, List<String> chromosomes) throws InterruptedException { // Get Chromosome End
+    public Map<String, AssemblyInfo> getAssemblyInfo(DataType dataType, List<String> chromosomes) { // Get Chromosome End
         int count = 1;
         Map<String, AssemblyInfo> cached = CacheUtil.assemblyInfo(dataType, config.getCacheDir());
         for (String chromosome : chromosomes) {
@@ -50,17 +50,21 @@ public class AssemblyInfoService {
         return cached;
     }
 
-    public AssemblyInfo getAssemblyInfoFromDB(String chromosome) throws InterruptedException, JsonProcessingException {
+    public AssemblyInfo getAssemblyInfoFromDB(String chromosome) {
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.INFO_ASSEMBLY, chromosome, config.getERelease());
+        AssemblyInfo assemblyInfo = new AssemblyInfo();
         if (result == null) {
-            return this.restApiCall(chromosome).get(chromosome);
+            assemblyInfo = this.restApiCall(chromosome).get(chromosome);
         } else {
-            return mapper.readValue(result.getRestResult(), AssemblyInfo.class);
+            try {
+                assemblyInfo = mapper.readValue(result.getRestResult(), AssemblyInfo.class);
+            } catch (JsonProcessingException e) { log.info(e.getMessage()); }
         }
+        return assemblyInfo;
     }
 
     // fix manip here
-    public Map<String, AssemblyInfo> restApiCall(String chromosome) throws InterruptedException { // chromosomeEnd
+    public Map<String, AssemblyInfo> restApiCall(String chromosome) { // chromosomeEnd
         String uri = String.format("%s/%s/%s", config.getServer(), Uri.INFO_ASSEMBLY, chromosome);
         Map<String, AssemblyInfo> assemblyInfoMap = new HashMap<>();
 

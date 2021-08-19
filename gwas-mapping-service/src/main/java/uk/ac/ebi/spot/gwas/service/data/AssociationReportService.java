@@ -9,6 +9,7 @@ import uk.ac.ebi.spot.gwas.model.AssociationReport;
 import uk.ac.ebi.spot.gwas.repository.AssociationReportRepository;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class AssociationReportService {
@@ -228,6 +229,30 @@ public class AssociationReportService {
 
         // Save association report
         associationReportRepository.save(associationReport);
+    }
+
+    public void reportCheck(List<Association> associations){
+        List<Association> noErrorAssociations = new ArrayList<>();
+        AtomicInteger counta = new AtomicInteger(1);
+
+        associations.forEach(association -> {
+            AssociationReport existingReport = associationReportRepository.findByAssociationId(association.getId());
+            if (existingReport == null) {
+                noErrorAssociations.add(association);
+            }
+            log.info("Checked Report for {}, {} of {}", association.getId(), counta.getAndIncrement(), associations.size());
+        });
+
+        AtomicInteger index = new AtomicInteger(1);
+        noErrorAssociations.forEach(association -> {
+            try {
+                processAssociationErrors(association, new ArrayList<>());
+                log.info("Saved Error Report {} : {}", index.get(), association.getId());
+            }catch (Exception e){
+                log.info("{} could not be saved {}", association.getId(), e.getMessage());
+            }
+            index.getAndIncrement();
+        });
     }
 }
 
