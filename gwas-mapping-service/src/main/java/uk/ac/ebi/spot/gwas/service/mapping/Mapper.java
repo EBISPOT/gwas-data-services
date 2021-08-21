@@ -80,7 +80,6 @@ public class Mapper {
 
     public Collection<Location> getMappings(Variation variant, OperationMode mode) {
 
-        Map<String, List<OverlapRegion>> cytoGeneticBand = ensemblData.getCytoGeneticBand();
         Collection<Location> locations = new ArrayList<>();
         List<Mapping> mappings = variant.getMappings();
         for (Mapping mapping : mappings) {
@@ -92,6 +91,7 @@ public class Mapper {
                 List<OverlapRegion> overlapRegions;
 
                 if (mode == OperationMode.MAP_ALL_SNPS_INDB) {
+                    Map<String, List<OverlapRegion>> cytoGeneticBand = ensemblData.getCytoGeneticBand();
                     overlapRegions = cytoGeneticBand.get(chrLocation);
                 } else {
                     overlapRegions = cytoGeneticBandService.getCytoGeneticBandsFromDB(chrLocation);
