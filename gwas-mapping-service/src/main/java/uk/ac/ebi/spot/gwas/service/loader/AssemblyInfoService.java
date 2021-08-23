@@ -3,6 +3,7 @@ package uk.ac.ebi.spot.gwas.service.loader;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
@@ -50,7 +51,9 @@ public class AssemblyInfoService {
         return cached;
     }
 
+    @Cacheable(value = "assemblyInfo")
     public AssemblyInfo getAssemblyInfoFromDB(String chromosome) {
+        log.info("Retrieving Assembly infor for chromosome: {}", chromosome);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.INFO_ASSEMBLY, chromosome, config.getERelease());
         AssemblyInfo assemblyInfo = new AssemblyInfo();
         if (result == null) {

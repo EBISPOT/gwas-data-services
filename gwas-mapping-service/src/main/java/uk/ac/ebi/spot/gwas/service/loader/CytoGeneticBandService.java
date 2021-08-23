@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
@@ -51,7 +52,9 @@ public class CytoGeneticBandService {
         return cached;
     }
 
+    @Cacheable(value = "cytogeneticBand")
     public List<OverlapRegion> getCytoGeneticBandsFromDB(String location) {
+        log.info("Retrieving Cytogenetic Band for location: {}", location);
         String param = String.format("%s?feature=band", location);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.OVERLAP_REGION, param, config.getERelease());
         List<OverlapRegion> overlapRegions = new ArrayList<>();

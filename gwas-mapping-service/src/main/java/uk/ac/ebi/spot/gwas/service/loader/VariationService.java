@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
@@ -87,7 +88,9 @@ public class VariationService {
         return variantMap;
     }
 
+    @Cacheable(value = "variation")
     public Variation getVariationFromDB(String snpRsId) {
+        log.info("Retrieving variation for snp: {}", snpRsId);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.SNP, snpRsId, config.getERelease());
         Variation variation = new Variation();
         if (result == null) {

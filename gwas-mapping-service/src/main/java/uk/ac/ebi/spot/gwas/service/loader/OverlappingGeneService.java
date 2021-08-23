@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.config.AppConfig;
 import uk.ac.ebi.spot.gwas.constant.DataType;
@@ -52,6 +53,7 @@ public class OverlappingGeneService {
         return cached;
     }
 
+    @Cacheable(value = "overlapGene")
     public List<OverlapGene> getOverlappingGeneFromDB(String location, String source) {
         log.info("Retrieving Overlapping Gene for {} @ location: {}", source, location);
         String param = String.format("%s?feature=gene", location);
