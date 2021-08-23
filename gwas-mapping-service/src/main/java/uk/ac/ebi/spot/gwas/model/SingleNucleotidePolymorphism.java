@@ -1,14 +1,18 @@
 package uk.ac.ebi.spot.gwas.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * Created by emma on 21/11/14.
+ *
+ * @author emma
+ *         <p>
+ *         Model object representing a single nucleotide polymorphisms and its attributes
+ */
+
 @Entity
 public class SingleNucleotidePolymorphism {
     @Id
@@ -54,6 +58,13 @@ public class SingleNucleotidePolymorphism {
                inverseJoinColumns = @JoinColumn(name = "GENE_ID"))
     private Collection<Gene> genes = new ArrayList<>();
 
+//    @ManyToMany(mappedBy = "snps")
+    @ManyToMany
+    @JoinTable(name = "STUDY_SNP_VIEW",
+               joinColumns = @JoinColumn(name = "SNP_ID"),
+               inverseJoinColumns = @JoinColumn(name = "STUDY_ID"))
+    private Collection<Study> studies;
+
 
     // JPA no-args constructor
     public SingleNucleotidePolymorphism() {
@@ -72,7 +83,8 @@ public class SingleNucleotidePolymorphism {
                                         Collection<RiskAllele> riskAlleles,
                                         SingleNucleotidePolymorphism currentSnp,
                                         Collection<Association> associations,
-                                        Collection<Gene> genes) {
+                                        Collection<Gene> genes,
+                                        Collection<Study> studies) {
         this.rsId = rsId;
         this.merged = merged;
         this.functionalClass = functionalClass;
@@ -83,6 +95,7 @@ public class SingleNucleotidePolymorphism {
         this.currentSnp = currentSnp;
         this.associations = associations;
         this.genes = genes;
+        this.studies = studies;
     }
 
     public Long getId() {
@@ -165,5 +178,13 @@ public class SingleNucleotidePolymorphism {
 
     public void setGenes(Collection<Gene> genes) {
         this.genes = genes;
+    }
+
+    public Collection<Study> getStudies() {
+        return studies;
+    }
+
+    public void setStudies(Collection<Study> studies) {
+        this.studies = studies;
     }
 }

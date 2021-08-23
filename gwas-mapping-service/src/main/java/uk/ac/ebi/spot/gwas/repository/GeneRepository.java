@@ -21,4 +21,6 @@ public interface GeneRepository extends JpaRepository<Gene, Long> {
             " WHERE association.id in :ids")
     List<MappingProjection> findUsingAssociationIds(@Param("ids") List<Long> ids);
 
+    Gene findByGeneName(String geneName);
+
 }

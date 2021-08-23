@@ -1,11 +1,14 @@
 package uk.ac.ebi.spot.gwas.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import javax.persistence.*;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * Created by emma on 21/07/2015.
+ *
+ * @author emma
+ *         <p>
+ *         A model object representing a gene from Ensembl database
+ */
 @Entity
 public class EnsemblGene {
 

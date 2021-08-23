@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.gwas.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -8,6 +9,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
+/**
+ * Created by emma on 27/11/14.
+ *
+ * @author emma
+ *         <p>
+ *         Model object representing an association
+ */
 @Entity
 public class Association implements Trackable {
     @Id
@@ -33,7 +41,6 @@ public class Association implements Trackable {
 
     private Float standardError;
 
-    //@Column(name = "association_range")
     private String range;
 
     private String description;
@@ -54,6 +61,9 @@ public class Association implements Trackable {
 
     private String betaDirection;
 
+    @ManyToOne
+    private Study study;
+
     // Association can have a number of loci attached depending on whether its a multi-snp haplotype
     // or SNP:SNP interaction
     @OneToMany
@@ -62,12 +72,22 @@ public class Association implements Trackable {
                inverseJoinColumns = @JoinColumn(name = "LOCUS_ID"))
     private Collection<Locus> loci = new ArrayList<>();
 
+    // To avoid null values collections are by default initialized to an empty array list
+    @ManyToMany
+    @JoinTable(name = "ASSOCIATION_EFO_TRAIT",
+               joinColumns = @JoinColumn(name = "ASSOCIATION_ID"),
+               inverseJoinColumns = @JoinColumn(name = "EFO_TRAIT_ID"))
+    private Collection<EfoTrait> efoTraits = new ArrayList<>();
+
+    @JsonIgnore
     @OneToOne(mappedBy = "association", orphanRemoval = true)
     private AssociationReport associationReport;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "association", orphanRemoval = true, optional=true, cascade = CascadeType.ALL)
     private AssociationExtension associationExtension;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "association", orphanRemoval = true)
     private Collection<AssociationValidationReport> associationValidationReports = new ArrayList<>();
 
@@ -80,12 +100,18 @@ public class Association implements Trackable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastUpdateDate;
 
+    @JsonIgnore
     @OneToMany(fetch= FetchType.EAGER)
     @JoinTable(name = "ASSOCIATION_EVENT",
                joinColumns = @JoinColumn(name = "ASSOCIATION_ID"),
                inverseJoinColumns = @JoinColumn(name = "EVENT_ID"))
     private Collection<Event> events = new ArrayList<>();
 
+    @OneToMany
+    @JoinColumn(name="genericId", referencedColumnName="id",insertable=false,updatable=false)
+    @Where(clause="content_type='Association'")
+    @JsonIgnore
+    private Collection<Note> notes;
 
     /**REST API fix: reversal of control of association-SNP and association-gene relationship from association to SNP/gene to fix deletion issues with respect to
      * the association-SNP/gene view table. Works but not optimal, improve solution if possible**/
@@ -135,7 +161,9 @@ public class Association implements Trackable {
                        Float betaNum,
                        String betaUnit,
                        String betaDirection,
+                       Study study,
                        Collection<Locus> loci,
+                       Collection<EfoTrait> efoTraits,
                        AssociationReport associationReport,
                        Collection<AssociationValidationReport> associationValidationReport,
                        Date lastMappingDate,
@@ -143,7 +171,7 @@ public class Association implements Trackable {
                        Date lastUpdateDate,
                        Collection<Event> events,
                        Collection<SingleNucleotidePolymorphism> snps,
-                       Collection<Gene> genes) {
+                        Collection<Gene> genes) {
         this.riskFrequency = riskFrequency;
         this.pvalueDescription = pvalueDescription;
         this.pvalueMantissa = pvalueMantissa;
@@ -161,7 +189,9 @@ public class Association implements Trackable {
         this.betaNum = betaNum;
         this.betaUnit = betaUnit;
         this.betaDirection = betaDirection;
+        this.study = study;
         this.loci = loci;
+        this.efoTraits = efoTraits;
         this.associationReport = associationReport;
         this.associationValidationReports = associationValidationReport;
         this.lastMappingDate = lastMappingDate;
@@ -172,243 +202,253 @@ public class Association implements Trackable {
         this.genes = genes;
     }
 
-
     public Long getId() {
         return id;
-    }
-
-    public String getRiskFrequency() {
-        return riskFrequency;
-    }
-
-    public String getPvalueDescription() {
-        return pvalueDescription;
-    }
-
-    public Integer getPvalueMantissa() {
-        return pvalueMantissa;
-    }
-
-    public Integer getPvalueExponent() {
-        return pvalueExponent;
-    }
-
-    public Boolean getMultiSnpHaplotype() {
-        return multiSnpHaplotype;
-    }
-
-    public Boolean getSnpInteraction() {
-        return snpInteraction;
-    }
-
-    public Boolean getSnpApproved() {
-        return snpApproved;
-    }
-
-    public String getSnpType() {
-        return snpType;
-    }
-
-    public Float getStandardError() {
-        return standardError;
-    }
-
-    public String getRange() {
-        return range;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Float getOrPerCopyNum() {
-        return orPerCopyNum;
-    }
-
-    public Float getOrPerCopyRecip() {
-        return orPerCopyRecip;
-    }
-
-    public String getOrPerCopyRecipRange() {
-        return orPerCopyRecipRange;
-    }
-
-    public Float getBetaNum() {
-        return betaNum;
-    }
-
-    public String getBetaUnit() {
-        return betaUnit;
-    }
-
-    public String getBetaDirection() {
-        return betaDirection;
-    }
-
-    @JsonIgnore
-    public Collection<Locus> getLoci() {
-        return loci;
-    }
-
-    @JsonIgnore
-    public AssociationReport getAssociationReport() {
-        return associationReport;
-    }
-
-    @JsonIgnore
-    public AssociationExtension getAssociationExtension() {
-        return associationExtension;
-    }
-
-    @JsonIgnore
-    public Collection<AssociationValidationReport> getAssociationValidationReports() {
-        return associationValidationReports;
-    }
-
-    public Date getLastMappingDate() {
-        return lastMappingDate;
-    }
-
-    public String getLastMappingPerformedBy() {
-        return lastMappingPerformedBy;
-    }
-
-    public Date getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-
-    @JsonIgnore
-    public Collection<Event> getEvents() {
-        return events;
-    }
-
-    @JsonIgnore
-    public Collection<SingleNucleotidePolymorphism> getSnps() {
-        return snps;
-    }
-
-    @JsonIgnore
-    public Collection<Gene> getGenes() {
-        return genes;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
+    public String getRiskFrequency() {
+        return riskFrequency;
+    }
+
     public void setRiskFrequency(String riskFrequency) {
         this.riskFrequency = riskFrequency;
+    }
+
+    public String getPvalueDescription() {
+        return pvalueDescription;
     }
 
     public void setPvalueDescription(String pvalueDescription) {
         this.pvalueDescription = pvalueDescription;
     }
 
-    public void setPvalueMantissa(Integer pvalueMantissa) {
-        this.pvalueMantissa = pvalueMantissa;
-    }
-
-    public void setPvalueExponent(Integer pvalueExponent) {
-        this.pvalueExponent = pvalueExponent;
-    }
-
-    public void setMultiSnpHaplotype(Boolean multiSnpHaplotype) {
-        this.multiSnpHaplotype = multiSnpHaplotype;
-    }
-
-    public void setSnpInteraction(Boolean snpInteraction) {
-        this.snpInteraction = snpInteraction;
-    }
-
-    public void setSnpApproved(Boolean snpApproved) {
-        this.snpApproved = snpApproved;
-    }
-
-    public void setSnpType(String snpType) {
-        this.snpType = snpType;
-    }
-
-    public void setStandardError(Float standardError) {
-        this.standardError = standardError;
-    }
-
-    public void setRange(String range) {
-        this.range = range;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public Float getOrPerCopyNum() {
+        return orPerCopyNum;
     }
 
     public void setOrPerCopyNum(Float orPerCopyNum) {
         this.orPerCopyNum = orPerCopyNum;
     }
 
+    public String getSnpType() {
+        return snpType;
+    }
+
+    public void setSnpType(String snpType) {
+        this.snpType = snpType;
+    }
+
+    public Boolean getMultiSnpHaplotype() {
+        return multiSnpHaplotype;
+    }
+
+    public void setMultiSnpHaplotype(Boolean multiSnpHaplotype) {
+        this.multiSnpHaplotype = multiSnpHaplotype;
+    }
+
+    public Boolean getSnpInteraction() {
+        return snpInteraction;
+    }
+
+    public void setSnpInteraction(Boolean snpInteraction) {
+        this.snpInteraction = snpInteraction;
+    }
+
+    public Integer getPvalueMantissa() {
+        return pvalueMantissa;
+    }
+
+    public void setPvalueMantissa(Integer pvalueMantissa) {
+        this.pvalueMantissa = pvalueMantissa;
+    }
+
+    public Integer getPvalueExponent() {
+        return pvalueExponent;
+    }
+
+    public void setPvalueExponent(Integer pvalueExponent) {
+        this.pvalueExponent = pvalueExponent;
+    }
+
+    public Float getOrPerCopyRecip() {
+        return orPerCopyRecip;
+    }
+
     public void setOrPerCopyRecip(Float orPerCopyRecip) {
         this.orPerCopyRecip = orPerCopyRecip;
+    }
+
+    public Float getStandardError() {
+        return standardError;
+    }
+
+    public void setStandardError(Float standardError) {
+        this.standardError = standardError;
+    }
+
+    public String getRange() {
+        return range;
+    }
+
+    public void setRange(String range) {
+        this.range = range;
+    }
+
+    public String getOrPerCopyRecipRange() {
+        return orPerCopyRecipRange;
     }
 
     public void setOrPerCopyRecipRange(String orPerCopyRecipRange) {
         this.orPerCopyRecipRange = orPerCopyRecipRange;
     }
 
-    public void setBetaNum(Float betaNum) {
-        this.betaNum = betaNum;
+    public String getDescription() {
+        return description;
     }
 
-    public void setBetaUnit(String betaUnit) {
-        this.betaUnit = betaUnit;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setBetaDirection(String betaDirection) {
-        this.betaDirection = betaDirection;
+    public Study getStudy() {
+        return study;
+    }
+
+    public void setStudy(Study study) {
+        this.study = study;
+    }
+
+    public Collection<Locus> getLoci() {
+        return loci;
     }
 
     public void setLoci(Collection<Locus> loci) {
         this.loci = loci;
     }
 
+    public Collection<EfoTrait> getEfoTraits() {
+        return efoTraits;
+    }
+
+    public void setEfoTraits(Collection<EfoTrait> efoTraits) {
+        this.efoTraits = efoTraits;
+    }
+
+    public void addEfoTrait(EfoTrait efoTrait) {
+        efoTraits.add(efoTrait);
+    }
+
+    public Boolean getSnpApproved() {
+        return snpApproved;
+    }
+
+    public void setSnpApproved(Boolean snpApproved) {
+        this.snpApproved = snpApproved;
+    }
+
+    public AssociationReport getAssociationReport() {
+        return associationReport;
+    }
+
     public void setAssociationReport(AssociationReport associationReport) {
         this.associationReport = associationReport;
+    }
+
+    public AssociationExtension getAssociationExtension() {
+        return associationExtension;
     }
 
     public void setAssociationExtension(AssociationExtension associationExtension) {
         this.associationExtension = associationExtension;
     }
 
-    public void setAssociationValidationReports(Collection<AssociationValidationReport> associationValidationReports) {
-        this.associationValidationReports = associationValidationReports;
+    public Date getLastMappingDate() {
+        return lastMappingDate;
     }
 
     public void setLastMappingDate(Date lastMappingDate) {
         this.lastMappingDate = lastMappingDate;
     }
 
+    public String getLastMappingPerformedBy() {
+        return lastMappingPerformedBy;
+    }
+
     public void setLastMappingPerformedBy(String lastMappingPerformedBy) {
         this.lastMappingPerformedBy = lastMappingPerformedBy;
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
     }
 
     public void setLastUpdateDate(Date lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
     }
 
+    public double getPvalue() {
+        return (pvalueMantissa * Math.pow(10, pvalueExponent));
+    }
+
+    public Float getBetaNum() {
+        return betaNum;
+    }
+
+    public void setBetaNum(Float betaNum) {
+        this.betaNum = betaNum;
+    }
+
+    public String getBetaUnit() {
+        return betaUnit;
+    }
+
+    public void setBetaUnit(String betaUnit) {
+        this.betaUnit = betaUnit;
+    }
+
+    public String getBetaDirection() {
+        return betaDirection;
+    }
+
+    public void setBetaDirection(String betaDirection) {
+        this.betaDirection = betaDirection;
+    }
+
+    public Collection<Event> getEvents() {
+        return events;
+    }
+
     public void setEvents(Collection<Event> events) {
         this.events = events;
+    }
+
+    public Collection<AssociationValidationReport> getAssociationValidationReports() {
+        return associationValidationReports;
+    }
+
+    public void setAssociationValidationReports(Collection<AssociationValidationReport> associationValidationReports) {
+        this.associationValidationReports = associationValidationReports;
+    }
+
+    @Override public synchronized void addEvent(Event event) {
+        Collection<Event> currentEvents = getEvents();
+        currentEvents.add(event);
+        setEvents((currentEvents));
     }
 
     public void setSnps(Collection<SingleNucleotidePolymorphism> snps) {
         this.snps = snps;
     }
 
-    public void setGenes(Collection<Gene> genes) {
-        this.genes = genes;
+    public Collection<SingleNucleotidePolymorphism> getSnps(){
+        return snps;
     }
 
-    @Override
-    public synchronized void addEvent(Event event) {
-        Collection<Event> currentEvents = getEvents();
-        currentEvents.add(event);
-        setEvents((currentEvents));
-    }
+    public Collection<Note> getNotes() { return notes; }
 
+    public void setNotes(Collection<Note> notes) { this.notes = notes; }
 }

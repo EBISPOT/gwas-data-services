@@ -1,13 +1,16 @@
 package uk.ac.ebi.spot.gwas.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+/**
+ * Created by emma on 09/02/15.
+ *
+ * @author emma
+ *         <p>
+ *         Model object representing user roles Current roles are admin, curator, submitter
+ */
 @Entity
 public class SecureRole {
     @Id
