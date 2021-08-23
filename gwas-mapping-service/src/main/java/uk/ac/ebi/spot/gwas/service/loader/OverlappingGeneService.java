@@ -53,7 +53,11 @@ public class OverlappingGeneService {
     }
 
     public List<OverlapGene> getOverlappingGeneFromDB(String location, String source) {
+        log.info("Retrieving Overlapping Gene for {} @ location: {}", source, location);
         String param = String.format("%s?feature=gene", location);
+        if (source.equals(config.getNcbiSource())) {
+            param = String.format("%s&logic_name=%s&db_type=%s", param, config.getNcbiLogicName(), config.getNcbiDbType());
+        }
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.OVERLAP_REGION, param, config.getERelease());
         List<OverlapGene> overlapGenes = new ArrayList<>();
         if (result == null) {
@@ -71,7 +75,6 @@ public class OverlappingGeneService {
         if (source.equals(config.getNcbiSource())) {
             uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());
         }
-
         Map<String, List<OverlapGene>> geneOverlap = new HashMap<>();
         List<OverlapGene> geneOverlapList = mappingApiService.getRequest(uri)
                 .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapGene>>() {}))
