@@ -90,7 +90,7 @@ public class VariationService {
 
     @Cacheable(value = "variation")
     public Variation getVariationFromDB(String snpRsId) {
-        log.info("Retrieving variation for snp: {}", snpRsId);
+        log.warn("Retrieving variation for snp: {}", snpRsId);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.SNP, snpRsId, config.getERelease());
         Variation variation = new Variation();
         if (result == null) {

@@ -73,7 +73,7 @@ public class ReportedGeneService {
 
     @Cacheable(value = "geneSymbol")
     public GeneSymbol getReportedGeneFromDB(String gene) {
-        log.info("Retrieving Reported Gene for gene: {}", gene);
+        log.warn("Retrieving Reported Gene for gene: {}", gene);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.LOOKUP_SYMBOL, gene, config.getERelease());
         GeneSymbol geneSymbol = new GeneSymbol();
         if (result == null) {
