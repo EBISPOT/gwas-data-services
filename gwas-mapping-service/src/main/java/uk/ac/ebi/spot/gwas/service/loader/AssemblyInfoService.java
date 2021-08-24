@@ -53,7 +53,7 @@ public class AssemblyInfoService {
 
     @Cacheable(value = "assemblyInfo")
     public AssemblyInfo getAssemblyInfoFromDB(String chromosome) {
-        log.info("Retrieving Assembly infor for chromosome: {}", chromosome);
+        log.warn("Retrieving Assembly infor for chromosome: {}", chromosome);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.INFO_ASSEMBLY, chromosome, config.getERelease());
         AssemblyInfo assemblyInfo = new AssemblyInfo();
         if (result == null) {

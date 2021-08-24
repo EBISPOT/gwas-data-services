@@ -54,7 +54,7 @@ public class CytoGeneticBandService {
 
     @Cacheable(value = "cytogeneticBand")
     public List<OverlapRegion> getCytoGeneticBandsFromDB(String location) {
-        log.info("Retrieving Cytogenetic Band for location: {}", location);
+        log.warn("Retrieving Cytogenetic Band for location: {}", location);
         String param = String.format("%s?feature=band", location);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.OVERLAP_REGION, param, config.getERelease());
         List<OverlapRegion> overlapRegions = new ArrayList<>();

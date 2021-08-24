@@ -11,7 +11,6 @@ import uk.ac.ebi.spot.gwas.constant.DataType;
 import uk.ac.ebi.spot.gwas.constant.Type;
 import uk.ac.ebi.spot.gwas.constant.Uri;
 import uk.ac.ebi.spot.gwas.dto.OverlapGene;
-import uk.ac.ebi.spot.gwas.dto.OverlapRegion;
 import uk.ac.ebi.spot.gwas.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.service.data.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.service.mapping.ApiService;
@@ -39,7 +38,7 @@ public class OverlappingGeneService {
 
     public Map<String, List<OverlapGene>> getOverlappingGenes(DataType dataType,
                                                               String source,
-                                                              List<String> locations) throws InterruptedException {
+                                                              List<String> locations) {
         int count = 1;
         Map<String, List<OverlapGene>> cached = CacheUtil.overlappingGenes(dataType, config.getCacheDir());
         for (String location : locations) {
@@ -55,7 +54,7 @@ public class OverlappingGeneService {
 
     @Cacheable(value = "overlapGene")
     public List<OverlapGene> getOverlappingGeneFromDB(String location, String source) {
-        log.info("Retrieving Overlapping Gene for {} @ location: {}", source, location);
+        log.warn("Retrieving Overlapping Gene for {} @ location: {}", source, location);
         String param = String.format("%s?feature=gene", location);
         if (source.equals(config.getNcbiSource())) {
             param = String.format("%s&logic_name=%s&db_type=%s", param, config.getNcbiLogicName(), config.getNcbiDbType());
