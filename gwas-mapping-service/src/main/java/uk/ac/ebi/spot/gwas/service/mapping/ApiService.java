@@ -84,7 +84,7 @@ public class ApiService {
             response = restTemplate.getForEntity(uri, Object.class);
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
-                log.info("warning: too many request {} retrying ...", uri);
+                log.warn("warning: too many request {} retrying ...", uri);
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException interruptedException) {

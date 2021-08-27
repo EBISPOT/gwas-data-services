@@ -8,6 +8,7 @@ import uk.ac.ebi.spot.gwas.model.Association;
 import uk.ac.ebi.spot.gwas.model.AssociationReport;
 import uk.ac.ebi.spot.gwas.repository.AssociationReportRepository;
 
+import javax.validation.ConstraintViolationException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -128,13 +129,17 @@ public class AssociationReportService {
 
         // Before setting link to association check for any existing reports linked to this association
         AssociationReport existingReport = associationReportRepository.findByAssociationId(association.getId());
+        log.info("Checking existing report for association: {}", association.getId());
+
         if (existingReport != null) {
             associationReportRepository.delete(existingReport);
         }
         associationReport.setAssociation(association);
 
         // Save association report
+        associationReportRepository.deleteByAssociationId(association.getId());
         associationReportRepository.save(associationReport);
+
     }
 
     /**

@@ -20,5 +20,9 @@ public interface AssociationReportRepository extends JpaRepository<AssociationRe
             " where rnum >= :minRow )",
             nativeQuery = true)
     Collection<AssociationReport> findAllLSF(@Param("minRow") Integer minRow, @Param("maxRow") Integer maxRow);
+
+    @Query(value = "DELETE FROM ASSOCIATION_REPORT WHERE ASSOCIATION_ID = :associationId ",
+            nativeQuery = true)
+    void deleteByAssociationId(@Param("associationId") Long associationId);
 }
 

@@ -1,11 +1,15 @@
 package uk.ac.ebi.spot.gwas.service.data;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.spot.gwas.model.EnsemblGene;
+import uk.ac.ebi.spot.gwas.model.EntrezGene;
 import uk.ac.ebi.spot.gwas.model.Gene;
 import uk.ac.ebi.spot.gwas.repository.GeneRepository;
 
+@Slf4j
 @Service
 public class GeneQueryService {
 
@@ -22,7 +26,6 @@ public class GeneQueryService {
     }
 
     public void loadAssociatedData(Gene gene) {
-
         if (gene.getEntrezGeneIds() != null) {
             gene.getEntrezGeneIds().size();
         }
