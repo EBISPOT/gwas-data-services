@@ -41,6 +41,7 @@ public class AssociationService {
     private SingleNucleotidePolymorphismRepository snpRepo;
 
     public Page<Association> getAssociationPageInfo(int start, int size) {
+        log.info("Retrieving Association Page info ...");
         Pageable pageable = PageRequest.of(start, size);
         return associationRepository.findAll(pageable);
     }
@@ -102,6 +103,10 @@ public class AssociationService {
 
         log.info("Get association {} : {} ends", start, size);
         return CompletableFuture.completedFuture(associations);
+    }
+
+    public List<Association> getAssociationsByStudy(Long studyId){
+        return associationRepository.findAssociationByStudyId(studyId);
     }
 
 }

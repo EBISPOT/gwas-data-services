@@ -4,12 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.spot.gwas.constant.OperationMode;
 import uk.ac.ebi.spot.gwas.service.mapping.EnsemblRunnner;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -24,6 +25,9 @@ public class Cli implements CommandLineRunner {
     @Autowired
     private EnsemblRunnner ensemblRunnner;
 
+    @Autowired
+    private ApplicationContext context;
+
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
         log.info("Starting mapping service...");
@@ -33,36 +37,32 @@ public class Cli implements CommandLineRunner {
         boolean runCache = commandLine.hasOption(CommandUtil.CACHE_OPT);
         boolean mapSomeSNPs = commandLine.hasOption(CommandUtil.MAP_SOME_SNPS_INDB_OPT);
         boolean remapAllSNPs = commandLine.hasOption(CommandUtil.MAP_ALL_SNPS_INDB_OPT);
-        String performer = String.valueOf(commandLine.getArgList().get(0));
+        List<String> argList = commandLine.getArgList();
+        String performer = "";
 
         if (viewHelp) {
             help.printHelp(APP_COMMAND, options, true);
+            System.exit(1);
+        } else if (!argList.isEmpty()){
+            performer = String.valueOf(commandLine.getArgList().get(0));
+            if (remapAllSNPs) {
+                log.info("Mapping -r {}", performer);
+                ensemblRunnner.mapAllAssociations(performer);
 
-        } else if (remapAllSNPs) {
-            ensemblRunnner.mapAssociations(OperationMode.MAP_ALL_SNPS_INDB);
+            } else if (mapSomeSNPs) {
+                log.info("Mapping -m {}", performer);
+                ensemblRunnner.mapSomeAssociations(performer);
 
-        } else if (mapSomeSNPs) {
-            ensemblRunnner.mapAssociations(OperationMode.MAP_SOME_SNPS_INDB);
-            log.info("Night -n {}", performer);
-
-        } else if (runCache) {
-            int threadSize = Integer.parseInt(commandLine.getArgList().get(0));
-            ensemblRunnner.runCache(threadSize);
-
+            } else if (runCache) {
+                int threadSize = Integer.parseInt(commandLine.getArgList().get(1));
+                ensemblRunnner.runCache(threadSize);
+            }
+            System.exit(1);
         }
-        log.info("Application executed successfully!");
-    }
 
+        log.info("Application executed successfully, running in server mode!");
+    }
 }
 
 
-//        try {
-//        } catch (Exception e) {
-//            log.info("No argument was supplied ( {} )", e.getMessage());
-//            help.printHelp(APP_COMMAND, options, true);
-//        }
-
-
-// save History
-// full db Mapping
-//
+// -m automatic_mapping_process 40
