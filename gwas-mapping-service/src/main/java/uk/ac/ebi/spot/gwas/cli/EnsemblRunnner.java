@@ -1,17 +1,19 @@
-package uk.ac.ebi.spot.gwas.service.mapping;
+package uk.ac.ebi.spot.gwas.cli;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.spot.gwas.constant.OperationMode;
-import uk.ac.ebi.spot.gwas.dto.EnsemblData;
-import uk.ac.ebi.spot.gwas.dto.MappingDto;
-import uk.ac.ebi.spot.gwas.model.Association;
-import uk.ac.ebi.spot.gwas.service.data.AssociationService;
-import uk.ac.ebi.spot.gwas.service.loader.FileCacheService;
-import uk.ac.ebi.spot.gwas.service.loader.SnpLoadingService;
+import uk.ac.ebi.spot.gwas.common.constant.OperationMode;
+import uk.ac.ebi.spot.gwas.ensembl_data.EnsemblData;
+import uk.ac.ebi.spot.gwas.mapping.MappingSavingService;
+import uk.ac.ebi.spot.gwas.mapping.MappingService;
+import uk.ac.ebi.spot.gwas.association.SnpLoadingService;
+import uk.ac.ebi.spot.gwas.mapping.dto.MappingDto;
+import uk.ac.ebi.spot.gwas.association.Association;
+import uk.ac.ebi.spot.gwas.association.AssociationService;
+import uk.ac.ebi.spot.gwas.ensembl_data.EnsemblDataService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,21 +30,21 @@ public class EnsemblRunnner {
     private Integer loadingThreadSize = 40;
     private static final Integer MAPPING_THREAD_SIZE = 1;
 
-    private final EnsemblService ensemblService;
+    private final MappingService ensemblService;
     private final SnpLoadingService snpLoadingService;
-    private final FileCacheService fileCacheService;
-    private final DataSavingService dataSavingService;
+    private final EnsemblDataService ensemblDataService;
+    private final MappingSavingService dataSavingService;
     @Autowired
     private AssociationService associationService;
     private EnsemblData ensemblData = EnsemblData.builder().build();
 
-    public EnsemblRunnner(EnsemblService ensemblService,
+    public EnsemblRunnner(MappingService ensemblService,
                           SnpLoadingService snpLoadingService,
-                          FileCacheService fileCacheService,
-                          DataSavingService dataSavingService) {
+                          EnsemblDataService fileCacheService,
+                          MappingSavingService dataSavingService) {
         this.ensemblService = ensemblService;
         this.snpLoadingService = snpLoadingService;
-        this.fileCacheService = fileCacheService;
+        this.ensemblDataService = fileCacheService;
         this.dataSavingService = dataSavingService;
     }
 
@@ -50,14 +52,14 @@ public class EnsemblRunnner {
         loadingThreadSize = customThreadSize;
         log.info("Caching Ensembl with {} thread size", loadingThreadSize);
         MappingDto mappingDto = snpLoadingService.getSnpsLinkedToLocus(OperationMode.MAP_ALL_SNPS_INDB, loadingThreadSize, DB_BATCH_SIZE);
-        fileCacheService.cacheEnsemblData(mappingDto);
+        ensemblDataService.cacheEnsemblData(mappingDto);
     }
 
     public void mapAllAssociations(String performer) throws ExecutionException, InterruptedException, IOException {
         log.info("Full database remap commenced by performer: {}", performer);
         OperationMode mode = OperationMode.MAP_SOME_SNPS_INDB;
         MappingDto mappingDto = snpLoadingService.getSnpsLinkedToLocus(mode, loadingThreadSize, DB_BATCH_SIZE);
-        ensemblData = fileCacheService.cacheEnsemblData(mappingDto);
+        ensemblData = ensemblDataService.cacheEnsemblData(mappingDto);
         List<Association> associations = snpLoadingService.getAssociationObjects(mode,
                                                                                  loadingThreadSize,
                                                                                  DB_BATCH_SIZE,
