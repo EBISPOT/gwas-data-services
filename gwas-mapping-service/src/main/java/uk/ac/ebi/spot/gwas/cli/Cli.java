@@ -20,6 +20,7 @@ public class Cli implements CommandLineRunner {
     private final CommandLineParser parser = new DefaultParser();
     private final HelpFormatter help = new HelpFormatter();
     private final Options options = CommandUtil.bindOptions();
+    private static final String performer = "automatic_mapping_process";
 
     @Autowired
     private EnsemblRunnner ensemblRunnner;
@@ -46,12 +47,12 @@ public class Cli implements CommandLineRunner {
         switch (executionMode) {
             case "map-all-snp":
                 log.info("Mapping -r {}", executionMode);
-                ensemblRunnner.mapAllAssociations(executionMode);
+                ensemblRunnner.mapAllAssociations(performer);
                 System.exit(1);
                 break;
             case "map-some-snp":
                 log.info("Mapping -m {}", executionMode);
-                ensemblRunnner.mapSomeAssociations(executionMode);
+                ensemblRunnner.mapSomeAssociations(performer);
                 System.exit(1);
                 break;
             case "cache-ensembl-data":
@@ -65,7 +66,6 @@ public class Cli implements CommandLineRunner {
                 log.info("The mode value {} is not recognized", executionMode);
                 help.printHelp(APP_COMMAND, options, true);
                 System.exit(1);
-
         }
     }
 }

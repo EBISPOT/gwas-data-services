@@ -1,11 +1,12 @@
 server:
   port: 8080
 
+
 spring:
   datasource:
-    url: ''
-    username: ''
-    password: ''
+    url: 'jdbc:oracle:thin:@ora-dlvm-018.ebi.ac.uk:1521:VSPOTDEV2'
+    username: 'gwas'
+    password: 'gwas_delphiX2016'
     driver-class-name: oracle.jdbc.driver.OracleDriver
     hikari:
       maximumPoolSize: 80
@@ -15,8 +16,6 @@ spring:
     properties:
       hibernate:
         enable_lazy_load_no_trans:true
-
-
 
 
 ensembl:
@@ -42,4 +41,4 @@ mapping:
   requestPerSecond: 15
   snp_lookup_endpoint: variation
   version: 104
-  cache: /Users/abayomi/Documents
+  cache: /Users/abayomi/nfs/spot/data/dev/gwas/app
