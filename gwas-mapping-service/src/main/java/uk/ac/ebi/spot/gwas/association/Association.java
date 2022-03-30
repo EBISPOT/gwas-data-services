@@ -1,6 +1,8 @@
 package uk.ac.ebi.spot.gwas.association;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
 import uk.ac.ebi.spot.gwas.common.model.*;
@@ -68,6 +70,7 @@ public class Association implements Trackable {
     // Association can have a number of loci attached depending on whether its a multi-snp haplotype
     // or SNP:SNP interaction
     @OneToMany
+    @LazyCollection(LazyCollectionOption.FALSE)
     @JoinTable(name = "ASSOCIATION_LOCUS",
                joinColumns = @JoinColumn(name = "ASSOCIATION_ID"),
                inverseJoinColumns = @JoinColumn(name = "LOCUS_ID"))

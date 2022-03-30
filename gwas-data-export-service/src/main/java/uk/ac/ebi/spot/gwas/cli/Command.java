@@ -1,8 +1,10 @@
-package uk.ac.ebi.spot.gwas.util;
+package uk.ac.ebi.spot.gwas.cli;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
+import org.apache.commons.cli.Options;
 
-public class CommandUtil {
+public class Command {
 
     public static final String HELP_OPT = "h";
     public static final String HELP_LONG_OPT = "help";
@@ -22,7 +24,7 @@ public class CommandUtil {
     public static final String CACHE_LONG_OPT = "cache";
     public static final String CACHE_DESCRIPTION = "-c [thread-size] : Retrieves all the needed mapping dataset from Ensembl without mapping the associations";
 
-    private CommandUtil() {
+    private Command() {
         // Hide implicit public constructor
     }
 

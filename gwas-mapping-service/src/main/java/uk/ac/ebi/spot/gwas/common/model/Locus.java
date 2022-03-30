@@ -1,5 +1,7 @@
 package uk.ac.ebi.spot.gwas.common.model;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import uk.ac.ebi.spot.gwas.association.Association;
 
 import javax.persistence.*;
@@ -30,6 +32,7 @@ public class Locus {
     private Collection<RiskAllele> strongestRiskAlleles = new ArrayList<>();
 
     @ManyToMany
+    @LazyCollection(LazyCollectionOption.FALSE)
     @JoinTable(name = "AUTHOR_REPORTED_GENE",
                joinColumns = @JoinColumn(name = "LOCUS_ID"),
                inverseJoinColumns = @JoinColumn(name = "REPORTED_GENE_ID"))
