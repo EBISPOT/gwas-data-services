@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.Uri;
 import uk.ac.ebi.spot.gwas.gene_symbol.GeneSymbol;
-import uk.ac.ebi.spot.gwas.variation.Variation;
+import uk.ac.ebi.spot.gwas.variation.Variant;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -45,11 +45,11 @@ public class ApiService {
 
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public CompletableFuture<Map<String, Variation>> variationPost(List<String> snpRsIds) {
+    public CompletableFuture<Map<String, Variant>> variationPost(List<String> snpRsIds) {
         List<Object> cleaned = snpRsIds.stream().map(String::trim).collect(Collectors.toList());
         log.info("Start getting next {} snp rsIds from Ensembl", cleaned.size());
         Object response = postRequest(Collections.singletonMap("ids", cleaned), String.format("%s/%s", config.getServer(), Uri.VARIATION));
-        Map<String, Variation> variantMap = mapper.convertValue(response, new TypeReference<Map<String, Variation>>() {});
+        Map<String, Variant> variantMap = mapper.convertValue(response, new TypeReference<Map<String, Variant>>() {});
 
         setEnsemblCount(cleaned.size());
         log.info("Finished getting {} snp rsIds from Ensembl", getEnsemblCount());
@@ -80,6 +80,7 @@ public class ApiService {
     }
 
     public Optional<ResponseEntity<Object>> getRequest(String uri) {
+        log.info("Calling: {}", uri);
         ResponseEntity<Object> response = null;
         try {
             response = restTemplate.getForEntity(uri, Object.class);
@@ -93,7 +94,7 @@ public class ApiService {
                 }
                 return this.getRequest(uri);
             }else{
-                response = new ResponseEntity<>(Collections.singletonMap("error", e.getResponseBodyAsString()), HttpStatus.OK);
+                response = new ResponseEntity<>(e.getResponseBodyAsString(), e.getStatusCode());
             }
         }
         return Optional.of(response);

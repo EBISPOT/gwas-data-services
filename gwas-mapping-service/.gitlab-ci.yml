@@ -1,32 +1,23 @@
-image: java:latest
-
 stages:
   - build
-  - deploy-snoopy-dev1
-  - deploy-ves-pg-7e-prod
+  - test
+  - deploy
 
-maven-build:
-  image: maven:3-jdk-8
+image: alpine
+
+build_gwas-mapping-service:
   stage: build
   script:
-    - echo "Building Jar File"
-    - mvn clean package -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true
-  artifacts:
-    paths:
-      - gwas-ui.jar
-    expire_in: 1 day
+    - echo "This job builds something. gwas-mapping-service"
 
-deploy-dev1:
-  stage: deploy-snoopy-dev1
-  image: alpine
-  before_script:
-    - bash ci/add_ssh.sh
+test_gwas-mapping-service:
+  stage: test
+  needs: [build_gwas-mapping-service]
   script:
-    - scp -o StrictHostKeyChecking=no gwas-ui.jar $SERVER_SNOOPY:$APP_DIR_DEV1
-    - ssh -o StrictHostKeyChecking=no $SERVER_SNOOPY
-      "kill -9 \$(ps aux | grep 'gwas-ui.jar' | grep -v 'grep' | awk '{print \$2}');"
-    - ssh -o StrictHostKeyChecking=no $SERVER_SNOOPY
-      "cd $APP_DIR_DEV1; nohup java -jar gwas-ui.jar $PROGRAM_ARGUMENTS --spring.profiles.active=dev1 > /dev/null 2>&1 &"
-  only:
-    - march-2021-refactoring
+    - echo "This job tests something. gwas-mapping-service"
 
+deploy_gwas-mapping-service:
+  stage: deploy
+  needs: [test_gwas-mapping-service]
+  script:
+    - echo "This job deploys something. gwas-mapping-service"

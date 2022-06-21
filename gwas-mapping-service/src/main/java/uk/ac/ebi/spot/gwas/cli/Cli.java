@@ -1,14 +1,19 @@
 package uk.ac.ebi.spot.gwas.cli;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.util.CommandUtil;
+import uk.ac.ebi.spot.gwas.mapping.MappingService;
+import uk.ac.ebi.spot.gwas.overlap_gene.OverlapGene;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -24,6 +29,9 @@ public class Cli implements CommandLineRunner {
 
     @Autowired
     private EnsemblRunnner ensemblRunnner;
+
+    @Autowired
+    private AppConfig appConfig;
 
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
@@ -41,7 +49,6 @@ public class Cli implements CommandLineRunner {
             System.exit(1);
         }
     }
-
 
     public void menuDecision(String executionMode, int threadSize) throws InterruptedException, ExecutionException, IOException {
         switch (executionMode) {
@@ -69,6 +76,3 @@ public class Cli implements CommandLineRunner {
         }
     }
 }
-
-
-// -m automatic_mapping_process 40

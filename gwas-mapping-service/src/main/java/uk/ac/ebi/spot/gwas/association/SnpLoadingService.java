@@ -63,7 +63,7 @@ public class SnpLoadingService {
                 .reportedGenes(reportedGenes).build();
     }
 
-    public List<Association> getAssociationObjects(OperationMode mode,
+    public List<Association> getAssociationInBatch(OperationMode mode,
                                                    int threadSize,
                                                    int batchSize,
                                                    int totalPages) throws ExecutionException, InterruptedException {

@@ -38,18 +38,18 @@ public class VariationService {
         this.mappingApiService = mappingApiService;
     }
 
-    public Map<String, Variation> getVariation(int threadSize,
-                                               int batchSize,
-                                               List<String> snpRsIds) throws ExecutionException, InterruptedException {
+    public Map<String, Variant> getVariation(int threadSize,
+                                             int batchSize,
+                                             List<String> snpRsIds) throws ExecutionException, InterruptedException {
 
         long start = System.currentTimeMillis();
-        Map<String, Variation> cached = CacheUtil.variation(DataType.VARIATION, config.getCacheDir());
+        Map<String, Variant> cached = CacheUtil.variation(DataType.VARIATION, config.getCacheDir());
         int partitionSize = threadSize * batchSize;
 
         List<String> getFromApi = new ArrayList<>();
         for (String snpRsId : snpRsIds) {
-            Variation variation = cached.get(snpRsId.trim());
-            if (variation == null) {
+            Variant variant = cached.get(snpRsId.trim());
+            if (variant == null) {
                 log.info("{} not found in file cache", snpRsId);
                 getFromApi.add(snpRsId);
             }
@@ -57,12 +57,12 @@ public class VariationService {
         log.info("Found {} in cache out of {} Remains: {}", snpRsIds.size() - getFromApi.size(), snpRsIds.size(), getFromApi.size());
 
         for (List<String> dataPartition : ListUtils.partition(getFromApi, partitionSize)) {
-            List<CompletableFuture<Map<String, Variation>>> futureList = ListUtils.partition(dataPartition, batchSize)
+            List<CompletableFuture<Map<String, Variant>>> futureList = ListUtils.partition(dataPartition, batchSize)
                     .stream()
                     .map(listPart -> mappingApiService.variationPost(listPart)).collect(Collectors.toList());
 
             CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
-            for (CompletableFuture<Map<String, Variation>> future : futureList) {
+            for (CompletableFuture<Map<String, Variant>> future : futureList) {
                 cached.putAll(future.get());
             }
             CacheUtil.saveToFile(DataType.VARIATION, config.getCacheDir(), cached);
@@ -71,11 +71,11 @@ public class VariationService {
         return cached;
     }
 
-    public Map<String, Variation> getVariationsWhoseRsidHasChanged(Map<String, Variation> variantMap, List<String> snpRsIds) throws InterruptedException {
+    public Map<String, Variant> getVariationsWhoseRsidHasChanged(Map<String, Variant> variantMap, List<String> snpRsIds) throws InterruptedException {
         int count = 1;
         for (String snpRsId : snpRsIds) {
-            Variation variation = variantMap.get(snpRsId.trim());
-            if (variation == null) {
+            Variant variant = variantMap.get(snpRsId.trim());
+            if (variant == null) {
                 log.info("{} not found in batch or changed, now getting from Ensembl ...", snpRsId);
                 variantMap.putAll(this.restApiCall(snpRsId));
             } else {
@@ -88,28 +88,29 @@ public class VariationService {
     }
 
     @Cacheable(value = "variation")
-    public Variation getVariationFromDB(String snpRsId) {
+    public Variant getVariationFromDB(String snpRsId) {
         log.warn("Retrieving variation for snp: {}", snpRsId);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.SNP, snpRsId, config.getERelease());
-        Variation variation = new Variation();
+        Variant variant = new Variant();
         if (result == null) {
-            variation = this.restApiCall(snpRsId).get(snpRsId);
+            variant = this.restApiCall(snpRsId).get(snpRsId);
         } else {
             try {
-                variation = mapper.readValue(result.getRestResult(), Variation.class);
+                variant = mapper.readValue(result.getRestResult(), Variant.class);
             } catch (JsonProcessingException e) {  log.error(e.getMessage()); }
         }
-        return variation;
+        return variant;
     }
 
-    public Map<String, Variation> restApiCall(String snpRsId) {
-        Map<String, Variation> variationMap = new HashMap<>();
+    public Map<String, Variant> restApiCall(String snpRsId) {
+        Map<String, Variant> variationMap = new HashMap<>();
         String uri = String.format("%s/%s/%s", config.getServer(), Uri.VARIATION, snpRsId);
 
-        Variation variation = mappingApiService.getRequest(uri)
-                .map(response -> mapper.convertValue(response.getBody(), Variation.class))
-                .orElseGet(Variation::new);
-        variationMap.put(snpRsId, variation);
+        Variant variant = mappingApiService.getRequest(uri)
+                .map(response -> mapper.convertValue(response.getBody(), Variant.class))
+                .orElseGet(Variant::new);
+        variationMap.put(snpRsId, variant);
+
         return variationMap;
     }
 

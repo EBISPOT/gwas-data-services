@@ -2,18 +2,18 @@ package uk.ac.ebi.spot.gwas.variation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import uk.ac.ebi.spot.gwas.mapping.dto.Mapping;
 
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Variation {
+public class Variant {
 
     @JsonProperty("name")
     public String name;
@@ -51,4 +51,7 @@ public class Variation {
     @JsonProperty("failed")
     public String failed;
 
+    public Variant(String error) {
+        this.error = error; // This is needed when API returns error only
+    }
 }

@@ -19,7 +19,7 @@ import uk.ac.ebi.spot.gwas.overlap_gene.OverlapGene;
 import uk.ac.ebi.spot.gwas.overlap_region.OverlapRegion;
 import uk.ac.ebi.spot.gwas.common.service.*;
 import uk.ac.ebi.spot.gwas.common.util.MappingUtil;
-import uk.ac.ebi.spot.gwas.variation.Variation;
+import uk.ac.ebi.spot.gwas.variation.Variant;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -172,12 +172,12 @@ public class MappingSavingService {
 
         log.info(" Commence aggregating variation Rest History");
         List<EnsemblRestcallHistory> histories = new ArrayList<>();
-        for (Map.Entry<String, Variation> entry : ensembleData.getVariations().entrySet()) {
+        for (Map.Entry<String, Variant> entry : ensembleData.getVariations().entrySet()) {
             String snpRsId = entry.getKey();
-            Variation variation = entry.getValue();
-            if (variation.getMappings() != null) {
+            Variant variant = entry.getValue();
+            if (variant.getMappings() != null) {
                 String url = String.format("%s/%s/%s", config.getServer(), Uri.VARIATION, snpRsId);
-                RestResponseResult result = MappingUtil.successResult(url, mapper.writeValueAsString(variation));
+                RestResponseResult result = MappingUtil.successResult(url, mapper.writeValueAsString(variant));
                 histories.add(historyService.build(result, "snp", snpRsId, eRelease));
             }
         }

@@ -4,9 +4,9 @@ server:
 
 spring:
   datasource:
-    url: ''
-    username: ''
-    password: ''
+    url: 'jdbc:oracle:thin:@ora-vm-021.ebi.ac.uk:1531:spotpro'
+    username: 'gwas'
+    password: 'gwas_prod07'
     driver-class-name: oracle.jdbc.driver.OracleDriver
     hikari:
       maximumPoolSize: 80
@@ -22,8 +22,8 @@ ensembl:
   datasource:
     driver-class: org.mariadb.jdbc.Driver
     url: jdbc:mysql://useastdb.ensembl.org:3306
-  db_version: '99_38'
-  server: http://rest.ensembl.org
+  db_version: '105'
+  server: https://dec2021.rest.ensembl.org
 
 mapping:
   dbsnp_endpoint: /info/variation/homo_sapiens?content-type=application/json;filter=dbSNP
@@ -40,5 +40,7 @@ mapping:
   requestCount: 0
   requestPerSecond: 15
   snp_lookup_endpoint: variation
-  version: 104
-  cache: /Users/abayomi/nfs/spot/data/dev/gwas/app
+  version: 105
+  #cache: /Users/abayomi/Downloads/cache
+  cache: /nfs/spot/sw/prod/gwas/applications/mapper/ensembl-cache
+

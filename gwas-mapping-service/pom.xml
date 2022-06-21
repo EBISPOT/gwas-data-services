@@ -74,8 +74,6 @@
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
         </dependency>
-
-
     </dependencies>
 
     <build>
@@ -83,6 +81,17 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${user.dir}</outputDirectory>
+                    <finalName>gwas-mapping-service</finalName>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
