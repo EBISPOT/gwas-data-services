@@ -10,7 +10,7 @@ import uk.ac.ebi.spot.gwas.common.constant.DataType;
 import uk.ac.ebi.spot.gwas.gene_symbol.GeneSymbol;
 import uk.ac.ebi.spot.gwas.overlap_gene.OverlapGene;
 import uk.ac.ebi.spot.gwas.overlap_region.OverlapRegion;
-import uk.ac.ebi.spot.gwas.variation.Variation;
+import uk.ac.ebi.spot.gwas.variation.Variant;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -32,12 +32,12 @@ public class CacheUtil {
         // Hide implicit public constructor
     }
 
-    public static Map<String, Variation> variation(DataType dataType, String cacheDir) {
-        Map<String, Variation> variationMap = new HashMap<>();
+    public static Map<String, Variant> variation(DataType dataType, String cacheDir) {
+        Map<String, Variant> variationMap = new HashMap<>();
         String cache = cacheDir + dataType.getFileLocation();
 
         if (Files.exists(Paths.get(cache))) {
-            variationMap = mapper.convertValue(readJsonLocal(cache), new TypeReference<Map<String, Variation>>() {
+            variationMap = mapper.convertValue(readJsonLocal(cache), new TypeReference<Map<String, Variant>>() {
             });
         }
         return variationMap;

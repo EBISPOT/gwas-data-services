@@ -16,7 +16,7 @@ import uk.ac.ebi.spot.gwas.common.service.MappingRecordService;
 import uk.ac.ebi.spot.gwas.common.service.SecureUserRepository;
 import uk.ac.ebi.spot.gwas.common.service.SingleNucleotidePolymorphismQueryService;
 import uk.ac.ebi.spot.gwas.common.service.TrackingOperationService;
-import uk.ac.ebi.spot.gwas.variation.Variation;
+import uk.ac.ebi.spot.gwas.variation.Variant;
 import uk.ac.ebi.spot.gwas.variation.VariationService;
 
 import java.util.*;
@@ -88,41 +88,41 @@ public class MappingService {
                                                 Collection<String> reportedGenes, OperationMode mode) {
 
         log.info("Mapping pipeline commenced");
-        Variation variation;
+        Variant variant;
         if (mode == OperationMode.MAP_ALL_SNPS_INDB){
             mappingFacade.setEnsemblData(ensemblData);
-            variation = ensemblData.getVariations().get(snpRsId);
+            variant = ensemblData.getVariations().get(snpRsId);
         }else {
-            variation = variationService.getVariationFromDB(snpRsId);
+            variant = variationService.getVariationFromDB(snpRsId);
         }
 
         EnsemblMappingResult mappingResult = new EnsemblMappingResult();
         mappingResult.setRsId(snpRsId);
 
-        if (variation != null) {
-            if (Optional.ofNullable(variation.getError()).isPresent()) {
-                mappingResult.addPipelineErrors(variation.getError());
+        if (variant != null) {
+            if (Optional.ofNullable(variant.getError()).isPresent()) {
+                mappingResult.addPipelineErrors(variant.getError());
             } else {
 
-                String currentRsId = variation.getName();
+                String currentRsId = variant.getName();
                 if (!currentRsId.equals(snpRsId)) {
                     mappingResult.setMerged(1);
                     mappingResult.setCurrentSnpId(currentRsId);
                 }
 
-                if (Optional.ofNullable(variation.getFailed()).isPresent()) {
-                    mappingResult.addPipelineErrors(variation.getFailed());
+                if (Optional.ofNullable(variant.getFailed()).isPresent()) {
+                    mappingResult.addPipelineErrors(variant.getFailed());
                 }
 
                 // Mapping and genomic context calls
-                Collection<Location> locations = mappingFacade.getMappings(variation, mode);
+                Collection<Location> locations = mappingFacade.getMappings(variant, mode);
                 mappingResult.setLocations(locations);
 
                 // Add genomic context
                 if (!locations.isEmpty()) {
                     // Functional class (most severe consequence). This implies there is at least one variant location.
-                    if (Optional.ofNullable(variation.getMostSevereConsequence()).isPresent()) {
-                        mappingResult.setFunctionalClass(variation.getMostSevereConsequence());
+                    if (Optional.ofNullable(variant.getMostSevereConsequence()).isPresent()) {
+                        mappingResult.setFunctionalClass(variant.getMostSevereConsequence());
                     }
 
                     for (Location snpLocation : locations) {

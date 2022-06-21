@@ -1,0 +1,32 @@
+image: java:latest
+
+stages:
+  - build
+  - deploy-snoopy-dev1
+  - deploy-ves-pg-7e-prod
+
+maven-build:
+  image: maven:3-jdk-8
+  stage: build
+  script:
+    - echo "Building Jar File"
+    - mvn clean package -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true
+  artifacts:
+    paths:
+      - gwas-ui.jar
+    expire_in: 1 day
+
+deploy-dev1:
+  stage: deploy-snoopy-dev1
+  image: alpine
+  before_script:
+    - bash ci/add_ssh.sh
+  script:
+    - scp -o StrictHostKeyChecking=no gwas-ui.jar $SERVER_SNOOPY:$APP_DIR_DEV1
+    - ssh -o StrictHostKeyChecking=no $SERVER_SNOOPY
+      "kill -9 \$(ps aux | grep 'gwas-ui.jar' | grep -v 'grep' | awk '{print \$2}');"
+    - ssh -o StrictHostKeyChecking=no $SERVER_SNOOPY
+      "cd $APP_DIR_DEV1; nohup java -jar gwas-ui.jar $PROGRAM_ARGUMENTS --spring.profiles.active=dev1 > /dev/null 2>&1 &"
+  only:
+    - march-2021-refactoring
+

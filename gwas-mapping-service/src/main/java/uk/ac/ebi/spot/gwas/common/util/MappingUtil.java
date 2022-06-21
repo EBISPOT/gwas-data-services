@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.spot.gwas.assembly_info.AssemblyInfo;
 import uk.ac.ebi.spot.gwas.mapping.dto.Mapping;
 import uk.ac.ebi.spot.gwas.mapping.dto.RestResponseResult;
-import uk.ac.ebi.spot.gwas.variation.Variation;
+import uk.ac.ebi.spot.gwas.variation.Variant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class MappingUtil {
         }
     }
 
-    public static List<String> getAllChromosomesAndPositions(List<Variation> variants) {
+    public static List<String> getAllChromosomesAndPositions(List<Variant> variants) {
         List<String> locations = new ArrayList<>();
         variants.forEach(variant -> locations.addAll(variant.getMappings().stream()
                                                              .map(mapping -> String.format("%s:%s-%s",
@@ -39,7 +39,7 @@ public class MappingUtil {
         return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
     }
 
-    public static List<String> getAllChromosomes(List<Variation> variants) {
+    public static List<String> getAllChromosomes(List<Variant> variants) {
         List<String> locations = new ArrayList<>();
         variants.forEach(variant -> locations.addAll(variant.getMappings().stream()
                                                              .map(Mapping::getSeqRegionName)
@@ -47,7 +47,7 @@ public class MappingUtil {
         return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
     }
 
-    public static List<String> getUpstreamLocations(List<Variation> variants, int genomicDistance) {
+    public static List<String> getUpstreamLocations(List<Variant> variants, int genomicDistance) {
         int chromStart = 1;
         List<String> locations = new ArrayList<>();
         variants.forEach(variant -> variant.getMappings().forEach(mapping -> {
@@ -60,7 +60,7 @@ public class MappingUtil {
         return locations.stream().map(String::trim).distinct().collect(Collectors.toList());
     }
 
-    public static List<String> getDownstreamLocations(List<Variation> variants, Map<String, AssemblyInfo> assemblyInfoMap, int genomicDistance) {
+    public static List<String> getDownstreamLocations(List<Variant> variants, Map<String, AssemblyInfo> assemblyInfoMap, int genomicDistance) {
         List<String> locations = new ArrayList<>();
         variants.forEach(variant -> variant.getMappings().forEach(mapping -> {
             String chromosome = mapping.getSeqRegionName();

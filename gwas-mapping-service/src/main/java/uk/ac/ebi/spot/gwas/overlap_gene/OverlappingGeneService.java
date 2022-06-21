@@ -3,8 +3,11 @@ package uk.ac.ebi.spot.gwas.overlap_gene;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.DataType;
@@ -65,7 +68,9 @@ public class OverlappingGeneService {
         } else {
             try {
                 overlapGenes = Arrays.asList(mapper.readValue(result.getRestResult(), OverlapGene[].class));
-            } catch (JsonProcessingException e) { log.error(e.getMessage()); }
+            } catch (JsonProcessingException e) {
+                log.error(e.getMessage());
+            }
         }
         return overlapGenes;
     }
@@ -75,11 +80,15 @@ public class OverlappingGeneService {
         if (source.equals(config.getNcbiSource())) {
             uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());
         }
-        Map<String, List<OverlapGene>> geneOverlap = new HashMap<>();
-        List<OverlapGene> geneOverlapList = mappingApiService.getRequest(uri)
-                .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapGene>>() {}))
-                .orElseGet(ArrayList::new);
-        geneOverlap.put(mappingLocation, geneOverlapList);
-        return geneOverlap;
+
+        List<OverlapGene> geneOverlapList = mappingApiService.getRequest(uri).map(response -> {
+            if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+                return Collections.singletonList(mapper.convertValue(response.getBody(), OverlapGene.class));
+            } else {
+                return mapper.convertValue(response.getBody(), new TypeReference<List<OverlapGene>>() {});
+            }
+        }).orElseGet(ArrayList::new);
+
+        return Collections.singletonMap(mappingLocation, geneOverlapList);
     }
 }

@@ -8,7 +8,7 @@ import uk.ac.ebi.spot.gwas.assembly_info.AssemblyInfo;
 import uk.ac.ebi.spot.gwas.gene_symbol.GeneSymbol;
 import uk.ac.ebi.spot.gwas.overlap_gene.OverlapGene;
 import uk.ac.ebi.spot.gwas.overlap_region.OverlapRegion;
-import uk.ac.ebi.spot.gwas.variation.Variation;
+import uk.ac.ebi.spot.gwas.variation.Variant;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +19,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class EnsemblData {
 
-    private Map<String, Variation> variations;
+    private Map<String, Variant> variations;
     private Map<String, GeneSymbol> reportedGenes;
     private Map<String, List<OverlapRegion>> cytoGeneticBand;
     private Map<String, AssemblyInfo> assemblyInfo;

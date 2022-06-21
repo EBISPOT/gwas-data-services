@@ -14,7 +14,7 @@ import uk.ac.ebi.spot.gwas.overlap_gene.OverlapGene;
 import uk.ac.ebi.spot.gwas.overlap_gene.OverlappingGeneService;
 import uk.ac.ebi.spot.gwas.overlap_region.OverlapRegionService;
 import uk.ac.ebi.spot.gwas.overlap_region.OverlapRegion;
-import uk.ac.ebi.spot.gwas.variation.Variation;
+import uk.ac.ebi.spot.gwas.variation.Variant;
 import uk.ac.ebi.spot.gwas.variation.VariationService;
 
 import java.io.IOException;
@@ -55,10 +55,11 @@ public class EnsemblDataService {
         Files.createDirectories(path);
 
         Map<String, GeneSymbol> reportedGeneMap = geneSymbolService.getReportedGenes(THREAD_SIZE, API_BATCH_SIZE, reportedGenes);
-        Map<String, Variation> variantMap = variationService.getVariation(THREAD_SIZE, API_BATCH_SIZE, snpRsIds);
+
+        Map<String, Variant> variantMap = variationService.getVariation(THREAD_SIZE, API_BATCH_SIZE, snpRsIds);
         variantMap = variationService.getVariationsWhoseRsidHasChanged(variantMap, snpRsIds);
 
-        List<Variation> variants = new ArrayList<>();
+        List<Variant> variants = new ArrayList<>();
         variantMap.forEach((k, v) -> {
             if (v.getMappings() != null) {
                 variants.add(v);

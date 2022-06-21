@@ -30,7 +30,7 @@ public class EnsemblRunnner {
     private Integer loadingThreadSize = 40;
     private static final Integer MAPPING_THREAD_SIZE = 1;
 
-    private final MappingService ensemblService;
+    private final MappingService mappingService;
     private final SnpLoadingService snpLoadingService;
     private final EnsemblDataService ensemblDataService;
     private final MappingSavingService dataSavingService;
@@ -38,11 +38,11 @@ public class EnsemblRunnner {
     private AssociationService associationService;
     private EnsemblData ensemblData = EnsemblData.builder().build();
 
-    public EnsemblRunnner(MappingService ensemblService,
+    public EnsemblRunnner(MappingService mappingService,
                           SnpLoadingService snpLoadingService,
                           EnsemblDataService fileCacheService,
                           MappingSavingService dataSavingService) {
-        this.ensemblService = ensemblService;
+        this.mappingService = mappingService;
         this.snpLoadingService = snpLoadingService;
         this.ensemblDataService = fileCacheService;
         this.dataSavingService = dataSavingService;
@@ -60,7 +60,7 @@ public class EnsemblRunnner {
         OperationMode mode = OperationMode.MAP_SOME_SNPS_INDB;
         MappingDto mappingDto = snpLoadingService.getSnpsLinkedToLocus(mode, loadingThreadSize, DB_BATCH_SIZE);
         ensemblData = ensemblDataService.cacheEnsemblData(mappingDto);
-        List<Association> associations = snpLoadingService.getAssociationObjects(mode,
+        List<Association> associations = snpLoadingService.getAssociationInBatch(mode,
                                                                                  loadingThreadSize,
                                                                                  DB_BATCH_SIZE,
                                                                                  mappingDto.getTotalPagesToMap());
@@ -78,7 +78,7 @@ public class EnsemblRunnner {
         log.info("Mapping -m {}", performer);
         OperationMode mode = OperationMode.MAP_SOME_SNPS_INDB;
         Page<Association> pageInfo = associationService.getAssociationPageInfo(0, DB_BATCH_SIZE);
-        List<Association> associations = snpLoadingService.getAssociationObjects(mode,
+        List<Association> associations = snpLoadingService.getAssociationInBatch(mode,
                                                                                  loadingThreadSize,
                                                                                  DB_BATCH_SIZE,
                                                                                  pageInfo.getTotalPages());
@@ -97,7 +97,7 @@ public class EnsemblRunnner {
             try {
                 List<CompletableFuture<MappingDto>> futureList =
                         associationList.stream()
-                                .map(association -> ensemblService.mapAndSaveData(association, ensemblData, mode))
+                                .map(association -> mappingService.mapAndSaveData(association, ensemblData, mode))
                                 .collect(Collectors.toList());
                 CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
                 for (CompletableFuture<MappingDto> future : futureList) {
@@ -111,7 +111,7 @@ public class EnsemblRunnner {
         }
 
         dataSavingService.postMappingReportCheck(associations);
-        // dataSavingService.saveRestHistory(ensemblData, config.getERelease(), THREAD_SIZE)
+        //dataSavingService.saveRestHistory(ensemblData, config.getERelease(), THREAD_SIZE)
         log.info("Total Association mapping time {}", (System.currentTimeMillis() - start));
         log.trace(String.valueOf(mappingDtoList));
     }
