@@ -15,7 +15,7 @@ public class ScheduledTasks {
     private EnsemblRunnner ensemblRunnner;
     private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
 
-    //@Scheduled(fixedDelay = 18000000)
+    @Scheduled(fixedDelay = 18000000)
     public void scheduleTaskWithFixedDelay() throws ExecutionException, InterruptedException {
         log.info("Fixed Delay Task :: Starting Mapping Pipeline");
         String performer = "automatic_mapping_process";

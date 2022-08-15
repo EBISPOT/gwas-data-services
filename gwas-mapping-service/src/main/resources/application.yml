@@ -1,12 +1,12 @@
 server:
-  port: 8080
+  port: 8685
 
 
 spring:
   datasource:
-    url: 'jdbc:oracle:thin:@ora-vm-021.ebi.ac.uk:1531:spotpro'
-    username: 'gwas'
-    password: 'gwas_prod07'
+    url:
+    username:
+    password:
     driver-class-name: oracle.jdbc.driver.OracleDriver
     hikari:
       maximumPoolSize: 80
@@ -42,5 +42,5 @@ mapping:
   snp_lookup_endpoint: variation
   version: 105
   #cache: /Users/abayomi/Downloads/cache
-  cache: /nfs/spot/sw/prod/gwas/applications/mapper/ensembl-cache
+  cache: /nfs/gwas/data/prod/sw/mapper/ensembl-cache
 
