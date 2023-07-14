@@ -12,7 +12,7 @@ public class ReportTemplate {
     private final AtomicInteger noProcessed = new AtomicInteger();
     private final StringBuffer obsoleteSb = new StringBuffer();
     private final StringBuffer updatedSb = new StringBuffer();
-    private final StringBuffer errorSb = new StringBuffer();
+    private final StringBuffer errorSb = new StringBuffer("Errors: ");
 
     public void addObsolete(EfoTrait oldEfo, EfoTrait newEfo) {
         noObsolete.incrementAndGet();
@@ -26,9 +26,12 @@ public class ReportTemplate {
                  .append("(").append(newEfo.getTrait()).append(", ").append(newEfo.getShortForm()).append(")\n");
     }
 
-    public void addError(Exception e) {
+    public void addError(Exception e, String shortForm) {
         noErrors.incrementAndGet();
-        errorSb.append(e.getMessage()).append("\n");
+        if (shortForm != null) {
+            errorSb.append(shortForm).append(" ");
+        }
+        else errorSb.append(e.getMessage()).append("\n");
     }
 
     public void addProcessed() {

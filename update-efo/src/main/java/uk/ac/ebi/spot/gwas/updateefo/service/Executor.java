@@ -63,8 +63,8 @@ public class Executor implements ApplicationRunner {
         }
 
         latch.await();
+        executorService.shutdownNow();
         System.out.println(reportTemplate.generateReport());
         emailService.sendEmail("Update and obsolete EFO job report", reportTemplate.generateReport());
-        executorService.shutdownNow();
     }
 }

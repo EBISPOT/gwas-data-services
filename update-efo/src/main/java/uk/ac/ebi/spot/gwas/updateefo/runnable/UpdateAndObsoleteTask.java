@@ -47,20 +47,20 @@ public class UpdateAndObsoleteTask implements Runnable {
                         efoEncodedUri = URLEncoder.encode(olsEfoTrait.getTermReplacedBy(), StandardCharsets.UTF_8.toString());
                         olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
                         EfoTrait newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
-//                        efoTraitRepository.save(newEfo);
+                        efoTraitRepository.save(newEfo);
                         reportTemplate.addObsolete(efoTrait, newEfo);
                     } else if (!olsEfoTrait.getLabel().equals(efoTrait.getTrait())) {
                         EfoTrait newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), efoTrait.getShortForm(), efoTrait.getUri(), efoTrait.getCreated(), efoTrait.getUpdated());
-//                        efoTraitRepository.save(newEfo);
+                        efoTraitRepository.save(newEfo);
                         reportTemplate.addUpdated(efoTrait, newEfo);
                     }
                 } catch (Exception e) {
-                    reportTemplate.addError(e);
+                    reportTemplate.addError(e, efoTrait.getShortForm());
                 }
             }
         }
         catch (Exception e) {
-            reportTemplate.addError(e);
+            reportTemplate.addError(e, null);
             throw new RuntimeException(e);
         }
         finally {
