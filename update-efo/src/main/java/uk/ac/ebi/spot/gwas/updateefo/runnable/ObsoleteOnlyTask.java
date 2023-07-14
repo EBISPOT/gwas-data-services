@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 
 public class ObsoleteOnlyTask implements Runnable{
 
-    private int pageNumber;
-    private int olsPageSize;
-    private CountDownLatch latch;
-    private ReportTemplate reportTemplate;
-    private EfoTraitRepository efoTraitRepository;
+    private final int pageNumber;
+    private final int olsPageSize;
+    private final CountDownLatch latch;
+    private final ReportTemplate reportTemplate;
+    private final EfoTraitRepository efoTraitRepository;
 
     public ObsoleteOnlyTask(int pageNumber, int olsBatchSize, EfoTraitRepository efoTraitRepository, CountDownLatch latch, ReportTemplate reportTemplate) {
         this.pageNumber = pageNumber;
@@ -46,17 +46,17 @@ public class ObsoleteOnlyTask implements Runnable{
                         String efoEncodedUri = URLEncoder.encode(termReplacedBy, StandardCharsets.UTF_8.toString());
                         OlsEfoTrait olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
                         EfoTrait newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
-//                efoTraitRepository.save(newEfo);
+                        efoTraitRepository.save(newEfo);
                         reportTemplate.addObsolete(efoTrait, newEfo);
                     }
                 }
                 catch (Exception e) {
-                    reportTemplate.addError(e);
+                    reportTemplate.addError(e, efoTrait.getShortForm());
                 }
             }
         }
         catch (Exception e) {
-            reportTemplate.addError(e);
+            reportTemplate.addError(e, null);
             throw new RuntimeException(e);
         }
         finally {
