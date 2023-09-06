@@ -43,6 +43,7 @@ public class ObsoleteOnlyTask implements Runnable{
                     reportTemplate.addProcessed();
                     String termReplacedBy = olsEfoTraitMap.get(efoTrait.getShortForm()).getTermReplacedBy();
                     if (termReplacedBy != null) {
+                        termReplacedBy = termReplacedBy.replace(":", "_");
                         String efoEncodedUri = URLEncoder.encode(termReplacedBy, StandardCharsets.UTF_8.toString());
                         OlsEfoTrait olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
                         EfoTrait newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
