@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.assembly_info.AssemblyInfo;
 import uk.ac.ebi.spot.gwas.association.Association;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
@@ -44,15 +46,9 @@ public class MappingSavingService {
     private EnsemblRestcallHistoryService historyService;
     @Autowired
     private AppConfig config;
-
-    public MappingDto saveMappedData(SingleNucleotidePolymorphism snpLinkedToLocus, EnsemblMappingResult ensemblMappingResult) {
-
-        // Map to store returned location data, this is used in snpLocationMappingService to process all locations linked to a single snp in one go
-        Map<String, Set<Location>> snpToLocationsMap = new HashMap<>();
-        // Collection to store all genomic contexts
-        Collection<GenomicContext> allGenomicContexts = new ArrayList<>();
-        // Collection to store all errors for one association
-        Collection<String> associationPipelineErrors = new ArrayList<>();
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public MappingDto   saveMappedData(SingleNucleotidePolymorphism snpLinkedToLocus, EnsemblMappingResult ensemblMappingResult, Map<String, Set<Location>> snpToLocationsMap,
+                                       Collection<GenomicContext> allGenomicContexts, Collection<String> associationPipelineErrors) {
 
 
         String snpRsId = snpLinkedToLocus.getRsId();
@@ -98,6 +94,8 @@ public class MappingSavingService {
         // Store location information for SNP
         if (!locations.isEmpty()) {
             for (Location location : locations) {
+                log.info("Snpid & Location are -> "+snpRsId+","+location.getChromosomeName()+"|"+location.getRegion().getName());
+
                 // Next time we see SNP, add location to set. This would only occur if SNP has multiple locations
                 if (snpToLocationsMap.containsKey(snpRsId)) {
                     snpToLocationsMap.get(snpRsId).add(location);
@@ -136,6 +134,7 @@ public class MappingSavingService {
         associationReportService.reportCheck(associations);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     void createAssociationReports(Association association, MappingDto mappingDto) {
 
         Collection<GenomicContext> allGenomicContexts = mappingDto.getAllGenomicContexts();

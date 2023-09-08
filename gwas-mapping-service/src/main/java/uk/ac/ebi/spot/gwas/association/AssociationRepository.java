@@ -27,4 +27,7 @@ public interface AssociationRepository extends JpaRepository<Association, Long> 
             "JOIN association.study study " +
             "WHERE study.id = :studyId ")
     List<Association> findAssociationByStudyId(@Param("studyId") Long studyId);
+
+
+    List<Association> findByIdIsIn(List<Long> ids);
 }

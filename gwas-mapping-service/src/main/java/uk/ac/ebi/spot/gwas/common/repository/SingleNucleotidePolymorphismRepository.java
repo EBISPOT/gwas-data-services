@@ -28,6 +28,8 @@ public interface SingleNucleotidePolymorphismRepository extends JpaRepository<Si
             " WHERE loci.id in :ids")
     List<MappingProjection> findUsingRiskAllelesLociIds(@Param("ids") List<Long> ids);
 
+
+
     @Query("select new SingleNucleotidePolymorphism(s.id) from SingleNucleotidePolymorphism s join s.locations loc " +
             "where loc.id = :locationId")
     List<SingleNucleotidePolymorphism> findIdsByLocationId(Long locationId);
