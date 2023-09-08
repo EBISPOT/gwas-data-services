@@ -2,6 +2,8 @@ package uk.ac.ebi.spot.gwas.common.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.model.Gene;
 import uk.ac.ebi.spot.gwas.common.model.GenomicContext;
 import uk.ac.ebi.spot.gwas.common.model.Location;
@@ -16,7 +18,7 @@ public class GenomicContextCreationService {
     private GeneRepository geneRepository;
     @Autowired
     private GenomicContextRepository genomicContextRepository;
-
+    @Transactional(propagation = Propagation.SUPPORTS)
     public GenomicContext createGenomicContext(Boolean isIntergenic,
                                                Boolean isUpstream,
                                                Boolean isDownstream,

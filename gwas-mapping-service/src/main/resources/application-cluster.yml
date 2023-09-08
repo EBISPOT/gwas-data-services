@@ -4,18 +4,19 @@ server:
 
 spring:
   datasource:
-    url:
-    username:
-    password:
+    url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
+    username: gwas
+    password: gwas_prod07
     driver-class-name: oracle.jdbc.driver.OracleDriver
-    hikari:
-      maximumPoolSize: 80
+    #hikari:
+      #maximumPoolSize: 80
   jpa:
     hibernate:
       ddl-auto: none
     properties:
       hibernate:
-        enable_lazy_load_no_trans:true
+        jdbc:
+          batch_size: 10
 
 
 ensembl:
@@ -41,6 +42,6 @@ mapping:
   requestPerSecond: 15
   snp_lookup_endpoint: variation
   version: 105
-  #cache: /Users/abayomi/Downloads/cache
+  #cache: /Users/sajo/Downloads/cache
   cache: /nfs/gwas/data/prod/sw/mapper/ensembl-cache
 

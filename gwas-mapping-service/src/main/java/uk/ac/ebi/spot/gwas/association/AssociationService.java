@@ -38,6 +38,7 @@ public class AssociationService {
     @Autowired
     private SingleNucleotidePolymorphismRepository snpRepo;
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public Page<Association> getAssociationPageInfo(int start, int size) {
         log.info("Retrieving Association Page info ...");
         Pageable pageable = PageRequest.of(start, size);
@@ -85,8 +86,15 @@ public class AssociationService {
     }
 
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<Association> getAssociations(List<Long> asscnIds) {
+        log.info("Get details for these associations"+asscnIds.size());
+        return associationRepository.findByIdIsIn(asscnIds);
+    }
+
+
     @Async("asyncExecutor")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     public CompletableFuture<List<Association>> getAssociations(int start, int size, OperationMode mode) {
         log.info("Get association {} : {} starts", start, size);
         Pageable pageable = PageRequest.of(start, size);

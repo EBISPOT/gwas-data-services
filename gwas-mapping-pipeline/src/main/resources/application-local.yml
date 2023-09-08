@@ -1,0 +1,38 @@
+server:
+  port: 8084
+
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
+    username: gwas
+    password: gwas_prod07
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    hikari:
+      maximumPoolSize: 80
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: ERROR
+        type: ERROR
+
+
+executor:
+  thread-pool:
+    count:
+
+association:
+  partition:
+    size:
+
+
+script: /Users/sajo/Documents/git/projects/gwas-data-services/gwas-mapping-pipeline/src/main/scripts/run-bjobs-mapper.sh
+
+
+

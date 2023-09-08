@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.model.*;
 import uk.ac.ebi.spot.gwas.common.repository.*;
 
@@ -50,6 +52,7 @@ public class SnpGenomicContextMappingService {
      *
      * @param genomicContexts object holding gene and snp mapping information
      */
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void processGenomicContext(Collection<GenomicContext> genomicContexts) {
 
         processGenes(genomicContexts);
@@ -76,7 +79,8 @@ public class SnpGenomicContextMappingService {
      *
      * @param genomicContexts object holding gene and snp mapping information
      */
-    private void processGenes(Collection<GenomicContext> genomicContexts) {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void processGenes(Collection<GenomicContext> genomicContexts) {
 
         log.info("Processing genes...");
 
@@ -158,7 +162,8 @@ public class SnpGenomicContextMappingService {
      * @param geneToExternalIdMap map of a gene name and all external database IDs from current mapping run
      * @param source              the source of mapping, either Ensembl or Entrez
      */
-    private void storeGenes(Map<String, Set<String>> geneToExternalIdMap, String source) {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void storeGenes(Map<String, Set<String>> geneToExternalIdMap, String source) {
 
         List<Gene> genesToUpdate = new ArrayList<>();
         List<Gene> genesToCreate = new ArrayList<>();
@@ -261,7 +266,8 @@ public class SnpGenomicContextMappingService {
      *
      * @param snpToGenomicContextMap map of rs_id and all genomic context details returned from current mapping run
      */
-    private void storeSnpGenomicContext(Map<String, Set<GenomicContext>> snpToGenomicContextMap) {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void storeSnpGenomicContext(Map<String, Set<GenomicContext>> snpToGenomicContextMap) {
 
         List<SingleNucleotidePolymorphism> updatedSnps = new ArrayList<>();
         // Go through each rs_id and its associated genomic contexts returned from the mapping pipeline
@@ -376,7 +382,8 @@ public class SnpGenomicContextMappingService {
      * @param externalIds external gene IDs
      * @param source      the source of mapping, either Ensembl or Entrez
      */
-    private Gene createGene(String geneName, Set<String> externalIds, String source) {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public Gene createGene(String geneName, Set<String> externalIds, String source) {
         // Create new gene
         Gene newGene = new Gene();
         newGene.setGeneName(geneName);
@@ -412,7 +419,8 @@ public class SnpGenomicContextMappingService {
      * @param id       Ensembl gene ID
      * @param geneName Gene name allows method to check if this id is actually already linked to another gene
      */
-    private EnsemblGene createOrRetrieveEnsemblExternalId(String id, String geneName) {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public EnsemblGene createOrRetrieveEnsemblExternalId(String id, String geneName) {
         EnsemblGene ensemblGene = ensemblGeneQueryService.findByEnsemblGeneId(id);
 
         // Create new entry in ENSEMBL_GENE table for this ID
@@ -447,7 +455,8 @@ public class SnpGenomicContextMappingService {
      * @param id       Entrez gene ID
      * @param geneName Gene name allows method to check if this id is actually already linked to another gene
      */
-    private EntrezGene createOrRetrieveEntrezExternalId(String id, String geneName) {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public EntrezGene createOrRetrieveEntrezExternalId(String id, String geneName) {
         EntrezGene entrezGene = entrezGeneQueryService.findByEntrezGeneId(id);
 
         // Create new entry in ENTREZ_GENE table for this ID
@@ -481,8 +490,8 @@ public class SnpGenomicContextMappingService {
      *
      * @param id Ensembl gene ID to delete
      */
-
-    private void cleanUpEnsemblGenes(Long id, List<EnsemblGene> ensemblGenesToDelete) {
+    @Transactional(readOnly = true)
+    public void cleanUpEnsemblGenes(Long id, List<EnsemblGene> ensemblGenesToDelete) {
 
         // Find any genes with this Ensembl ID
         EnsemblGene ensemblGene = ensemblGeneRepository.findById(id).get();
@@ -500,7 +509,8 @@ public class SnpGenomicContextMappingService {
      *
      * @param id Entrez gene ID to delete
      */
-    private void cleanUpEntrezGenes(Long id, List<EntrezGene> entrezGenesToDelete) {
+    @Transactional(readOnly = true)
+    public void cleanUpEntrezGenes(Long id, List<EntrezGene> entrezGenesToDelete) {
 
         // Find any genes with this Entrez ID
         EntrezGene entrezGene = entrezGeneRepository.findById(id).get();
@@ -518,6 +528,7 @@ public class SnpGenomicContextMappingService {
      *
      * @param snp SNP from which to remove the associated genomic contexts
      */
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void removeExistingGenomicContexts(SingleNucleotidePolymorphism snp) {
 
         // Get a list of locations currently genomic context
@@ -548,7 +559,8 @@ public class SnpGenomicContextMappingService {
      *
      * @param id Id of location object
      */
-    private void cleanUpLocations(Long id) {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void cleanUpLocations(Long id) {
         List<SingleNucleotidePolymorphism> snps =
                 singleNucleotidePolymorphismRepository.findIdsByLocationId(id);
         List<GenomicContext> genomicContexts = genomicContextRepository.findIdsByLocationId(id);

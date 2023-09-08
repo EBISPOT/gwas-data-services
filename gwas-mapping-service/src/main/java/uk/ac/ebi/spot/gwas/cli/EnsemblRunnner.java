@@ -5,6 +5,8 @@ import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.constant.OperationMode;
 import uk.ac.ebi.spot.gwas.ensembl_data.EnsemblData;
 import uk.ac.ebi.spot.gwas.mapping.MappingSavingService;
@@ -28,6 +30,7 @@ public class EnsemblRunnner {
 
     private static final Integer DB_BATCH_SIZE = 1000;
     private Integer loadingThreadSize = 40;
+    //private Integer loadingThreadSize = 1;
     private static final Integer MAPPING_THREAD_SIZE = 1;
 
     private final MappingService mappingService;
@@ -73,7 +76,7 @@ public class EnsemblRunnner {
         List<Association> associations = associationService.getAssociationsByStudy(studyId);
         this.mapAssociations(mode, associations, ensemblData);
     }
-
+    //@Transactional(propagation = Propagation.REQUIRED)
     public void mapSomeAssociations(String performer) throws ExecutionException, InterruptedException {
         log.info("Mapping -m {}", performer);
         OperationMode mode = OperationMode.MAP_SOME_SNPS_INDB;
@@ -85,6 +88,14 @@ public class EnsemblRunnner {
         this.mapAssociations(mode, associations, ensemblData);
     }
 
+    public void mapAssociationList(List<Long> associationIds) {
+        OperationMode mode = OperationMode.MAP_SOME_SNPS_INDB;
+        List<Association> associations = associationService.getAssociations(associationIds);
+        log.info("associations size"+associations.size());
+        this.mapAssociations(mode, associations, ensemblData);
+    }
+
+    //@Transactional(propagation = Propagation.SUPPORTS)
     public void mapAssociations(OperationMode mode,
                                 List<Association> associations,
                                 EnsemblData ensemblData) {
