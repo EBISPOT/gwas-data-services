@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.gwas.updateefo.dto.OlsEfoTrait;
 import uk.ac.ebi.spot.gwas.updateefo.domain.EfoTrait;
+import uk.ac.ebi.spot.gwas.updateefo.dto.OlsEfoTraitPage;
 import uk.ac.ebi.spot.gwas.updateefo.report.ReportTemplate;
 import uk.ac.ebi.spot.gwas.updateefo.repository.EfoTraitRepository;
 
@@ -44,10 +45,15 @@ public class UpdateAndObsoleteTask implements Runnable {
                     String efoEncodedUri = URLEncoder.encode(efoTrait.getUri(), StandardCharsets.UTF_8.toString());
                     OlsEfoTrait olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
                     if (olsEfoTrait.isObsolete() && olsEfoTrait.getTermReplacedBy() != null) {
-                        olsEfoTrait.setTermReplacedBy(olsEfoTrait.getTermReplacedBy().replace(":", "_"));
-                        efoEncodedUri = URLEncoder.encode(olsEfoTrait.getTermReplacedBy(), StandardCharsets.UTF_8.toString());
-                        olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
-                        EfoTrait newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
+                        EfoTrait newEfo;
+                        if (olsEfoTrait.getTermReplacedBy().startsWith("http")) {
+                            efoEncodedUri = URLEncoder.encode(olsEfoTrait.getTermReplacedBy(), StandardCharsets.UTF_8.toString());
+                            olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
+                        }
+                        else {
+                            olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms?shortform=" + olsEfoTrait.getTermReplacedBy(), OlsEfoTraitPage.class).get_embedded().getTerms().get(0);
+                        }
+                        newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
                         efoTraitRepository.save(newEfo);
                         reportTemplate.addObsolete(efoTrait, newEfo);
                     } else if (!olsEfoTrait.getLabel().equals(efoTrait.getTrait())) {

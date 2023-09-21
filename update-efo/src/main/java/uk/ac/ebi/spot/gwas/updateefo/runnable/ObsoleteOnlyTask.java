@@ -43,16 +43,16 @@ public class ObsoleteOnlyTask implements Runnable{
                     reportTemplate.addProcessed();
                     String termReplacedBy = olsEfoTraitMap.get(efoTrait.getShortForm()).getTermReplacedBy();
                     if (termReplacedBy != null) {
+                        OlsEfoTrait olsEfoTrait;
                         EfoTrait newEfo;
                         if (termReplacedBy.startsWith("http")) {
                             String efoEncodedUri = URLEncoder.encode(termReplacedBy, StandardCharsets.UTF_8.toString());
-                            OlsEfoTrait olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
-                            newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
+                            olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
                         }
                         else {
-                            OlsEfoTrait olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms?shortform=" + termReplacedBy, OlsEfoTraitPage.class).get_embedded().getTerms().get(0);
-                            newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
+                            olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms?shortform=" + termReplacedBy, OlsEfoTraitPage.class).get_embedded().getTerms().get(0);
                         }
+                        newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
                         efoTraitRepository.save(newEfo);
                         reportTemplate.addObsolete(efoTrait, newEfo);
                     }
