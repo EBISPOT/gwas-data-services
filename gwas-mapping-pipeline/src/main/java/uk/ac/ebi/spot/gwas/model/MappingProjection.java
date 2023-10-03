@@ -2,8 +2,22 @@ package uk.ac.ebi.spot.gwas.model;
 
 public interface MappingProjection {
 
-    Long getAssociationId();
-    Long getLocusId();
+    String getChromosomeName();
+    Integer getChromosomePosition();
+    String getRegionName();
     String getGeneName();
-    String getSnpRsid();
+    Long getGeneId();
+
+    Boolean getIsDownstream();
+
+    Boolean getIsUpstream();
+
+    Boolean getIsIntergenic();
+
+    Boolean getIsClosestGene();
+
+    Long getDistance();
+
+
+
 }

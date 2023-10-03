@@ -41,12 +41,14 @@ public class Cli implements CommandLineRunner {
         CommandLine commandLine = parser.parse(options, args, true);
         boolean mode = commandLine.hasOption(CommandUtil.EXEC_MODE_OPT);
         List<String> argList = commandLine.getArgList();
-
+        List<Long> asscnIds = null;
         if (mode) {
             String execMode = (argList.size() > 0) ? argList.get(0) : "";
             int threadSize = (argList.size() > 1) ? Integer.parseInt(argList.get(1)) : 40;
             List<String> associationIds = (argList.size() > 2) ? Arrays.asList(argList.get(2).split(",")) : null;
-            List<Long> asscnIds = associationIds.stream().map(asscnId -> new Long(asscnId)).collect(Collectors.toList());
+            if(associationIds != null) {
+                asscnIds = associationIds.stream().map(asscnId -> new Long(asscnId)).collect(Collectors.toList());
+            }
             this.menuDecision(execMode, threadSize, asscnIds);
         } else {
             help.printHelp(130, APP_COMMAND,  "", options,"");
@@ -64,7 +66,7 @@ public class Cli implements CommandLineRunner {
             case "map-some-snp":
                 log.info("Mapping -m {}", executionMode);
                 ensemblRunnner.mapSomeAssociations(performer);
-                System.exit(1);
+                //System.exit(1);
                 break;
             case "cache-ensembl-data":
                 ensemblRunnner.runCache(threadSize);

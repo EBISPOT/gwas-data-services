@@ -65,6 +65,12 @@ public class Cli implements CommandLineRunner {
                                 .collect(Collectors.toList()))
                         .flatMap(asscnIds ->asscnIds.stream())
                         .collect(Collectors.toList());
+            } else if(executionMode.equals("schedule")) {
+                associationService.scheduledRemapping(outputDir, errorDir);
+            } else if(executionMode.equals("full")) {
+                associationService.fullRemapping(outputDir, errorDir);
+            }else if(executionMode.equals("mapping-error-list")) {
+                associationService.findAssociationMappingError();
             } else {
                 asscns = Arrays.asList(rsIds).stream()
                         .map(associationService::getAssociationBasedOnRsId)
@@ -75,9 +81,11 @@ public class Cli implements CommandLineRunner {
                         .flatMap(asscnIds -> asscnIds.stream())
                         .collect(Collectors.toList());
             }
-            associationService.updateMappingDetails(asscns);
-            mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir);
-            log.info("Total Association count to map is {}", asscns.size() );
+            if( !executionMode.equals("full") && !executionMode.equals("schedule")) {
+                associationService.updateMappingDetails(asscns);
+                mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-1");
+                log.info("Total Association count to map is {}", asscns.size());
+            }
             log.info("Mapping Pipeline took {} ms", (System.currentTimeMillis()- start));
             bsubLog.info("Mapping Pipeline took {} ms", (System.currentTimeMillis()- start));
             Date endDate = new Date();

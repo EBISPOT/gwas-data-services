@@ -51,7 +51,11 @@ public class MappingService {
         log.info("commenced mapping and saving Association {} Data", association.getId());
         MappingDto mappingDto = MappingDto.builder().build();
         Collection<Locus> studyAssociationLoci = association.getLoci();
-
+        Map<String, Set<Location>> snpToLocationsMap = new HashMap<>();
+        // Collection to store all genomic contexts
+        Collection<GenomicContext> allGenomicContexts = new ArrayList<>();
+        // Collection to store all errors for one association
+        Collection<String> associationPipelineErrors = new ArrayList<>();
         for (Locus associationLocus : studyAssociationLoci) {
             Long locusId = associationLocus.getId();
             Collection<SingleNucleotidePolymorphism> snpsLinkedToLocus = singleNucleotidePolymorphismQueryService.findByRiskAllelesLociId(locusId);
@@ -63,11 +67,7 @@ public class MappingService {
                     authorReportedGeneNamesLinkedToSnp.add(g.getGeneName().trim());
                 }
             });
-            Map<String, Set<Location>> snpToLocationsMap = new HashMap<>();
-            // Collection to store all genomic contexts
-            Collection<GenomicContext> allGenomicContexts = new ArrayList<>();
-            // Collection to store all errors for one association
-            Collection<String> associationPipelineErrors = new ArrayList<>();
+
             for (SingleNucleotidePolymorphism snpLinkedToLocus : snpsLinkedToLocus) {
                 String snpRsId = snpLinkedToLocus.getRsId();
                 // Map to store returned location data, this is used in snpLocationMappingService to process all locations linked to a single snp in one go
