@@ -7,6 +7,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public interface MappingJobSubmitterService {
 
-    public void executePipeline(List<Long> asscnIds, String outDir, String errorDir);
+    public void executePipeline(List<Long> asscnIds, String outDir, String errorDir, String executorPool);
 
 }

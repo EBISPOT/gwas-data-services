@@ -33,7 +33,7 @@ public class MappingJobSubmitterServiceImpl implements MappingJobSubmitterServic
     @Autowired
     Config config;
 
-    public void executePipeline(List<Long> asscnIds, String outDir, String errorDir)  {
+    public void executePipeline(List<Long> asscnIds, String outDir, String errorDir, String executorPool)  {
         ThreadPoolExecutor poolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(config.getThreadPool());
         String activeProfile = config.getActiveProfile();
         log.info("Active profile is ->"+activeProfile);
@@ -49,7 +49,7 @@ public class MappingJobSubmitterServiceImpl implements MappingJobSubmitterServic
                     poolExecutor.submit(() -> {
                         try {
                             log.info("partAssociations is ->" + partAssociations.stream().collect(Collectors.joining(",")));
-                            String command = String.format("%s %s %s", config.getScript(),Math.abs(partAsscnIds.hashCode()),partAssociations.stream().collect(Collectors.joining(",")));
+                            String command = String.format("%s %s %s %s", config.getScript(),Math.abs(partAsscnIds.hashCode()),partAssociations.stream().collect(Collectors.joining(",")), executorPool);
                             log.info("COmmand is ->"+command);
                             Process process = Runtime.getRuntime().exec(command);
                             String str = "";
@@ -69,7 +69,7 @@ public class MappingJobSubmitterServiceImpl implements MappingJobSubmitterServic
                     poolExecutor.submit(() -> {
                         try {
                             log.info("partAssociations is ->" + partAssociations.stream().collect(Collectors.joining(",")));
-                            String command = String.format("%s %s %s", config.getScript(),Math.abs(partAsscnIds.hashCode()),partAssociations.stream().collect(Collectors.joining(",")));
+                            String command = String.format("%s %s %s %s", config.getScript(),Math.abs(partAsscnIds.hashCode()),partAssociations.stream().collect(Collectors.joining(",")), executorPool);
                             log.info("COmmand is"+command);
                             Process process = Runtime.getRuntime().exec(command);
                             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));

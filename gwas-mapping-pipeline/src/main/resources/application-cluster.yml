@@ -22,7 +22,6 @@ logging:
         SQL: ERROR
         type: ERROR
 
-
 executor:
   thread-pool:
     count:

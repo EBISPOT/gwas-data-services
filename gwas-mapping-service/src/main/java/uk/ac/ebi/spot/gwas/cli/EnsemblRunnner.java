@@ -1,5 +1,6 @@
 package uk.ac.ebi.spot.gwas.cli;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.OperationMode;
 import uk.ac.ebi.spot.gwas.ensembl_data.EnsemblData;
 import uk.ac.ebi.spot.gwas.mapping.MappingSavingService;
@@ -39,6 +41,9 @@ public class EnsemblRunnner {
     private final MappingSavingService dataSavingService;
     @Autowired
     private AssociationService associationService;
+
+    //@Autowired
+    //private AppConfig config;
     private EnsemblData ensemblData = EnsemblData.builder().build();
 
     public EnsemblRunnner(MappingService mappingService,
@@ -115,14 +120,15 @@ public class EnsemblRunnner {
                     mappingDtoList.add(future.get());
                 }
             } catch (Exception e) {
-                log.error("Association was not mapped due to error {}", e.getMessage());
+                log.error("Association {} was not mapped due to error {}", associationList.get(0).getId(), e.getMessage());
             }
             log.info("Finished Processing {} Association", count);
             count += MAPPING_THREAD_SIZE;
         }
 
         dataSavingService.postMappingReportCheck(associations);
-        //dataSavingService.saveRestHistory(ensemblData, config.getERelease(), THREAD_SIZE)
+        //dataSavingService.saveRestHistory(ensemblData, config.getERelease(), associations.size());
+
         log.info("Total Association mapping time {}", (System.currentTimeMillis() - start));
         log.trace(String.valueOf(mappingDtoList));
     }

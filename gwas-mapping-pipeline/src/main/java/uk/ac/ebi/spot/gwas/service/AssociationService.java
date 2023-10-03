@@ -9,5 +9,12 @@ public interface AssociationService {
 
      Set<Association> getAssociationBasedOnRsId(String rsId);
 
-     public void updateMappingDetails(List<Long> ids);
+     void updateMappingDetails(List<Long> ids);
+
+     void fullRemapping(String outputDir, String errorDir);
+
+
+     void scheduledRemapping(String outputDir, String errorDir);
+
+     void findAssociationMappingError();
 }

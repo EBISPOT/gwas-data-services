@@ -2,6 +2,7 @@
 
 # Capture absolute path for the script:
 scriptDir=${0%/*}/;
+mode=${1}
 # Links to files: Needs to be updated for all the environments:
 jarLocation=/hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline
 logslocation=/hps/nobackup/parkinso/spot/gwas/logs/mapping-pipeline/logs/bsub
@@ -33,9 +34,9 @@ echo "documentParameters is ${documentParameters}"
 
 rm -rf ${logslocation}/*
 
-java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=5 -Dassociation.partition.size=2 \
+java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dassociation.partition.size=15 \
     ${documentParameters} \
-    -jar ${jarLocation}/gwas-mapping-pipeline.jar -m file -i ${jarLocation}/Incorrecly_mapped_variants_snapshot.tsv -o ${logslocation} -e ${logslocation}
+    -jar ${jarLocation}/gwas-mapping-pipeline.jar -m ${mode} -i ${jarLocation}/Incorrecly_mapped_variants.tsv -o ${logslocation} -e ${logslocation}
 
 
 # Capture exit code:

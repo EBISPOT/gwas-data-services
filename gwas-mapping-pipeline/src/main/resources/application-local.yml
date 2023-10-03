@@ -32,7 +32,7 @@ association:
     size:
 
 
-script: /Users/sajo/Documents/git/projects/gwas-data-services/gwas-mapping-pipeline/src/main/scripts/run-bjobs-mapper.sh
+script: /Users/sajo/Documents/git/projects/gwas-data-services/gwas-mapping-pipeline/src/main/scripts/run-bjobs-mapper-local.sh
 
 
 
