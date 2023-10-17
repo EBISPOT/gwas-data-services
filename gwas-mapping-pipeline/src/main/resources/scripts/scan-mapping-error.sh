@@ -3,8 +3,13 @@
 
 logslocation=/hps/nobackup/parkinso/spot/gwas/logs/mapping-pipeline/logs/bsub
 
-cd ${logslocation}
+#cd ${logslocation}
+echo "loglocation is ${logslocation}"
 
-bsub -M 4096 -R "rusage[mem=4096]" -i  'find . -name "output.log" > ${logslocation}/outputFileList'
+find  ${logslocation} -name "output.log" > ${logslocation}/outputFileList
+while read -r line; do
+        filename="${line}"
+        echo "File name to be analysed is ${filename}"
+        grep "was not mapped due to error" ${filename} >> ${logslocation}/mapping-error-ids.log
+done < ${logslocation}/outputFileList
 exit $?
-
