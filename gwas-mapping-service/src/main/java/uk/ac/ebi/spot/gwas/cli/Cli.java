@@ -14,8 +14,10 @@ import uk.ac.ebi.spot.gwas.overlap_gene.OverlapGene;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -39,18 +41,22 @@ public class Cli implements CommandLineRunner {
         CommandLine commandLine = parser.parse(options, args, true);
         boolean mode = commandLine.hasOption(CommandUtil.EXEC_MODE_OPT);
         List<String> argList = commandLine.getArgList();
-
+        List<Long> asscnIds = null;
         if (mode) {
             String execMode = (argList.size() > 0) ? argList.get(0) : "";
             int threadSize = (argList.size() > 1) ? Integer.parseInt(argList.get(1)) : 40;
-            this.menuDecision(execMode, threadSize);
+            List<String> associationIds = (argList.size() > 2) ? Arrays.asList(argList.get(2).split(",")) : null;
+            if(associationIds != null) {
+                asscnIds = associationIds.stream().map(asscnId -> new Long(asscnId)).collect(Collectors.toList());
+            }
+            this.menuDecision(execMode, threadSize, asscnIds);
         } else {
             help.printHelp(130, APP_COMMAND,  "", options,"");
             System.exit(1);
         }
     }
 
-    public void menuDecision(String executionMode, int threadSize) throws InterruptedException, ExecutionException, IOException {
+    public void menuDecision(String executionMode, int threadSize, List<Long> asscnIds) throws InterruptedException, ExecutionException, IOException {
         switch (executionMode) {
             case "map-all-snp":
                 log.info("Mapping -r {}", executionMode);
@@ -60,7 +66,7 @@ public class Cli implements CommandLineRunner {
             case "map-some-snp":
                 log.info("Mapping -m {}", executionMode);
                 ensemblRunnner.mapSomeAssociations(performer);
-                System.exit(1);
+                //System.exit(1);
                 break;
             case "cache-ensembl-data":
                 ensemblRunnner.runCache(threadSize);
@@ -68,6 +74,10 @@ public class Cli implements CommandLineRunner {
                 break;
             case "server-mode":
                 log.info("Application executed successfully, running in server mode!");
+                break;
+            case "map-asscn-ids":
+                log.info("Mapping some associations with ids");
+                ensemblRunnner.mapAssociationList(asscnIds);
                 break;
             default:
                 log.info("The mode value {} is not recognized", executionMode);

@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.constant.OperationMode;
 import uk.ac.ebi.spot.gwas.mapping.dto.*;
 
@@ -62,7 +64,7 @@ public class SnpLoadingService {
                 .totalPagesToMap(associations.getTotalPages())
                 .reportedGenes(reportedGenes).build();
     }
-
+    @Transactional(propagation = Propagation.SUPPORTS)
     public List<Association> getAssociationInBatch(OperationMode mode,
                                                    int threadSize,
                                                    int batchSize,

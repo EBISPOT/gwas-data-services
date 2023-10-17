@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.association.Association;
 import uk.ac.ebi.spot.gwas.common.model.AssociationReport;
 import uk.ac.ebi.spot.gwas.common.repository.AssociationReportRepository;
@@ -22,7 +24,7 @@ public class AssociationReportService {
     protected Logger getLog() {
         return log;
     }
-
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void processAssociationErrors(Association association, Collection<String> errors) {
 
         // Lists and maps use to translate errors
@@ -218,6 +220,7 @@ public class AssociationReportService {
      *
      * @param association association, used to create new association report
      */
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void updateAssociationReportDetails(Association association) {
 
         // Create association report object
