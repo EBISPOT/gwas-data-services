@@ -10,6 +10,7 @@ import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.DataType;
 import uk.ac.ebi.spot.gwas.common.constant.Type;
 import uk.ac.ebi.spot.gwas.common.constant.Uri;
+import uk.ac.ebi.spot.gwas.mapping.dto.Mapping;
 import uk.ac.ebi.spot.gwas.mapping.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.common.service.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.common.service.ApiService;
@@ -105,10 +106,16 @@ public class VariationService {
     public Map<String, Variant> restApiCall(String snpRsId) {
         Map<String, Variant> variationMap = new HashMap<>();
         String uri = String.format("%s/%s/%s", config.getServer(), Uri.VARIATION, snpRsId);
-
         Variant variant = mappingApiService.getRequest(uri)
                 .map(response -> mapper.convertValue(response.getBody(), Variant.class))
                 .orElseGet(Variant::new);
+
+        if(variant.getMappings() != null ) {
+           List<Mapping> filteredMapping = variant.getMappings().stream()
+                    .filter(mapping -> mapping.getCoordSystem().equals("chromosome"))
+                    .collect(Collectors.toList());
+            variant.setMappings(filteredMapping);
+        }
         variationMap.put(snpRsId, variant);
 
         return variationMap;
