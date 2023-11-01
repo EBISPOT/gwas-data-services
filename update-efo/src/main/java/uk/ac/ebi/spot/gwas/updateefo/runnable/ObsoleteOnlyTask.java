@@ -50,7 +50,7 @@ public class ObsoleteOnlyTask implements Runnable{
                             olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
                         }
                         else {
-                            olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms?shortform=" + termReplacedBy, OlsEfoTraitPage.class).get_embedded().getTerms().get(0);
+                            olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms?short_form=" + termReplacedBy, OlsEfoTraitPage.class).get_embedded().getTerms().get(0);
                         }
                         newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
                         efoTraitRepository.save(newEfo);
