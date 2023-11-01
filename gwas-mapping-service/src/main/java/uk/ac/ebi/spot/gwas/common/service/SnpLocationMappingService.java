@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.model.GenomicContext;
 import uk.ac.ebi.spot.gwas.common.model.Location;
 import uk.ac.ebi.spot.gwas.common.model.Region;
@@ -30,12 +32,15 @@ public class SnpLocationMappingService {
     @Autowired
     private LocationCreationService locationCreationService;
 
-
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void storeSnpLocation(Map<String, Set<Location>> snpToLocations) {
+
+
 
         // Go through each rs_id and its associated locations returned from the mapping pipeline
         for (String snpRsId : snpToLocations.keySet()) {
 
+            log.info("SnpId to be saved is ->"+snpRsId);
             Set<Location> snpLocationsFromMapping = snpToLocations.get(snpRsId);
 
             // Check if the SNP exists
@@ -54,6 +59,7 @@ public class SnpLocationMappingService {
                 for (Location snpLocationFromMapping : snpLocationsFromMapping) {
 
                     String chromosomeNameFromMapping = snpLocationFromMapping.getChromosomeName();
+                    log.info("chromosomeName from Location mapping ->"+chromosomeNameFromMapping);
                     if (chromosomeNameFromMapping != null) {
                         chromosomeNameFromMapping = chromosomeNameFromMapping.trim();
                     }
@@ -106,7 +112,7 @@ public class SnpLocationMappingService {
 
         }
     }
-    
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void removeExistingSnpLocations(SingleNucleotidePolymorphism snp) {
 
         // Get a list of locations currently linked to SNP
@@ -130,8 +136,8 @@ public class SnpLocationMappingService {
             }
         }
     }
-    
-    private void cleanUpLocations(Long id) {
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void cleanUpLocations(Long id) {
         List<SingleNucleotidePolymorphism> snps =
                 singleNucleotidePolymorphismRepository.findIdsByLocationId(id);
         List<GenomicContext> genomicContexts = genomicContextRepository.findIdsByLocationId(id);
