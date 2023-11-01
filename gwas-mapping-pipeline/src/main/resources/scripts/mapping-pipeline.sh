@@ -7,7 +7,8 @@ mode=${1}
 jarLocation=/hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline
 logslocation=/hps/nobackup/parkinso/spot/gwas/logs/mapping-pipeline/logs/bsub
 jvmparams='-Xms4096m -Xmx4096m'
-
+configlocation=/hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/config
+source ${configlocation}/db-env
 
 # Print out help message:
 function display_help(){
@@ -34,7 +35,7 @@ echo "documentParameters is ${documentParameters}"
 
 rm -rf ${logslocation}/*
 
-java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dassociation.partition.size=15 \
+java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dassociation.partition.size=15 -Dspring.datasource.username=${DB_USER} -Dspring.datasource.password=${DB_PWD} \
     ${documentParameters} \
     -jar ${jarLocation}/gwas-mapping-pipeline.jar -m ${mode} -i ${jarLocation}/Incorrecly_mapped_variants.tsv -o ${logslocation} -e ${logslocation}
 
