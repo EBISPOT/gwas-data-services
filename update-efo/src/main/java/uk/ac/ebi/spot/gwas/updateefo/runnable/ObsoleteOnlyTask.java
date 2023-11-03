@@ -56,6 +56,8 @@ public class ObsoleteOnlyTask implements Runnable{
                         efoTraitRepository.save(newEfo);
                         reportTemplate.addObsolete(efoTrait, newEfo);
                     }
+                    else
+                        reportTemplate.addError(new RuntimeException("No TermReplacedBy"), efoTrait.getShortForm() + "(termReplacedBy=null)");
                 }
                 catch (Exception e) {
                     reportTemplate.addError(e, efoTrait.getShortForm());

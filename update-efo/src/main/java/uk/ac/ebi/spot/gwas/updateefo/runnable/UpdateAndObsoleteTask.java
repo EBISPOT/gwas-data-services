@@ -44,9 +44,11 @@ public class UpdateAndObsoleteTask implements Runnable {
                     reportTemplate.addProcessed();
                     String efoEncodedUri = URLEncoder.encode(efoTrait.getUri(), StandardCharsets.UTF_8.toString());
                     OlsEfoTrait olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
-                    if (olsEfoTrait.isObsolete() && olsEfoTrait.getTermReplacedBy() != null) {
+                    if (olsEfoTrait.isObsolete()) {
                         EfoTrait newEfo;
-                        if (olsEfoTrait.getTermReplacedBy().startsWith("http")) {
+                        if (olsEfoTrait.getTermReplacedBy() == null)
+                            reportTemplate.addError(new RuntimeException("termReplacedBy=null"), efoTrait.getShortForm() + "(no termReplacedBy)");
+                        else if (olsEfoTrait.getTermReplacedBy().startsWith("http")) {
                             efoEncodedUri = URLEncoder.encode(olsEfoTrait.getTermReplacedBy(), StandardCharsets.UTF_8.toString());
                             olsEfoTrait = restTemplate.getForObject("https://www.ebi.ac.uk/ols4/api/ontologies/efo/terms/" + efoEncodedUri, OlsEfoTrait.class);
                         }
