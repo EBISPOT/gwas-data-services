@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.ac.ebi.spot.gwas</groupId>
-    <artifactId>gwas-tools</artifactId>
+    <artifactId>gwas-data-services</artifactId>
 
     <version>0.0.1-SNAPSHOT</version>
 
