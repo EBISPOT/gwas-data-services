@@ -51,7 +51,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<outputDirectory>${user.dir}</outputDirectory>
+					<outputDirectory>${project.basedir}/target</outputDirectory>
 					<finalName>update-efo</finalName>
 				</configuration>
 				<executions>
