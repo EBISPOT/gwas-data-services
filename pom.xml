@@ -30,7 +30,6 @@
     <modules>
         <module>gwas-mapping-service</module>
         <module>gwas-mapping-pipeline</module>
-        <module>gwas-data-export-service</module>
         <module>update-efo</module>
     </modules>
 
