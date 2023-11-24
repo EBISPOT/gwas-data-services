@@ -1,3 +1,7 @@
+#!/bin/bash
+#SBATCH -t 04:00:00
+
+#SBATCH --mem=4G
 base=${0%/*}/;
 echo "base is ${base}"
 
