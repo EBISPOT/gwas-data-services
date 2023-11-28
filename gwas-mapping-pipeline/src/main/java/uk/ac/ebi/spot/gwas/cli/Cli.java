@@ -81,7 +81,7 @@ public class Cli implements CommandLineRunner {
                         .flatMap(asscnIds -> asscnIds.stream())
                         .collect(Collectors.toList());
             }
-            if( !executionMode.equals("full") && !executionMode.equals("schedule")) {
+            if( !executionMode.equals("full") && !executionMode.equals("schedule") && !executionMode.equals("mapping-error-list")) {
                 associationService.updateMappingDetails(asscns);
                 mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-1");
                 log.info("Total Association count to map is {}", asscns.size());
