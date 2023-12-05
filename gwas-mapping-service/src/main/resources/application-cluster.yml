@@ -23,10 +23,10 @@ ensembl:
   datasource:
     driver-class: org.mariadb.jdbc.Driver
     url: jdbc:mysql://useastdb.ensembl.org:3306
-  #db_version: '110'
-  db_version: '105'
-  #server: https://jul2023.rest.ensembl.org
-  server: https://dec2021.rest.ensembl.org
+  db_version: '110'
+  #db_version: '105'
+  server: https://jul2023.rest.ensembl.org
+  #server: https://dec2021.rest.ensembl.org
   #server: https://rest.ensembl.org/
 
 mapping:
@@ -44,7 +44,7 @@ mapping:
   requestCount: 0
   requestPerSecond: 15
   snp_lookup_endpoint: variation
-  #version: 110
-  version: 105
+  version: 110
+  #version: 105
   #cache: /Users/sajo/Downloads/cache
   cache: /nfs/gwas/data/prod/sw/mapper/ensembl-cache
