@@ -135,9 +135,9 @@ public class AssociationServiceImpl implements AssociationService {
 
 
     public void scheduledRemapping(String outputDir, String errorDir) {
-        Long count = associationRepository.countByLastMappingDateIsNull();
-        log.info("Scheduled remapping for {} associations", count);
-        int cnt = count.intValue();
+        //Long count = associationRepository.countByLastMappingDateIsNull();
+
+        /*int cnt = count.intValue();
         int batchsize = 1000;
         int noOfPages = (cnt / batchsize);
         for (int i = 0; i <= noOfPages; i++) {
@@ -148,8 +148,26 @@ public class AssociationServiceImpl implements AssociationService {
                     .collect(Collectors.toList());
             //updateMappingDetails(asscns);
             mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-" + i);
+        }*/
+        int pool = 0;
+        Long count = countAssociationsWithMappingDateNull();
+        log.info("Scheduled remapping for {} associations", count);
+        while(count != 0){
+            log.info("Executor pool {} running", pool);
+            Pageable pageable = PageRequest.of(0, 1000);
+            List<Long> asscns = associationRepository.findByLastMappingDateIsNullOrderByLastUpdateDateDesc(pageable)
+                    .stream().map(Association::getId)
+                    .collect(Collectors.toList());
+            //updateMappingDetails(asscns);
+            mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-" + pool);
+            count = countAssociationsWithMappingDateNull();
+            pool++;
         }
 
+    }
+
+    private Long countAssociationsWithMappingDateNull(){
+        return associationRepository.countByLastMappingDateIsNull();
     }
 
 }
