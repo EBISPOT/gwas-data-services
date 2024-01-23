@@ -49,7 +49,9 @@ public class MappingJobSubmitterServiceImpl implements MappingJobSubmitterServic
                     poolExecutor.submit(() -> {
                         try {
                             log.info("partAssociations is ->" + partAssociations.stream().collect(Collectors.joining(",")));
-                            String command = String.format("%s %s %s %s %s %s", "sbatch","--wait",config.getScript(),Math.abs(partAsscnIds.hashCode()),partAssociations.stream().collect(Collectors.joining(",")), executorPool);
+                            String slurmOutputFile = String.format("%s %s/%s/%s/%s", "-o", config.getSlurmLogsLocation(), executorPool, Math.abs(partAsscnIds.hashCode()),"output.log");
+                            String slurmErrFile = String.format("%s %s/%s/%s/%s", "-e", config.getSlurmLogsLocation(), executorPool, Math.abs(partAsscnIds.hashCode()),"error.log");
+                            String command = String.format("%s %s %s %s %s %s %s %s", "sbatch", slurmOutputFile, slurmErrFile, "--wait",config.getScript(),Math.abs(partAsscnIds.hashCode()),partAssociations.stream().collect(Collectors.joining(",")), executorPool);
                             log.info("COmmand is ->"+command);
                             Process process = Runtime.getRuntime().exec(command);
                             String str = "";

@@ -18,6 +18,9 @@ public class Config {
     @Value("${spring.profiles.active}")
     private String activeProfile;
 
+    @Value("${slurm.logslocation}")
+    private String slurmLogsLocation;
+
     public String getActiveProfile() {
         return activeProfile;
     }
@@ -48,6 +51,10 @@ public class Config {
 
     public void setScript(String script) {
         this.script = script;
+    }
+
+    public String getSlurmLogsLocation() {
+        return slurmLogsLocation;
     }
 }
 
