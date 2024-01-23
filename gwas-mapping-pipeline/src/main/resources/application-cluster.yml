@@ -33,5 +33,7 @@ association:
 
 #script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-bjobs-mapper.sh
 script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-slurm-mapper.sh
+slurm:
+  logslocation: /hps/nobackup/parkinso/spot/gwas/logs/mapping-pipeline/logs/bsub
 
 

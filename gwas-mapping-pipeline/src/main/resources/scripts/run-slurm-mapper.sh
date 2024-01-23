@@ -10,8 +10,6 @@ asscnIds=${2}
 executorPool=${3}
 logslocation=/hps/nobackup/parkinso/spot/gwas/logs/mapping-pipeline/logs/bsub
 mkdir -p $logslocation/$executorPool/$hashdir
-#SBATCH --output=${logslocation}/${executorPool}/${hashdir}/output.log
-#SBATCH --error=${logslocation}/${executorPool}/${hashdir}/error.log
 #SBATCH --partition=short
 #SBATCH -J "gwas-mapper"
 echo "Bsub log dir is: ${logslocation}/${executorPool}/${hashdir}"
