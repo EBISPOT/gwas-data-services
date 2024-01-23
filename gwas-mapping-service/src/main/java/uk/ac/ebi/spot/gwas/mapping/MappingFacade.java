@@ -25,6 +25,7 @@ import uk.ac.ebi.spot.gwas.variation.Variant;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Data
@@ -92,7 +93,9 @@ public class MappingFacade {
 
         Collection<Location> locations = new ArrayList<>();
         List<Mapping> mappings = variant.getMappings();
-        for (Mapping mapping : mappings) {
+        List<Mapping> chromosomeMappings = mappings.stream().filter(mapping -> mapping.getCoordSystem().equalsIgnoreCase("chromosome"))
+                .collect(Collectors.toList());
+        for (Mapping mapping : chromosomeMappings) {
             String chromosomeName = mapping.getSeqRegionName();
             Integer chromosomePosition = mapping.getStart();
 
