@@ -160,6 +160,7 @@ public class AssociationServiceImpl implements AssociationService {
                     .collect(Collectors.toList());
             //updateMappingDetails(asscns);
             mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-" + pool);
+            count = countAssociationsWithMappingDateNull();
             pool++;
         }
 
