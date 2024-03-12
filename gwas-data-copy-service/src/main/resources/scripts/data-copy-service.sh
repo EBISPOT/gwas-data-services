@@ -37,7 +37,7 @@ rm -rf ${logslocation}/*
 
 java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dentity.partition.size=50 -Dspring.datasource.username=${DB_USER} -Dspring.datasource.password=${DB_PWD} \
     ${documentParameters} \
-    -jar ${jarLocation}/data-copy-service.jar -m ${mode} -o ${logslocation} -e ${logslocation}
+    -jar ${jarLocation}/gwas-data-copy-service.jar -m ${mode} -o ${logslocation} -e ${logslocation}
 
 
 # Capture exit code:
