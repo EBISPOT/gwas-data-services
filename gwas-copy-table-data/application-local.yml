@@ -1,0 +1,44 @@
+server:
+  port: 8685
+
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
+    username:
+    password: 
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+  data:
+    mongodb:
+      #uri: mongo-0.mongo.gwas-dev.svc.cluster.local,mongo-1.mongo.gwas-dev.svc.cluster.local,mongo-2.mongo.gwas-dev.svc.cluster.local:27017
+      uri: mongodb-hhvm-062.ebi.ac.uk:27017,mongodb-hxvm-063.ebi.ac.uk:27017/admin?replicaSet=gwasdepodevrs039
+   #hikari:
+      #maximumPoolSize: 80
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 10
+
+executor:
+  thread-pool:
+    count:
+
+association:
+  partition:
+    size:
+
+gwas-curation:
+  #db: deposition-backend-sandbox
+  db: gwasdepo
+
+rabbitmq:
+  queue-name: study_change_sandbox
+  exchange-name: study_change_exchange_sandbox
+  routing-key: study-ingest_sandbox
+  sumstats:
+    queue-name: metadata-yml-update-sandbox
+    exchange-name: metadata-yml-update-exchange-sandbox
+    routing-key: metadata-yml-update-route-sandbox
