@@ -1,0 +1,40 @@
+server:
+  name: deposition-curation
+  port: 80
+
+logging:
+  level:
+    org:
+      springframework: ERROR
+
+quartz:
+  scheduler:
+    active: false
+    instanceName: curationSchedulerJobSchedulerCluster
+    environment-config: quartz/environment-config.yaml
+    mongodb-pool-size: 10
+
+gwas-curation:
+  auth:
+    enabled: false
+    cert: aap.der
+    auto-curator-service-account: auto-curator-service@ebi.ac.uk
+    curators:
+      auth-mechanism: JWT_DOMAIN
+      jwt-domains: self.GWAS_Curator
+  solr:
+    enabled: true
+
+spring:
+  profiles:
+    active: local
+
+comms:
+  messaging:
+    enabled: false
+
+
+europepmc:
+  root: https://www.ebi.ac.uk/europepmc/webservices/rest/
+  search:
+    pubmed: search?query=ext_id:{idlist} src:med&resulttype=core&format=JSON

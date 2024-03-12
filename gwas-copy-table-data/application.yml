@@ -1,0 +1,54 @@
+server:
+  name: deposition-curation
+  port: 80
+
+logging:
+  level:
+    org:
+      springframework: ERROR
+
+
+gwas-curation:
+  auth:
+    enabled: false
+    cert: aap.der
+    auto-curator-service-account: auto-curator-service@ebi.ac.uk
+    curators:
+      auth-mechanism: JWT_DOMAIN
+      jwt-domains: self.GWAS_Curator
+  solr:
+    enabled: true
+
+spring:
+  profiles:
+    active: local
+
+comms:
+  messaging:
+    enabled: false
+
+curation:
+  mappings:
+    Level 1 ancestry done: Publish Study
+    Level 1 curation done: Submission complete
+    Level 2 curation done: Level 2 curation done
+    Publish study: Publish Study
+    Awaiting Curation: Awaiting submission
+    Outstanding Query: Pending curation query
+    CNV Paper: Permanently unpublished from Catalog
+    Curation Abandoned: Curation abandoned
+    Unpublished from catalog: Unpublished from Catalog
+    Pending author query: Pending author query
+    Awaiting EFO assignment: Awaiting EFO
+    Preliminary review done: Preliminary review done
+    Awaiting mapping: Awaiting mapping
+    Awaiting literature: Awaiting literature
+    Permanently unpublished from catalog: Permanently unpublished from Catalog
+    Scientific pilot: Scientific pilot
+
+
+
+europepmc:
+  root: https://www.ebi.ac.uk/europepmc/webservices/rest/
+  search:
+    pubmed: search?query=ext_id:{idlist} src:med&resulttype=core&format=JSON

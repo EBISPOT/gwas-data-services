@@ -31,6 +31,8 @@
         <module>gwas-mapping-service</module>
         <module>gwas-mapping-pipeline</module>
         <module>update-efo</module>
+        <module>gwas-data-copy-service</module>
+        <module>gwas-copy-table-data</module>
     </modules>
 
 </project>
