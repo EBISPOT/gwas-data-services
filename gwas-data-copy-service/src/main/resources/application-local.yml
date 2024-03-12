@@ -1,0 +1,32 @@
+server:
+  port: 8685
+
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
+    username:
+    password: 
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+  data:
+    mongodb:
+      #uri: mongo-0.mongo.gwas-dev.svc.cluster.local,mongo-1.mongo.gwas-dev.svc.cluster.local,mongo-2.mongo.gwas-dev.svc.cluster.local:27017
+      uri: mongodb-hhvm-062.ebi.ac.uk:27017,mongodb-hxvm-063.ebi.ac.uk:27017/admin?replicaSet=gwasdepodevrs039
+   #hikari:
+      #maximumPoolSize: 80
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 10
+
+executor:
+  thread-pool:
+    count:
+
+association:
+  partition:
+    size:
+
