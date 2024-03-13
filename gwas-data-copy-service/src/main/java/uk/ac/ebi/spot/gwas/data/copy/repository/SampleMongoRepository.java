@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
-public interface SampleRepository extends MongoRepository<Sample, String> {
+public interface SampleMongoRepository extends MongoRepository<Sample, String> {
 
     Stream<Sample> readBySubmissionId(String submissionId);
 
