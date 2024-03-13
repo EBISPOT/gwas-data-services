@@ -35,7 +35,7 @@ echo "documentParameters is ${documentParameters}"
 
 rm -rf ${logslocation}/*
 
-java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dentity.partition.size=50 -Dspring.datasource.username=${DB_USER} -Dspring.datasource.password=${DB_PWD} \
+java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dentity.partition.size=50 -Dspring.datasource.username=${ORACLE_DB_USER} -Dspring.datasource.password=${ORACLE_DB_PWD} \
     ${documentParameters} \
     -jar ${jarLocation}/gwas-data-copy-service.jar -m ${mode} -o ${logslocation} -e ${logslocation}
 
