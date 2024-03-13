@@ -38,6 +38,18 @@ entity:
   partition:
     size:
 
+gwas-curation:
+  #db: deposition-backend-sandbox
+  db: gwasdepo
+
+rabbitmq:
+  queue-name: study_change_sandbox
+  exchange-name: study_change_exchange_sandbox
+  routing-key: study-ingest_sandbox
+  sumstats:
+    queue-name: metadata-yml-update-sandbox
+    exchange-name: metadata-yml-update-exchange-sandbox
+    routing-key: metadata-yml-update-route-sandbox
 
 #script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-bjobs-mapper.sh
 script: /hps/software/users/parkinso/spot/gwas/prod/sw/data-copy-service/run-slurm-copy-oracle-mongo.sh
