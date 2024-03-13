@@ -40,6 +40,6 @@ entity:
 
 
 #script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-bjobs-mapper.sh
-script: /hps/software/users/parkinso/spot/gwas/prod/sw/data-copy-service/run-slurm-mapper.sh
+script: /hps/software/users/parkinso/spot/gwas/prod/sw/data-copy-service/run-slurm-copy-oracle-mongo.sh
 slurm:
   logslocation: /hps/nobackup/parkinso/spot/gwas/logs/data-copy-service/logs/bsub
