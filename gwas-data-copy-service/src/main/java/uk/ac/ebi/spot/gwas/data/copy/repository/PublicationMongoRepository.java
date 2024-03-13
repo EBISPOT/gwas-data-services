@@ -10,7 +10,7 @@ import uk.ac.ebi.spot.gwas.deposition.domain.Publication;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public interface PublicationRepository extends MongoRepository<Publication, String> {
+public interface PublicationMongoRepository extends MongoRepository<Publication, String> {
 
     Optional<Publication> findByPmid(String pmid);
 
