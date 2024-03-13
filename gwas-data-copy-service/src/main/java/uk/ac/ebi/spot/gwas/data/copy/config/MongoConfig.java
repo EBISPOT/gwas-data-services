@@ -137,6 +137,10 @@ public class MongoConfig {
             return new MongoClient(new MongoClientURI("mongodb://" + credentials + mongoUri));
         }
 
+        @Bean
+        public MongoTemplate mongoTemplate() {
+            return new MongoTemplate(mongoClient(), getDatabaseName());
+        }
 
     }
 }
