@@ -100,52 +100,7 @@ public class MongoConfig {
     @Configuration
     @EnableMongoRepositories(basePackages = {"uk.ac.ebi.spot.gwas.data.copy.repository"})
     @EnableTransactionManagement
-    @Profile({"sandbox","sandbox-migration"})
-    public static class MongoConfigSandbox extends AbstractMongoConfiguration {
-
-        @Autowired
-        private SystemConfigProperties systemConfigProperties;
-
-        @Autowired
-        private DepositionCurationConfig depositionCurationConfig;
-
-        @Override
-        protected String getDatabaseName() {
-            return depositionCurationConfig.getDbName();
-        }
-
-        @Bean
-        public GridFsTemplate gridFsTemplate() throws Exception {
-            return new GridFsTemplate(mongoDbFactory(), mappingMongoConverter());
-        }
-
-        @Override
-        public MongoClient mongoClient() {
-            String mongoUri = systemConfigProperties.getMongoUri();
-            String dbUser = systemConfigProperties.getDbUser();
-            String dbPassword = systemConfigProperties.getDbPassword();
-            String credentials = "";
-            if (dbUser != null && dbPassword != null) {
-                dbUser = dbUser.trim();
-                dbPassword = dbPassword.trim();
-                if (!dbUser.equalsIgnoreCase("") &&
-                        !dbPassword.equalsIgnoreCase("")) {
-                    credentials = dbUser + ":" + dbPassword + "@";
-                }
-            }
-
-            //return new MongoClient(new MongoClientURI("mongodb://" + mongoUri));
-            return new MongoClient(new MongoClientURI("mongodb://" + credentials + mongoUri));
-        }
-
-
-
-    }
-
-    @Configuration
-    @EnableMongoRepositories(basePackages = {"uk.ac.ebi.spot.gwas.data.copy.repository"})
-    @EnableTransactionManagement
-    @Profile({"prod", "prod-fallback"})
+    @Profile({"cluster"})
     public static class MongoConfigProd extends AbstractMongoConfiguration {
 
         @Autowired
@@ -183,46 +138,5 @@ public class MongoConfig {
         }
 
 
-    }
-
-    @Configuration
-    @EnableMongoRepositories(basePackages = {"uk.ac.ebi.spot.gwas.data.copy.repository"})
-    @EnableTransactionManagement
-    @Profile({"gcp-sandbox"})
-    public static class MongoConfiGCPSandbox extends AbstractMongoConfiguration {
-
-        @Autowired
-        private SystemConfigProperties systemConfigProperties;
-
-        @Autowired
-        private DepositionCurationConfig depositionCurationConfig;
-
-        @Override
-        protected String getDatabaseName() {
-            return depositionCurationConfig.getDbName();
-        }
-
-        @Bean
-        public GridFsTemplate gridFsTemplate() throws Exception {
-            return new GridFsTemplate(mongoDbFactory(), mappingMongoConverter());
-        }
-
-        @Override
-        public MongoClient mongoClient() {
-            String mongoUri = systemConfigProperties.getMongoUri();
-            String dbUser = systemConfigProperties.getDbUser();
-            String dbPassword = systemConfigProperties.getDbPassword();
-            String credentials = "";
-            if (dbUser != null && dbPassword != null) {
-                dbUser = dbUser.trim();
-                dbPassword = dbPassword.trim();
-                if (!dbUser.equalsIgnoreCase("") &&
-                        !dbPassword.equalsIgnoreCase("")) {
-                    credentials = dbUser + ":" + dbPassword + "@";
-                }
-            }
-
-            return new MongoClient(new MongoClientURI("mongodb+srv://" + credentials + mongoUri));
-        }
     }
 }
