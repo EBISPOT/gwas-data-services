@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 
-public interface AssociationRepository extends MongoRepository<Association, String> {
+public interface AssociationMongoRepository extends MongoRepository<Association, String> {
 
     Stream<Association> readBySubmissionId(String submissionId);
 

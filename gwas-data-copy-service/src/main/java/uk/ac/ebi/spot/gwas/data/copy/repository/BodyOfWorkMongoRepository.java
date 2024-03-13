@@ -7,7 +7,7 @@ import uk.ac.ebi.spot.gwas.deposition.domain.BodyOfWork;
 
 import java.util.Optional;
 
-public interface BodyOfWorkRepository extends MongoRepository<BodyOfWork, String> {
+public interface BodyOfWorkMongoRepository extends MongoRepository<BodyOfWork, String> {
 
     Optional<BodyOfWork> findByBowIdAndArchivedAndCreated_UserId(String bowId, boolean archived, String userId);
 
