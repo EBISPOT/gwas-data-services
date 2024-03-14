@@ -25,7 +25,7 @@ public class PublicationCopyServiceImpl implements PublicationCopyService {
     public void copyData(String outputDir, String errorDir) {
         Long pubCount =  publicationRepository.count();
         int batchSize = 2000;
-        long bucket = pubCount/5000;
+        long bucket = ( pubCount / batchSize );
         for(int i =0; i <= bucket ; i++) {
             Pageable pageable = PageRequest.of(i, batchSize);
             List<Long> pubIds = publicationRepository.findAll(pageable)
