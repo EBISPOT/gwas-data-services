@@ -7,7 +7,7 @@
 
     <springProfile name="cluster">
         <property resource="logging-cluster.properties"/>
-        <property name="LOG_PATH" value="${logging.file.path}/logs" />
+        <property name="LOG_PATH" value="${log.file.location}/logs" />
     <appender name="Console"
               class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
