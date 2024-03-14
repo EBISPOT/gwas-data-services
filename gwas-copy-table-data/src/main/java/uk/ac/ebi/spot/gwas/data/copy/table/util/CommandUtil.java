@@ -58,7 +58,7 @@ public class CommandUtil {
         Option outputfileDirOption  = new Option(EXEC_OUT_FILE, EXEC_OUT_FILE_LONG, true, EXEC_OUT_FILE_DESC);
         Option errfileDirOption =  new Option(EXEC_ERR_FILE, EXEC_ERR_FILE_LONG, true, EXEC_ERR_FILE_DESC);
         Option pubIdsOption = new Option(EXEC_PUBIDS, EXEC_PUBIDS_LONG, true, EXEC_PUBIDS_DESC );
-        pubIdsOption.setArgs(Option.UNLIMITED_VALUES);
+        //pubIdsOption.setArgs(Option.UNLIMITED_VALUES);
 
         //mappingOptionLSF.setArgName("performer");
         //mappingOptionLSF.setRequired(true);

@@ -31,7 +31,7 @@ public class Cli implements CommandLineRunner {
 
     private static String inputDir = null;
 
-    private static String[] pmids = null;
+    private static String pmids = null;
 
     private static String executionMode = null;
 
@@ -56,7 +56,7 @@ public class Cli implements CommandLineRunner {
             log.info("Execution mode is ->" + executionMode);
             if (executionMode.equals("publication")) {
                 dataTableService = service.getTableService("publication");
-              List<Long> pubIds =  Arrays.asList(pmids)
+              List<Long> pubIds =  Arrays.asList(pmids.split(","))
                         .stream()
                         .map(pmid -> new Long(pmid))
                                 .collect(Collectors.toList());
@@ -106,7 +106,7 @@ public class Cli implements CommandLineRunner {
 
             if (cl.hasOption("p")) {
                 log.info("Inside -e option");
-                pmids = cl.getOptionValues("p");
+                pmids = cl.getOptionValue("p");
                 log.info("Pmids are {}",pmids);
             }
         } catch (ParseException e) {
