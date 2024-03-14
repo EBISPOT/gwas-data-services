@@ -46,7 +46,7 @@ public class PublicationMongoDataCopyRunnerImpl implements PublicationMongoDataC
                     log.info("partPublications is ->" + partIdsJoined.stream().collect(Collectors.joining(",")));
                     String slurmOutputFile = String.format("%s %s/%s/%s/%s", "-o", config.getSlurmLogsLocation(), executorPool, Math.abs(partIds.hashCode()), "output.log");
                     String slurmErrFile = String.format("%s %s/%s/%s/%s", "-e", config.getSlurmLogsLocation(), executorPool, Math.abs(partIds.hashCode()), "error.log");
-                    String command = String.format("%s %s %s %s %s %s %s %s", "sbatch", slurmOutputFile, slurmErrFile, "--wait", config.getScript(), Math.abs(partIds.hashCode()), partIdsJoined.stream().collect(Collectors.joining(" ")), executorPool);
+                    String command = String.format("%s %s %s %s %s %s %s %s", "sbatch", slurmOutputFile, slurmErrFile, "--wait", config.getScript(), Math.abs(partIds.hashCode()), partIdsJoined.stream().collect(Collectors.joining(",")), executorPool);
                     log.info("COmmand is ->" + command);
                     Process process = Runtime.getRuntime().exec(command);
                     String str = "";
