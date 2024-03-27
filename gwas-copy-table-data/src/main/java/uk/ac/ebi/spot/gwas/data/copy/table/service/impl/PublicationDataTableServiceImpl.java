@@ -122,9 +122,10 @@ public class PublicationDataTableServiceImpl implements DataTableService {
             uk.ac.ebi.spot.gwas.data.copy.table.model.Curator curator = housekeeping.getCurator();
             String status = curationStatus.getStatus();
 
-            if (status != "Requires Review") {
+            if (!status.equals("Requires Review")) {
+                log.info("status from oracle is {}", status);
                 String mongoStatus = depositionCurationConfig.getCurationStatusMap().get(status);
-               log.debug("Inside addCurationDetails status is {}",mongoStatus);
+               log.info("Inside addCurationDetails status is {}",mongoStatus);
                 mongoPublication.setCurationStatusId(Optional.ofNullable(curationStatusRepository.findByStatus(mongoStatus))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
