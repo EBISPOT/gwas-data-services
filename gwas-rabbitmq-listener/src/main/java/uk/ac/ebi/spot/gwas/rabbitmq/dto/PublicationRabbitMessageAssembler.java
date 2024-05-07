@@ -1,7 +1,6 @@
 package uk.ac.ebi.spot.gwas.rabbitmq.dto;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.deposition.dto.curation.PublicationRabbitMessage;
 import uk.ac.ebi.spot.gwas.model.Publication;
 import uk.ac.ebi.spot.gwas.rabbitmq.util.Dateutil;
