@@ -38,7 +38,7 @@ rm -rf ${logslocation}/*
 export DB_USER=${DB_USER}
 export DB_PASSWORD=${DB_PWD}
 
-java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dentity.partition.size=50 -Dspring.datasource.username=${ORACLE_DB_USER} -Dspring.datasource.password=${ORACLE_DB_PWD} \
+java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dspring.datasource.username=${ORACLE_DB_USER} -Dspring.datasource.password=${ORACLE_DB_PWD} \
     ${documentParameters} \
     -jar ${jarLocation}/gwas-rabbitmq-listener.jar
 
