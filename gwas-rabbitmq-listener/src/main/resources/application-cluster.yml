@@ -6,6 +6,8 @@ spring:
   rabbitmq:
     host: hh-rke-wp-webadmin-09-worker-1.caas.ebi.ac.uk
     port: 30672
+    username:
+    password:
   datasource:
     url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
     username:
