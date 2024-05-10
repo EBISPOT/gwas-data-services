@@ -33,6 +33,7 @@
         <module>update-efo</module>
         <module>gwas-data-copy-service</module>
         <module>gwas-copy-table-data</module>
+        <module>gwas-rabbitmq-listener</module>
     </modules>
 
 </project>
