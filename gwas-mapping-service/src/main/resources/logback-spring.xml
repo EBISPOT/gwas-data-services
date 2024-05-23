@@ -8,6 +8,7 @@
     <springProfile name="cluster">
         <property resource="logging-cluster.properties"/>
         <property name="LOG_PATH" value="${logging.file.path}/logs" />
+        <property name="FILE_LOG_PATH" value="${log.file.location}/logs" />
     <appender name="Console"
               class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -44,15 +45,15 @@
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
         <!--current log file-->
-        <file>${LOG_PATH}/gwas-mapping-status.log</file>
+        <file>${FILE_LOG_PATH}/gwas-mapping-status.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily -->
-            <fileNamePattern>${LOG_PATH}/gwas-mapping-status.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${FILE_LOG_PATH}/gwas-mapping-status.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!--determines when we rollover-->
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>20MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
-            <maxHistory>50</maxHistory>
+            <maxHistory>5000</maxHistory>
         </rollingPolicy>
     </appender>
 
@@ -77,10 +78,10 @@
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
         <!--current log file-->
-        <file>${LOG_PATH}/gwas-mapping-debug.log</file>
+        <file>${FILE_LOG_PATH}/gwas-mapping-debug.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily -->
-            <fileNamePattern>${LOG_PATH}/gwas-mapping-debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${FILE_LOG_PATH}/gwas-mapping-debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!--determines when we rollover-->
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>20MB</maxFileSize>
@@ -106,10 +107,10 @@
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
         <!--current log file-->
-        <file>${LOG_PATH}/gwas-mapping.severe.log</file>
+        <file>${FILE_LOG_PATH}/gwas-mapping.severe.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily -->
-            <fileNamePattern>${LOG_PATH}/gwas-mapping.severe.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${FILE_LOG_PATH}/gwas-mapping.severe.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!--determines when we rollover-->
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>20MB</maxFileSize>
