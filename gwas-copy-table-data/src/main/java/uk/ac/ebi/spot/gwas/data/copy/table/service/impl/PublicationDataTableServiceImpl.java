@@ -15,6 +15,7 @@ import uk.ac.ebi.spot.gwas.data.copy.table.model.Publication;
 import uk.ac.ebi.spot.gwas.data.copy.table.repository.*;
 
 import uk.ac.ebi.spot.gwas.data.copy.table.service.DataTableService;
+import uk.ac.ebi.spot.gwas.data.copy.table.service.PublicationAuthorService;
 import uk.ac.ebi.spot.gwas.deposition.constants.PublicationStatus;
 import uk.ac.ebi.spot.gwas.deposition.domain.*;
 
@@ -56,6 +57,9 @@ public class PublicationDataTableServiceImpl implements DataTableService {
     @Autowired
     DepositionCurationConfig depositionCurationConfig;
 
+    @Autowired
+    PublicationAuthorService publicationAuthorService;
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -76,20 +80,14 @@ public class PublicationDataTableServiceImpl implements DataTableService {
                 mongoPublication.setFirstAuthor(publication.getFirstAuthor().getFullname());
                 mongoPublication.setTitle(publication.getTitle());
                 Author author = publication.getFirstAuthor();
-                PublicationAuthor publicationAuthor = new PublicationAuthor(author.getFullname(), author.getFullnameStandard()
-                        , author.getFirstName(), author.getLastName(), author.getInitials(),
-                        author.getAffiliation(), author.getOrcid(), null, null);
-                publicationAuthor = publicationAuthorRepository.save(publicationAuthor);
+                PublicationAuthor publicationAuthor = findUniqueAuthor(author);
                 mongoPublication.setFirstAuthorId(publicationAuthor.getId());
                 mongoPublication.setCreated(new Provenance(new DateTime(publication.getCreatedAt()), user.getId()));
                 mongoPublication.setUpdated(new Provenance(new DateTime(publication.getUpdatedAt()), user.getId()));
                 List<String> pubAuthors = new ArrayList<>();
                 mongoPublication.setPublicationDate(new LocalDate(publication.getPublicationDate()));
                 publication.getAuthors().forEach(author1 -> {
-                    PublicationAuthor pubAuthor = new PublicationAuthor(author1.getFullname(), author1.getFullnameStandard()
-                            , author1.getFirstName(), author1.getLastName(), author1.getInitials(),
-                            author1.getAffiliation(), author1.getOrcid(), null, null);
-                    pubAuthor = publicationAuthorRepository.save(pubAuthor);
+                    PublicationAuthor pubAuthor = findUniqueAuthor(author1);
                     pubAuthors.add(pubAuthor.getId());
                 });
                 mongoPublication.setAuthors(pubAuthors);
@@ -99,18 +97,18 @@ public class PublicationDataTableServiceImpl implements DataTableService {
                                 corrAuthor.getCorrespondingAuthorName(), corrAuthor.getCorrespondingAuthorEmail())));
                 addCurationDetails(mongoPublication, publication);
                 publicationRepository.save(mongoPublication);
-                } else {
-               uk.ac.ebi.spot.gwas.deposition.domain.Publication mongoPublication = Optional.ofNullable(publicationRepository.findByPmid(pmid))
+            } else {
+                uk.ac.ebi.spot.gwas.deposition.domain.Publication mongoPublication = Optional.ofNullable(publicationRepository.findByPmid(pmid))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .orElse(null);
                 log.debug("Inside Pmid  in Mongo DB block");
                 log.info("Pmid is {}", pmid);
-               addCurationDetails(mongoPublication, publication);
+                addCurationDetails(mongoPublication, publication);
                 publicationRepository.save(mongoPublication);
             }
 
-    });
+        });
     }
 
 
@@ -183,5 +181,18 @@ public class PublicationDataTableServiceImpl implements DataTableService {
         return null;
     }
 
-
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public PublicationAuthor findUniqueAuthor(Author author) {
+       Optional<PublicationAuthor> optionalPublicationAuthor = publicationAuthorService.findUniqueAuthor
+               (author.getFullname(), author.getFirstName(), author.getLastName(),
+                author.getInitials(), author.getAffiliation());
+       if(optionalPublicationAuthor.isPresent()) {
+           return optionalPublicationAuthor.get();
+       } else {
+           PublicationAuthor publicationAuthor = new PublicationAuthor(author.getFullname(), author.getFullnameStandard()
+                   , author.getFirstName(), author.getLastName(), author.getInitials(),
+                   author.getAffiliation(), author.getOrcid(), null, null);
+           return publicationAuthorRepository.save(publicationAuthor);
+       }
+    }
 }

@@ -25,7 +25,8 @@ public class PublicationRabbitConsumer {
     @Autowired
     PublicationImportService publicationImportService;
 
-    @RabbitListener(queues = {DepositionCurationConstants.QUEUE_PUBLICATION_SANDBOX} )
+    @RabbitListener(queues = {DepositionCurationConstants.QUEUE_PUBLICATION_SANDBOX,
+            DepositionCurationConstants.QUEUE_PUBLICATION_PROD} )
     public void listen(PublicationRabbitMessage publicationRabbitMessage) {
         try {
             log.info("Consuming message for publicationRabbitMessage : {}",publicationRabbitMessage);
