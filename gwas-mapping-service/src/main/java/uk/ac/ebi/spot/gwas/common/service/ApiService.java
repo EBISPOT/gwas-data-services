@@ -6,8 +6,7 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,6 +15,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.Uri;
+import uk.ac.ebi.spot.gwas.exception.EnsemblRestClientException;
 import uk.ac.ebi.spot.gwas.gene_symbol.GeneSymbol;
 import uk.ac.ebi.spot.gwas.variation.Variant;
 
@@ -79,11 +79,46 @@ public class ApiService {
         return response;
     }
 
-    public Optional<ResponseEntity<Object>> getRequest(String uri) {
-        log.info("Calling: {}", uri);
-        ResponseEntity<Object> response = null;
+    public ResponseEntity<String> getRequestBody(String uri) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<String> out = null;
+        List<MediaType> mediaTypes = new ArrayList<MediaType>();
+        mediaTypes.add(MediaType.TEXT_HTML);
+        mediaTypes.add(MediaType.APPLICATION_JSON);
+        mediaTypes.add(MediaType.ALL);
+        headers.setAccept(mediaTypes);
+        //headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON,MediaType.TEXT_HTML));
+
+        HttpEntity<Object> entity = new HttpEntity<Object>(headers);
         try {
-            response = restTemplate.getForEntity(uri, Object.class);
+            out = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+        }catch(HttpStatusCodeException e) {
+            getLog().debug("EnsemblRestClientException");
+            out = new ResponseEntity<>(e.getResponseBodyAsString(), e.getStatusCode());
+        }
+        catch (Exception e) {
+            getLog().debug("Exception not managed");
+        }
+        return out;
+
+    }
+    public Optional<ResponseEntity<String>> getRequest(String uri) {
+        log.info("Calling: {}", uri);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<String> out = null;
+        List<MediaType> mediaTypes = new ArrayList<MediaType>();
+        mediaTypes.add(MediaType.TEXT_HTML);
+        mediaTypes.add(MediaType.APPLICATION_JSON);
+        mediaTypes.add(MediaType.ALL);
+        headers.setAccept(mediaTypes);
+        ResponseEntity<String> response = null;
+        HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+        try {
+            //response = restTemplate.getForEntity(uri, Object.class);
+            out = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+            log.info("Ressponse body {}",response.getBody().toString());
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
                 log.warn("warning: too many request {} retrying ...", uri);

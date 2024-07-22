@@ -13,6 +13,7 @@ import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.DataType;
 import uk.ac.ebi.spot.gwas.common.constant.Type;
 import uk.ac.ebi.spot.gwas.common.constant.Uri;
+import uk.ac.ebi.spot.gwas.common.service.RestResponseResultBuilderService;
 import uk.ac.ebi.spot.gwas.mapping.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.common.service.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.common.service.ApiService;
@@ -30,12 +31,15 @@ public class OverlappingGeneService {
     private final EnsemblRestcallHistoryService historyService;
     private final ApiService mappingApiService;
 
+    RestResponseResultBuilderService restResponseResultBuilderService;
+
     public OverlappingGeneService(AppConfig config,
                                   EnsemblRestcallHistoryService historyService,
                                   ApiService mappingApiService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
+        this.restResponseResultBuilderService = restResponseResultBuilderService;
     }
 
     public Map<String, List<OverlapGene>> getOverlappingGenes(DataType dataType,
@@ -80,7 +84,8 @@ public class OverlappingGeneService {
         if (source.equals(config.getNcbiSource())) {
             uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());
         }
-
+        Optional<ResponseEntity<String>> optionalEntity = mappingApiService.getRequest(uri);
+        restResponseResultBuilderService.buildResponseResult(uri, mappingLocation, Type.OVERLAP_REGION, optionalEntity.get());
         List<OverlapGene> geneOverlapList = mappingApiService.getRequest(uri).map(response -> {
             if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
                 return Collections.singletonList(mapper.convertValue(response.getBody(), OverlapGene.class));

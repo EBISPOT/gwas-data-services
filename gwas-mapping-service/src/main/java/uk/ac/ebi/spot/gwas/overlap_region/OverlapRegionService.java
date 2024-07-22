@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.DataType;
 import uk.ac.ebi.spot.gwas.common.constant.Type;
 import uk.ac.ebi.spot.gwas.common.constant.Uri;
+import uk.ac.ebi.spot.gwas.common.service.RestResponseResultBuilderService;
 import uk.ac.ebi.spot.gwas.mapping.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.common.service.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.common.service.ApiService;
@@ -29,12 +31,15 @@ public class OverlapRegionService {
     private final EnsemblRestcallHistoryService historyService;
     private final ApiService mappingApiService;
 
+    RestResponseResultBuilderService restResponseResultBuilderService;
+
     public OverlapRegionService(AppConfig config,
                                 EnsemblRestcallHistoryService historyService,
                                 ApiService mappingApiService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
+        this.restResponseResultBuilderService =  restResponseResultBuilderService;
     }
 
     public Map<String, List<OverlapRegion>> getCytoGeneticBands(DataType dataType, List<String> locations) throws InterruptedException {
@@ -70,7 +75,9 @@ public class OverlapRegionService {
     public Map<String, List<OverlapRegion>> restApiCall(String mappingLocation) {
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         String uri = String.format("%s/%s/%s?feature=band", config.getServer(), Uri.OVERLAP_BAND_REGION, mappingLocation);
-        List<OverlapRegion> overlapRegions = mappingApiService.getRequest(uri)
+        Optional<ResponseEntity<String>> optionalEntity = mappingApiService.getRequest(uri);
+        restResponseResultBuilderService.buildResponseResult(uri, mappingLocation, Type.OVERLAP_REGION, optionalEntity.get());
+        List<OverlapRegion> overlapRegions = optionalEntity
                 .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapRegion>>() {}))
                 .orElseGet(ArrayList::new);
 
