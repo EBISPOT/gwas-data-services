@@ -6,6 +6,7 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import uk.ac.ebi.spot.gwas.assembly_info.AssemblyInfo;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.Uri;
 import uk.ac.ebi.spot.gwas.exception.EnsemblRestClientException;
 import uk.ac.ebi.spot.gwas.gene_symbol.GeneSymbol;
+import uk.ac.ebi.spot.gwas.overlap_gene.OverlapGene;
+import uk.ac.ebi.spot.gwas.overlap_region.OverlapRegion;
 import uk.ac.ebi.spot.gwas.variation.Variant;
 
 import java.net.URI;
@@ -103,11 +107,11 @@ public class ApiService {
         return out;
 
     }
-    public Optional<ResponseEntity<String>> getRequest(String uri) {
+    public Optional<ResponseEntity<Variant>> getRequestVariant(String uri) {
         log.info("Calling: {}", uri);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        ResponseEntity<String> out = null;
+        ResponseEntity<Variant> out = null;
         List<MediaType> mediaTypes = new ArrayList<MediaType>();
         mediaTypes.add(MediaType.TEXT_HTML);
         mediaTypes.add(MediaType.APPLICATION_JSON);
@@ -117,8 +121,10 @@ public class ApiService {
         HttpEntity<Object> entity = new HttpEntity<Object>(headers);
         try {
             //response = restTemplate.getForEntity(uri, Object.class);
-            out = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
-            log.info("Ressponse body {}",response.getBody().toString());
+            out = restTemplate.exchange(uri, HttpMethod.GET, entity, new ParameterizedTypeReference
+                    <Variant>() {
+            });
+            log.info("Ressponse body in getRequest() {}",out.getBody());
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
                 log.warn("warning: too many request {} retrying ...", uri);
@@ -127,11 +133,150 @@ public class ApiService {
                 } catch (InterruptedException interruptedException) {
                     Thread.currentThread().interrupt();
                 }
-                return this.getRequest(uri);
+                return this.getRequestVariant(uri);
             }else{
-                response = new ResponseEntity<>(e.getResponseBodyAsString(), e.getStatusCode());
+                out = new ResponseEntity<>(new Variant(), e.getStatusCode());
             }
         }
-        return Optional.of(response);
+        return Optional.of(out);
     }
+
+    public Optional<ResponseEntity<List<OverlapRegion>>> getRequestOverlapRegion(String uri) {
+        log.info("Calling: {}", uri);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<List<OverlapRegion>> out = null;
+        List<MediaType> mediaTypes = new ArrayList<MediaType>();
+        mediaTypes.add(MediaType.TEXT_HTML);
+        mediaTypes.add(MediaType.APPLICATION_JSON);
+        mediaTypes.add(MediaType.ALL);
+        headers.setAccept(mediaTypes);
+        ResponseEntity<String> response = null;
+        HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+        try {
+            //response = restTemplate.getForEntity(uri, Object.class);
+            out = restTemplate.exchange(uri, HttpMethod.GET, entity, new ParameterizedTypeReference
+                    <List<OverlapRegion>>() {
+            });
+            log.info("Ressponse body in getRequest() {}",out.getBody());
+        } catch (HttpStatusCodeException e) {
+            if (e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
+                log.warn("warning: too many request {} retrying ...", uri);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                return this.getRequestOverlapRegion(uri);
+            }else{
+                out = new ResponseEntity<>(new ArrayList<>(), e.getStatusCode());
+            }
+        }
+        return Optional.of(out);
+    }
+
+
+    public Optional<ResponseEntity<List<OverlapGene>>> getRequestOverlapGene(String uri) {
+        log.info("Calling: {}", uri);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<List<OverlapGene>> out = null;
+        List<MediaType> mediaTypes = new ArrayList<MediaType>();
+        mediaTypes.add(MediaType.TEXT_HTML);
+        mediaTypes.add(MediaType.APPLICATION_JSON);
+        mediaTypes.add(MediaType.ALL);
+        headers.setAccept(mediaTypes);
+        ResponseEntity<String> response = null;
+        HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+        try {
+            //response = restTemplate.getForEntity(uri, Object.class);
+            out = restTemplate.exchange(uri, HttpMethod.GET, entity, new ParameterizedTypeReference
+                    <List<OverlapGene>>() {
+            });
+            log.info("Ressponse body in getRequest() {}",out.getBody());
+        } catch (HttpStatusCodeException e) {
+            if (e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
+                log.warn("warning: too many request {} retrying ...", uri);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                return this.getRequestOverlapGene(uri);
+            }else{
+                out = new ResponseEntity<>(new ArrayList<>(), e.getStatusCode());
+            }
+        }
+        return Optional.of(out);
+    }
+
+    public Optional<ResponseEntity<GeneSymbol>> getRequestGeneSymbol(String uri) {
+        log.info("Calling: {}", uri);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<GeneSymbol> out = null;
+        List<MediaType> mediaTypes = new ArrayList<MediaType>();
+        mediaTypes.add(MediaType.TEXT_HTML);
+        mediaTypes.add(MediaType.APPLICATION_JSON);
+        mediaTypes.add(MediaType.ALL);
+        headers.setAccept(mediaTypes);
+        ResponseEntity<String> response = null;
+        HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+        try {
+            //response = restTemplate.getForEntity(uri, Object.class);
+            out = restTemplate.exchange(uri, HttpMethod.GET, entity, new ParameterizedTypeReference
+                    <GeneSymbol>() {
+            });
+            log.info("Ressponse body in getRequest() {}",out.getBody());
+        } catch (HttpStatusCodeException e) {
+            if (e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
+                log.warn("warning: too many request {} retrying ...", uri);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                return this.getRequestGeneSymbol(uri);
+            }else{
+                out = new ResponseEntity<>(new GeneSymbol(), e.getStatusCode());
+            }
+        }
+        return Optional.of(out);
+    }
+
+    public Optional<ResponseEntity<AssemblyInfo>> getRequestAssemblyInfo(String uri) {
+        log.info("Calling: {}", uri);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<AssemblyInfo> out = null;
+        List<MediaType> mediaTypes = new ArrayList<MediaType>();
+        mediaTypes.add(MediaType.TEXT_HTML);
+        mediaTypes.add(MediaType.APPLICATION_JSON);
+        mediaTypes.add(MediaType.ALL);
+        headers.setAccept(mediaTypes);
+        ResponseEntity<String> response = null;
+        HttpEntity<Object> entity = new HttpEntity<Object>(headers);
+        try {
+            //response = restTemplate.getForEntity(uri, Object.class);
+            out = restTemplate.exchange(uri, HttpMethod.GET, entity, new ParameterizedTypeReference
+                    <AssemblyInfo>() {
+            });
+            log.info("Ressponse body in getRequest() {}",out.getBody());
+        } catch (HttpStatusCodeException e) {
+            if (e.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
+                log.warn("warning: too many request {} retrying ...", uri);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                return this.getRequestAssemblyInfo(uri);
+            }else{
+                out = new ResponseEntity<>(new AssemblyInfo(), e.getStatusCode());
+            }
+        }
+        return Optional.of(out);
+    }
+
+
 }

@@ -35,7 +35,8 @@ public class OverlappingGeneService {
 
     public OverlappingGeneService(AppConfig config,
                                   EnsemblRestcallHistoryService historyService,
-                                  ApiService mappingApiService) {
+                                  ApiService mappingApiService,
+                                  RestResponseResultBuilderService restResponseResultBuilderService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
@@ -50,7 +51,7 @@ public class OverlappingGeneService {
         for (String location : locations) {
             List<OverlapGene> genes = cached.get(location);
             if (genes == null) {
-                cached.putAll(this.restApiCall(location, source));
+                //cached.putAll(this.restApiCall(location, source, ));
             }
             MappingUtil.statusLog(dataType.name(), count++, locations.size());
         }
@@ -65,12 +66,14 @@ public class OverlappingGeneService {
         if (source.equals(config.getNcbiSource())) {
             param = String.format("%s&logic_name=%s&db_type=%s", param, config.getNcbiLogicName(), config.getNcbiDbType());
         }
+        log.debug("The overlapping gene param is {}",param);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.OVERLAP_REGION, param, config.getERelease());
         List<OverlapGene> overlapGenes = new ArrayList<>();
         if (result == null) {
-            overlapGenes = this.restApiCall(location, source).get(location);
+            overlapGenes = this.restApiCall(location, source, param).get(location);
         } else {
             try {
+                log.info("inside getting Genes from History block");
                 overlapGenes = Arrays.asList(mapper.readValue(result.getRestResult(), OverlapGene[].class));
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
@@ -79,21 +82,26 @@ public class OverlappingGeneService {
         return overlapGenes;
     }
 
-    public Map<String, List<OverlapGene>> restApiCall(String mappingLocation, String source) { // Ensembl Overlapping Genes
+    public Map<String, List<OverlapGene>> restApiCall(String mappingLocation, String source, String param) { // Ensembl Overlapping Genes
         String uri = String.format("%s/%s/%s?feature=gene", config.getServer(), Uri.OVERLAPPING_GENE_REGION, mappingLocation);
         if (source.equals(config.getNcbiSource())) {
             uri = String.format("%s&logic_name=%s&db_type=%s", uri, config.getNcbiLogicName(), config.getNcbiDbType());
         }
-        Optional<ResponseEntity<String>> optionalEntity = mappingApiService.getRequest(uri);
-        restResponseResultBuilderService.buildResponseResult(uri, mappingLocation, Type.OVERLAP_REGION, optionalEntity.get());
-        List<OverlapGene> geneOverlapList = mappingApiService.getRequest(uri).map(response -> {
+        Optional<ResponseEntity<List<OverlapGene>>> optionalEntity = mappingApiService.getRequestOverlapGene(uri);
+        List<OverlapGene> geneOverlapList = optionalEntity.map(response -> {
             if (response.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
                 return Collections.singletonList(mapper.convertValue(response.getBody(), OverlapGene.class));
             } else {
                 return mapper.convertValue(response.getBody(), new TypeReference<List<OverlapGene>>() {});
             }
         }).orElseGet(ArrayList::new);
-
+        String overlapRGeneResponse = "";
+        try {
+            overlapRGeneResponse = mapper.writeValueAsString(geneOverlapList);
+        }catch(Exception ex) {
+            log.error("Exception in writing object as string in OverlapRegionService"+ex.getMessage(),ex);
+        }
+        restResponseResultBuilderService.buildResponseResult(uri, param, Type.OVERLAP_REGION, optionalEntity.get(), overlapRGeneResponse);
         return Collections.singletonMap(mappingLocation, geneOverlapList);
     }
 }

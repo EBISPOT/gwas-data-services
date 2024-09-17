@@ -158,7 +158,7 @@ public class MappingService {
             log.error("Variation call for SNP {} returned no result", snpRsId);
         }
 
-        if (reportedGenes.isEmpty()) {
+        if (!reportedGenes.isEmpty()) {
             String pipelineError = mappingFacade.checkReportedGenes(reportedGenes, mappingResult.getLocations(), mode);
             mappingResult.addPipelineErrors(pipelineError);
         }

@@ -29,6 +29,7 @@ public class EnsemblRestcallHistoryService {
     //Without release version, the data are not stored.
     public EnsemblRestcallHistory create(RestResponseResult resultResponseResult, String type, String param,
                                          String eRelease) {
+        log.debug("Inside EnsemblRestcallHistory create()");
         EnsemblRestcallHistory ensemblRestcallHistory = new EnsemblRestcallHistory();
         String restApiError = resultResponseResult.getError();
 

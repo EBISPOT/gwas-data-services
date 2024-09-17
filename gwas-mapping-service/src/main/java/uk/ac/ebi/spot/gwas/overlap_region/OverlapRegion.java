@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @JsonPropertyOrder({
         "strand",
         "feature_type",
@@ -17,11 +19,13 @@ import lombok.NoArgsConstructor;
         "seq_region_name",
         "stain"
 })
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+
+//@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OverlapRegion {
+public class OverlapRegion implements Serializable {
+
+
+    private static final long serialVersionUID = -8954532137311559917L;
 
     @JsonProperty("strand")
     public Integer strand;
@@ -50,4 +54,96 @@ public class OverlapRegion {
     @JsonProperty("error")
     public String error;
 
+
+    public OverlapRegion(@JsonProperty("strand") Integer strand,
+                         @JsonProperty("feature_type") String featureType,
+                         @JsonProperty("start") Integer start,
+                         @JsonProperty("assembly_name") String assemblyName,
+                         @JsonProperty("end") Integer end,
+                         @JsonProperty("id") String id,
+                         @JsonProperty("seq_region_name") String seqRegionName,
+                         @JsonProperty("stain") String stain,
+                         @JsonProperty("error") String error) {
+        this.strand = strand;
+        this.featureType = featureType;
+        this.start = start;
+        this.assemblyName = assemblyName;
+        this.end = end;
+        this.id = id;
+        this.seqRegionName = seqRegionName;
+        this.stain = stain;
+        this.error = error;
+    }
+
+    public Integer getStrand() {
+        return strand;
+    }
+
+    public void setStrand(Integer strand) {
+        this.strand = strand;
+    }
+
+    public String getFeatureType() {
+        return featureType;
+    }
+
+    public void setFeatureType(String featureType) {
+        this.featureType = featureType;
+    }
+
+    public Integer getStart() {
+        return start;
+    }
+
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
+    public String getAssemblyName() {
+        return assemblyName;
+    }
+
+    public void setAssemblyName(String assemblyName) {
+        this.assemblyName = assemblyName;
+    }
+
+    public Integer getEnd() {
+        return end;
+    }
+
+    public void setEnd(Integer end) {
+        this.end = end;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getSeqRegionName() {
+        return seqRegionName;
+    }
+
+    public void setSeqRegionName(String seqRegionName) {
+        this.seqRegionName = seqRegionName;
+    }
+
+    public String getStain() {
+        return stain;
+    }
+
+    public void setStain(String stain) {
+        this.stain = stain;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
 }

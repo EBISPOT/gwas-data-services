@@ -103,7 +103,7 @@ public class VariationService {
             variant = this.restApiCall(snpRsId).get(snpRsId);
         } else {
             try {
-                log.info("inaide getting rsid from History block");
+                log.info("inside getting rsid from History block");
                 variant = mapper.readValue(result.getRestResult(), Variant.class);
             } catch (JsonProcessingException e) {  log.error(e.getMessage()); }
         }
@@ -116,12 +116,20 @@ public class VariationService {
     public Map<String, Variant> restApiCall(String snpRsId) {
         Map<String, Variant> variationMap = new HashMap<>();
         String uri = String.format("%s/%s/%s", config.getServer(), Uri.VARIATION, snpRsId);
-        Optional<ResponseEntity<String>> optionalEntity = mappingApiService.getRequest(uri);
-        restResponseResultBuilderService.buildResponseResult(uri, snpRsId, Type.SNP, optionalEntity.get());
+        log.debug("Variation url is {}", uri);
+        Optional<ResponseEntity<Variant>> optionalEntity = mappingApiService.getRequestVariant(uri);
+        String variantResponse = "";
         Variant variant = optionalEntity
                 .map(response -> mapper.convertValue(response.getBody(), Variant.class))
                 .orElseGet(Variant::new);
         variationMap.put(snpRsId, variant);
+        try {
+            variantResponse =mapper.writeValueAsString(variant);
+        } catch(Exception ex) {
+            log.error("Exception in writing object as string in VariationService"+ex.getMessage(),ex);
+        }
+        restResponseResultBuilderService.buildResponseResult(uri, snpRsId, Type.SNP, optionalEntity.get(),variantResponse);
+
 
         return variationMap;
     }

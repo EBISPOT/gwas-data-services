@@ -35,7 +35,8 @@ public class OverlapRegionService {
 
     public OverlapRegionService(AppConfig config,
                                 EnsemblRestcallHistoryService historyService,
-                                ApiService mappingApiService) {
+                                ApiService mappingApiService,
+                                RestResponseResultBuilderService restResponseResultBuilderService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
@@ -48,7 +49,7 @@ public class OverlapRegionService {
         for (String location : locations) {
             List<OverlapRegion> regions = cached.get(location);
             if (regions == null) {
-                cached.putAll(this.restApiCall(location));
+                //cached.putAll(this.restApiCall(location));
             }
             MappingUtil.statusLog(dataType.name(), count++, locations.size());
         }
@@ -61,28 +62,35 @@ public class OverlapRegionService {
         log.warn(":Retrieving Cytogenetic Band for location: {}", location);
         String param = String.format("%s?feature=band", location);
         RestResponseResult result = historyService.getHistoryByTypeParamAndVersion(Type.OVERLAP_REGION, param, config.getERelease());
+        log.debug("The overlapping region param is {}",param);
         List<OverlapRegion> overlapRegions = new ArrayList<>();
         if (result == null) {
-            overlapRegions = this.restApiCall(location).get(location);
+            overlapRegions = this.restApiCall(location, param).get(location);
         } else {
             try {
+                log.info("inside getting location from History block");
                 overlapRegions = Arrays.asList(mapper.readValue(result.getRestResult(), OverlapRegion[].class));
-            } catch (JsonProcessingException e) { log.error(e.getMessage()); }
+            } catch (JsonProcessingException e) { log.error("exception in getCytoGeneticBandsFromDB"+e.getMessage(),e); }
         }
         return overlapRegions;
     }
 
-    public Map<String, List<OverlapRegion>> restApiCall(String mappingLocation) {
+    public Map<String, List<OverlapRegion>> restApiCall(String mappingLocation, String param) {
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         String uri = String.format("%s/%s/%s?feature=band", config.getServer(), Uri.OVERLAP_BAND_REGION, mappingLocation);
-        Optional<ResponseEntity<String>> optionalEntity = mappingApiService.getRequest(uri);
-        restResponseResultBuilderService.buildResponseResult(uri, mappingLocation, Type.OVERLAP_REGION, optionalEntity.get());
+        Optional<ResponseEntity<List<OverlapRegion>>> optionalEntity = mappingApiService.getRequestOverlapRegion(uri);
         List<OverlapRegion> overlapRegions = optionalEntity
-                .map(response -> mapper.convertValue(response.getBody(), new TypeReference<List<OverlapRegion>>() {}))
-                .orElseGet(ArrayList::new);
-
+                .map(response ->  mapper.convertValue(response.getBody(), new TypeReference<List<OverlapRegion>>() {
+                        })).orElseGet(ArrayList::new);
         Map<String, List<OverlapRegion>> bands = new HashMap<>();
         bands.put(mappingLocation, overlapRegions);
+        String overlapRegionResponse = "";
+        try {
+            overlapRegionResponse = mapper.writeValueAsString(overlapRegions);
+        }catch(Exception ex) {
+            log.error("Exception in writing object as string in OverlapRegionService"+ex.getMessage(),ex);
+        }
+        restResponseResultBuilderService.buildResponseResult(uri, param, Type.OVERLAP_REGION,  optionalEntity.get(), overlapRegionResponse);
         return bands;
     }
 }
