@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.DataType;
 import uk.ac.ebi.spot.gwas.common.constant.Type;
 import uk.ac.ebi.spot.gwas.common.constant.Uri;
+import uk.ac.ebi.spot.gwas.common.service.RestResponseResultBuilderService;
 import uk.ac.ebi.spot.gwas.mapping.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.common.service.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.common.service.ApiService;
@@ -30,12 +33,16 @@ public class VariationService {
     private final EnsemblRestcallHistoryService historyService;
     private final ApiService mappingApiService;
 
+    RestResponseResultBuilderService restResponseResultBuilderService;
+
     public VariationService(AppConfig config,
                             EnsemblRestcallHistoryService historyService,
-                            ApiService mappingApiService) {
+                            ApiService mappingApiService,
+                            RestResponseResultBuilderService restResponseResultBuilderService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
+        this.restResponseResultBuilderService = restResponseResultBuilderService;
     }
 
     public Map<String, Variant> getVariation(int threadSize,
@@ -96,20 +103,33 @@ public class VariationService {
             variant = this.restApiCall(snpRsId).get(snpRsId);
         } else {
             try {
+                log.info("inside getting rsid from History block");
                 variant = mapper.readValue(result.getRestResult(), Variant.class);
             } catch (JsonProcessingException e) {  log.error(e.getMessage()); }
         }
         return variant;
     }
 
+
+
+
     public Map<String, Variant> restApiCall(String snpRsId) {
         Map<String, Variant> variationMap = new HashMap<>();
         String uri = String.format("%s/%s/%s", config.getServer(), Uri.VARIATION, snpRsId);
-
-        Variant variant = mappingApiService.getRequest(uri)
+        log.debug("Variation url is {}", uri);
+        Optional<ResponseEntity<Variant>> optionalEntity = mappingApiService.getRequestVariant(uri);
+        String variantResponse = "";
+        Variant variant = optionalEntity
                 .map(response -> mapper.convertValue(response.getBody(), Variant.class))
                 .orElseGet(Variant::new);
         variationMap.put(snpRsId, variant);
+        try {
+            variantResponse =mapper.writeValueAsString(variant);
+        } catch(Exception ex) {
+            log.error("Exception in writing object as string in VariationService"+ex.getMessage(),ex);
+        }
+        restResponseResultBuilderService.buildResponseResult(uri, snpRsId, Type.SNP, optionalEntity.get(),variantResponse);
+
 
         return variationMap;
     }
