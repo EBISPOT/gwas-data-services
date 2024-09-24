@@ -5,19 +5,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.DataType;
 import uk.ac.ebi.spot.gwas.common.constant.Type;
 import uk.ac.ebi.spot.gwas.common.constant.Uri;
+import uk.ac.ebi.spot.gwas.common.service.RestResponseResultBuilderService;
 import uk.ac.ebi.spot.gwas.mapping.dto.RestResponseResult;
 import uk.ac.ebi.spot.gwas.common.service.EnsemblRestcallHistoryService;
 import uk.ac.ebi.spot.gwas.common.service.ApiService;
 import uk.ac.ebi.spot.gwas.common.util.CacheUtil;
+import uk.ac.ebi.spot.gwas.variation.Variant;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -31,13 +35,16 @@ public class GeneSymbolService {
     private final AppConfig config;
     private final EnsemblRestcallHistoryService historyService;
     private final ApiService mappingApiService;
+    RestResponseResultBuilderService restResponseResultBuilderService;
 
     public GeneSymbolService(AppConfig config,
                              EnsemblRestcallHistoryService historyService,
-                             ApiService mappingApiService) {
+                             ApiService mappingApiService,
+                             RestResponseResultBuilderService restResponseResultBuilderService) {
         this.config = config;
         this.historyService = historyService;
         this.mappingApiService = mappingApiService;
+        this.restResponseResultBuilderService = restResponseResultBuilderService;
     }
 
     public Map<String, GeneSymbol> getReportedGenes(int threadSize,
@@ -79,6 +86,7 @@ public class GeneSymbolService {
             geneSymbol = this.restApiCall(gene);
         } else {
             try {
+                log.info("inside getting geneSymbol from History block");
                 geneSymbol = mapper.readValue(result.getRestResult(), GeneSymbol.class);
             } catch (JsonProcessingException e) { log.error(e.getMessage()); }
         }
@@ -87,9 +95,19 @@ public class GeneSymbolService {
 
     public GeneSymbol restApiCall(String gene) { // chromosomeEnd
         String uri = String.format("%s/%s/%s", config.getServer(), Uri.REPORTED_GENES, gene);
-        return mappingApiService.getRequest(uri)
+        log.debug("GeneSymbol url is {}", uri);
+        Optional<ResponseEntity<GeneSymbol>> optionalEntity = mappingApiService.getRequestGeneSymbol(uri);
+        GeneSymbol geneSymbol = optionalEntity
                 .map(response -> mapper.convertValue(response.getBody(), GeneSymbol.class))
                 .orElseGet(GeneSymbol::new);
+        String geneSymbolResponse = "";
+        try {
+            geneSymbolResponse =mapper.writeValueAsString(geneSymbol);
+        } catch(Exception ex) {
+            log.error("Exception in writing object as string in GeneSymbolService"+ex.getMessage(),ex);
+        }
+        restResponseResultBuilderService.buildResponseResult(uri, gene, Type.LOOKUP_SYMBOL, optionalEntity.get(),geneSymbolResponse);
+        return geneSymbol;
     }
 
 }
