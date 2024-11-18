@@ -32,7 +32,7 @@ public class EnsemblRestcallHistoryService {
         log.debug("Inside EnsemblRestcallHistory create()");
         EnsemblRestcallHistory ensemblRestcallHistory = new EnsemblRestcallHistory();
         String restApiError = resultResponseResult.getError();
-
+        log.debug("the restApiError is {}", restApiError);
 
         if ((resultResponseResult.getStatus() == 200) || (resultResponseResult.getStatus() == 400)) {
             if (eRelease != null) {
@@ -52,6 +52,7 @@ public class EnsemblRestcallHistoryService {
 
                         this.ensemblRestcallHistoryRepository.save(ensemblRestcallHistory);
                     } catch (Exception e) {
+                        log.error("Exception in EnsemblRestcallHistory "+e.getMessage(),e);
                         // BEWARE: the following code MUST NOT block Ensembl Rest API Call
                     }
                 }
