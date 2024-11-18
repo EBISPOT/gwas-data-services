@@ -103,9 +103,13 @@ public class VariationService {
             variant = this.restApiCall(snpRsId).get(snpRsId);
         } else {
             try {
-                log.info("inside getting rsid from History block");
-                variant = mapper.readValue(result.getRestResult(), Variant.class);
-            } catch (JsonProcessingException e) {  log.error(e.getMessage()); }
+                if(result.getRestResult() != null) {
+                    log.info("inside getting rsid from History block");
+                    variant = mapper.readValue(result.getRestResult(), Variant.class);
+                }else{
+                    variant = mapper.readValue(result.getError(), Variant.class);
+                }
+            } catch (JsonProcessingException e) {  log.error("Error in parsing Variant response"+e.getMessage(),e); }
         }
         return variant;
     }
