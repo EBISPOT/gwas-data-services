@@ -63,4 +63,7 @@ public class GeneSymbol {
     @JsonProperty("failed")
     public String failed;
 
+    public GeneSymbol(@JsonProperty("error") String error) {
+        this.error = error;
+    }
 }

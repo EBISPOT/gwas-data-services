@@ -134,8 +134,14 @@ public class ApiService {
                     Thread.currentThread().interrupt();
                 }
                 return this.getRequestVariant(uri);
-            }else{
-                out = new ResponseEntity<>(new Variant(), e.getStatusCode());
+            }
+            else if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+                log.debug("Inside Bad request block");
+                log.debug("Variant error is {}", e.getResponseBodyAsString());
+                out = new ResponseEntity<>(new Variant(e.getResponseBodyAsString()), e.getStatusCode());
+            }
+            else{
+                out = new ResponseEntity<>(new Variant(e.getResponseBodyAsString()), e.getStatusCode());
             }
         }
         return Optional.of(out);
@@ -168,8 +174,16 @@ public class ApiService {
                     Thread.currentThread().interrupt();
                 }
                 return this.getRequestOverlapRegion(uri);
-            }else{
-                out = new ResponseEntity<>(new ArrayList<>(), e.getStatusCode());
+            }
+            else if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+                log.debug("Inside Bad request block");
+                log.debug("OverlapRegion error is {}", e.getResponseBodyAsString());
+                OverlapRegion overlapRegion = new OverlapRegion(e.getResponseBodyAsString());
+                out = new ResponseEntity<>(Collections.singletonList(overlapRegion) , e.getStatusCode());
+            }
+            else{
+                OverlapRegion overlapRegion = new OverlapRegion(e.getResponseBodyAsString());
+                out = new ResponseEntity<>(Collections.singletonList(overlapRegion), e.getStatusCode());
             }
         }
         return Optional.of(out);
@@ -203,8 +217,16 @@ public class ApiService {
                     Thread.currentThread().interrupt();
                 }
                 return this.getRequestOverlapGene(uri);
-            }else{
-                out = new ResponseEntity<>(new ArrayList<>(), e.getStatusCode());
+            }
+            else if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+                log.debug("Inside Bad request block");
+                log.error("OverlapGene error is {}", e.getResponseBodyAsString());
+                OverlapGene overlapGene = new OverlapGene(e.getResponseBodyAsString());
+                out = new ResponseEntity<>(Collections.singletonList(overlapGene) , e.getStatusCode());
+            }
+            else{
+                OverlapGene overlapGene = new OverlapGene(e.getResponseBodyAsString());
+                out = new ResponseEntity<>(Collections.singletonList(overlapGene) , e.getStatusCode());
             }
         }
         return Optional.of(out);
@@ -237,8 +259,16 @@ public class ApiService {
                     Thread.currentThread().interrupt();
                 }
                 return this.getRequestGeneSymbol(uri);
-            }else{
-                out = new ResponseEntity<>(new GeneSymbol(), e.getStatusCode());
+            }
+            else if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
+                log.debug("Inside Bad request block");
+                log.error("GeneSymbol error is {}", e.getResponseBodyAsString());
+                GeneSymbol geneSymbol = new GeneSymbol(e.getResponseBodyAsString());
+                out = new ResponseEntity<>(geneSymbol , e.getStatusCode());
+            }
+            else{
+                GeneSymbol geneSymbol = new GeneSymbol(e.getResponseBodyAsString());
+                out = new ResponseEntity<>(geneSymbol , e.getStatusCode());
             }
         }
         return Optional.of(out);
@@ -271,7 +301,8 @@ public class ApiService {
                     Thread.currentThread().interrupt();
                 }
                 return this.getRequestAssemblyInfo(uri);
-            }else{
+            }
+            else{
                 out = new ResponseEntity<>(new AssemblyInfo(), e.getStatusCode());
             }
         }

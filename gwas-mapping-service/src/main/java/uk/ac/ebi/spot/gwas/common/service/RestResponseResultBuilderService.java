@@ -23,7 +23,7 @@ public class RestResponseResultBuilderService {
         this.historyService = historyService;
     }
 
-    public void  buildResponseResult(String uri, String param , String type,
+    public void buildResponseResult(String uri, String param , String type,
                                            ResponseEntity<?> entity, String response) {
         log.debug("Inside buildResponseResult()");
         RestResponseResult restResponseResult = new RestResponseResult();
@@ -32,6 +32,7 @@ public class RestResponseResultBuilderService {
         }else {
             restResponseResult.setError(response);
         }
+        log.debug("the status code from api is {}", entity.getStatusCode());
         restResponseResult.setStatus(entity.getStatusCodeValue());
         if(entity.getStatusCodeValue() == HttpStatus.BAD_GATEWAY.value() ||
                 entity.getStatusCodeValue() == HttpStatus.SERVICE_UNAVAILABLE.value() ||
