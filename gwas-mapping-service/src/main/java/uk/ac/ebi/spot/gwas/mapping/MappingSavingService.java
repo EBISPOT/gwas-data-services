@@ -50,6 +50,7 @@ public class MappingSavingService {
     public MappingDto   saveMappedData(SingleNucleotidePolymorphism snpLinkedToLocus, EnsemblMappingResult ensemblMappingResult, Map<String, Set<Location>> snpToLocationsMap,
                                        Collection<GenomicContext> allGenomicContexts, Collection<String> associationPipelineErrors) {
 
+        log.debug("Inside saveMappedData()");
 
         String snpRsId = snpLinkedToLocus.getRsId();
         snpLocationMappingService.removeExistingSnpLocations(snpLinkedToLocus);

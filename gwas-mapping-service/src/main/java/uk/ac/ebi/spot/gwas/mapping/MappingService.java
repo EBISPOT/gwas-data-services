@@ -159,6 +159,7 @@ public class MappingService {
         }
 
         if (!reportedGenes.isEmpty()) {
+            log.debug("Reported Genes {}", reportedGenes);
             String pipelineError = mappingFacade.checkReportedGenes(reportedGenes, mappingResult.getLocations(), mode);
             mappingResult.addPipelineErrors(pipelineError);
         }

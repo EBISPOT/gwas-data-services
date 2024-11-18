@@ -146,4 +146,8 @@ public class OverlapRegion implements Serializable {
     public void setError(String error) {
         this.error = error;
     }
+
+    public OverlapRegion(@JsonProperty("error") String error) {
+        this.error = error;
+    }
 }

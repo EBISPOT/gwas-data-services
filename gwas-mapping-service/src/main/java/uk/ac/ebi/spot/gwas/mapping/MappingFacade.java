@@ -295,7 +295,7 @@ public class MappingFacade {
         String pipelineError = "";
 
         for (String reportedGene : reportedGenes) {
-
+            log.debug("reportedGene is {}", reportedGene);
             reportedGene = reportedGene.replace(" ", "");
             List<String> reportedGenesToIgnore = Arrays.asList("NR", "intergenic", "genic");
 
