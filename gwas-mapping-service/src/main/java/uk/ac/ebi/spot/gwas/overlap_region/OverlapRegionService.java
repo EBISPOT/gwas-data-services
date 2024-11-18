@@ -69,7 +69,11 @@ public class OverlapRegionService {
         } else {
             try {
                 log.info("inside getting location from History block");
-                overlapRegions = Arrays.asList(mapper.readValue(result.getRestResult(), OverlapRegion[].class));
+                if(result.getRestResult() != null ) {
+                    overlapRegions = Arrays.asList(mapper.readValue(result.getRestResult(), OverlapRegion[].class));
+                } else {
+                    overlapRegions = Arrays.asList(mapper.readValue(result.getError(), OverlapRegion[].class));
+                }
             } catch (JsonProcessingException e) { log.error("exception in getCytoGeneticBandsFromDB"+e.getMessage(),e); }
         }
         return overlapRegions;

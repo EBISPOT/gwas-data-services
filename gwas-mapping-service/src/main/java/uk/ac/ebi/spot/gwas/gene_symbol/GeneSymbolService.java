@@ -87,7 +87,12 @@ public class GeneSymbolService {
         } else {
             try {
                 log.info("inside getting geneSymbol from History block");
-                geneSymbol = mapper.readValue(result.getRestResult(), GeneSymbol.class);
+                if(result.getRestResult() != null ) {
+                    geneSymbol = mapper.readValue(result.getRestResult(), GeneSymbol.class);
+                } else{
+                    geneSymbol = mapper.readValue(result.getError(), GeneSymbol.class);
+                }
+
             } catch (JsonProcessingException e) { log.error(e.getMessage()); }
         }
         return geneSymbol;
