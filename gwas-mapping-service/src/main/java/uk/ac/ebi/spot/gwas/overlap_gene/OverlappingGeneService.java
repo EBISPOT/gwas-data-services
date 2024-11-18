@@ -74,7 +74,11 @@ public class OverlappingGeneService {
         } else {
             try {
                 log.info("inside getting Genes from History block");
-                overlapGenes = Arrays.asList(mapper.readValue(result.getRestResult(), OverlapGene[].class));
+                if(result.getRestResult() != null) {
+                    overlapGenes = Arrays.asList(mapper.readValue(result.getRestResult(), OverlapGene[].class));
+                }else {
+                    overlapGenes = Arrays.asList(mapper.readValue(result.getError(), OverlapGene[].class));
+                }
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
             }
