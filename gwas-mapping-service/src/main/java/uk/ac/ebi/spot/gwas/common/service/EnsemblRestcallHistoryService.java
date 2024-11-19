@@ -45,7 +45,7 @@ public class EnsemblRestcallHistoryService {
 
                         // Check for any errors
                         if (restApiError != null && !restApiError.isEmpty()) {
-                            ensemblRestcallHistory.setEnsemblError(restApiError);
+                            ensemblRestcallHistory.setEnsemblError(restApiError.substring(0,255));
                         } else {
                             ensemblRestcallHistory.setEnsemblResponse(resultResponseResult.getRestResult());
                         }
