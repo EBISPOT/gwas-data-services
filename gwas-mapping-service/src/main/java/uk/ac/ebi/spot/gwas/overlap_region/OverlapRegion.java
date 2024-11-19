@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +20,10 @@ import java.io.Serializable;
         "seq_region_name",
         "stain"
 })
-
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 //@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OverlapRegion implements Serializable {
@@ -55,7 +59,7 @@ public class OverlapRegion implements Serializable {
     public String error;
 
 
-    public OverlapRegion(@JsonProperty("strand") Integer strand,
+    /*public OverlapRegion(@JsonProperty("strand") Integer strand,
                          @JsonProperty("feature_type") String featureType,
                          @JsonProperty("start") Integer start,
                          @JsonProperty("assembly_name") String assemblyName,
@@ -73,7 +77,7 @@ public class OverlapRegion implements Serializable {
         this.seqRegionName = seqRegionName;
         this.stain = stain;
         this.error = error;
-    }
+    }*/
 
     public Integer getStrand() {
         return strand;
