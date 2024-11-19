@@ -57,28 +57,7 @@ public class OverlapRegion implements Serializable {
 
     @JsonProperty("error")
     public String error;
-
-
-    /*public OverlapRegion(@JsonProperty("strand") Integer strand,
-                         @JsonProperty("feature_type") String featureType,
-                         @JsonProperty("start") Integer start,
-                         @JsonProperty("assembly_name") String assemblyName,
-                         @JsonProperty("end") Integer end,
-                         @JsonProperty("id") String id,
-                         @JsonProperty("seq_region_name") String seqRegionName,
-                         @JsonProperty("stain") String stain,
-                         @JsonProperty("error") String error) {
-        this.strand = strand;
-        this.featureType = featureType;
-        this.start = start;
-        this.assemblyName = assemblyName;
-        this.end = end;
-        this.id = id;
-        this.seqRegionName = seqRegionName;
-        this.stain = stain;
-        this.error = error;
-    }*/
-
+    
     public Integer getStrand() {
         return strand;
     }
