@@ -57,7 +57,7 @@ public class OverlapRegion implements Serializable {
 
     @JsonProperty("error")
     public String error;
-    
+
     public Integer getStrand() {
         return strand;
     }
