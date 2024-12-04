@@ -3,6 +3,7 @@ package uk.ac.ebi.spot.gwas.common.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.model.Gene;
 import uk.ac.ebi.spot.gwas.common.repository.GeneRepository;
@@ -14,7 +15,8 @@ public class GeneQueryService {
     @Autowired
     private GeneRepository geneRepository;
 
-    @Transactional(readOnly = true)
+    ///@Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.SUPPORTS)
     public Gene findByGeneName(String geneName) {
         Gene gene = geneRepository.findByGeneName(geneName);
         if (gene != null) {
