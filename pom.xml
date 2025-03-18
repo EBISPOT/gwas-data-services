@@ -34,6 +34,8 @@
         <module>gwas-data-copy-service</module>
         <module>gwas-copy-table-data</module>
         <module>gwas-rabbitmq-listener</module>
+        <module>gwas-association-parent-trait-mapper</module>
+        <module>gwas-association-parent-trait-executor</module>
     </modules>
 
 </project>
