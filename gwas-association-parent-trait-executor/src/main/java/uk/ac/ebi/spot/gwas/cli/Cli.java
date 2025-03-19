@@ -28,7 +28,7 @@ public class Cli implements CommandLineRunner {
     private static String errorDir = null;
 
     @Autowired
-    ParentMapperService parentMapperService = null;
+    ParentMapperService parentMapperService;
 
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
