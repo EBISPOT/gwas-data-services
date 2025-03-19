@@ -1,0 +1,40 @@
+server:
+  port: 8084
+
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
+    username:
+    password:
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+    hikari:
+      maximumPoolSize: 80
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: ERROR
+        type: ERROR
+
+executor:
+  thread-pool:
+    count:
+
+association:
+  partition:
+    size: 
+
+
+#script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-bjobs-mapper.sh
+script: /hps/software/users/parkinso/spot/gwas/prod/sw/parent-trait-mapper-executor/run-slurm-map-parent-traits.sh
+
+slurm:
+  logslocation: /hps/nobackup/parkinso/spot/gwas/logs/parent-trait-mapper-executor/logs/bsub
+
+

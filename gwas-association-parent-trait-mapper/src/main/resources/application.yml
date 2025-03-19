@@ -1,0 +1,6 @@
+ols-api:
+  endpoint: https://www.ebi.ac.uk/ols/api/ontologies/efo/hierarchicalDescendants
+
+spring:
+  profiles:
+    active: local
