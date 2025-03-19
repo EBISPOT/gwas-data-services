@@ -38,8 +38,7 @@ public class TraitMapperJobSubmitterServiceImpl implements TraitMapperJobSubmitt
         log.info("Active profile is ->" + activeProfile);
         long start = System.currentTimeMillis();
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        bsubLog.info("Bsub for Mapping Pipeline started at {}", dateFormat.format(date));
+        bsubLog.info("Bsub for Parent trait Mapper started at {}", dateFormat.format(new Date()));
         for (List<String> partshortForms : ListUtils.partition(shortForms, config.getPartitionSize())) {
 
             if (activeProfile.equals("cluster")) {
@@ -72,7 +71,6 @@ public class TraitMapperJobSubmitterServiceImpl implements TraitMapperJobSubmitt
         poolExecutor.shutdown();
         while (!poolExecutor.isTerminated()) {
         }
-        Date endDate = new Date();
-        bsubLog.info("Bsub for Mapping Pipeline ended at {}", dateFormat.format(endDate));
+        bsubLog.info("Bsub for Parent trait Mapper ended at {}", dateFormat.format(new Date()));
     }
 }
