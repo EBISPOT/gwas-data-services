@@ -11,9 +11,7 @@ import uk.ac.ebi.spot.gwas.util.CommandUtil;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -30,13 +28,15 @@ public class Cli implements CommandLineRunner {
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
         CommandLine commandLine = parseArguments(args);
-        Boolean mode = commandLine.hasOption(CommandUtil.EXEC_MODE_OPT);
+        Boolean mode = commandLine.hasOption(CommandUtil.EXEC_EFOTRAITS);
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
+        log.info("Parent Trait mapping  started at {}",dateFormat.format(new Date()));
         long start = System.currentTimeMillis();
         if (mode) {
-            log.info("Execution mode is ->" + executionMode);
-            efoTraitService.loadParentChildEfo(Arrays.asList(efoIds));
+            Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds));
+            efoTraitService.saveParentEFOMapping(efoParentChildMap);
+            log.info("Total Parent Trait mapping time {}", (System.currentTimeMillis() - start));
+            log.info("Parent Trait mapping ended at {}",dateFormat.format(new Date()));
         } else {
             System.err.println("Insufficient params ");
             System.exit(1);
@@ -50,11 +50,6 @@ public class Cli implements CommandLineRunner {
         CommandLine cl = null;
         try {
             cl = parser.parse(options, args, true);
-
-            if (cl.hasOption("m")) {
-                log.info("Inside -m option");
-                executionMode = cl.getOptionValue("m");
-            }
 
             if (cl.hasOption("e")) {
                 // print out mode help
