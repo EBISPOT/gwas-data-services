@@ -2,7 +2,7 @@
 
 base=${0%/*}/;
 logslocation=${2}
-configlocation=/hps/software/users/parkinso/spot/gwas/prod/sw/parent-trait-mapper/config
+configlocation=/hps/software/users/parkinso/spot/gwas/prod/sw/parent-trait-mapper-executor/config
 source ${configlocation}/db-env
 proxy_settings="-Dhttp.proxyHost=www-proxy.ebi.ac.uk -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=*.ebi.ac.uk -Dftp.proxyHost=www-proxy.ebi.ac.uk -Dftp.proxyPort=3128 -Dftp.nonProxyHosts=*.ebi.ac.uk -DproxyHost=www-proxy.ebi.ac.uk -DproxyPort=3128 -DproxySet=true";
 

@@ -32,8 +32,8 @@ association:
 
 
 #script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-bjobs-mapper.sh
-script: /hps/software/users/parkinso/spot/gwas/prod/sw/parent-trait-mapper/run-slurm-mapper.sh
+script: /hps/software/users/parkinso/spot/gwas/prod/sw/parent-trait-mapper-executor/run-slurm-mapper.sh
 slurm:
-  logslocation: /hps/nobackup/parkinso/spot/gwas/logs/parent-trait-mapper/logs/bsub
+  logslocation: /hps/nobackup/parkinso/spot/gwas/logs/parent-trait-mapper-executor/logs/bsub
 
 
