@@ -74,14 +74,13 @@ public class EFOTraitServiceImpl implements EFOTraitService {
             efoShortFormMap =  restAPIEFOService.callOlsRestAPI(restAPIConfiguration.getOlaApiEndpoint(), efoShortFormMap, shortForm );
             List<String> childEFOTraits = efoShortFormMap.keySet().stream()
                     .filter(key -> {
-                        log.info("The key in efoShortFormMap is {}", key);
+                       // log.info("The key in efoShortFormMap is {}", key);
                         return efoTraitRepository.findByShortForm(key).isPresent();
                     } )
                     .collect(Collectors.toList());
-            childEFOTraits.forEach(child -> log.info("childEFOTraits  {}", child));
+           // childEFOTraits.forEach(child -> log.info("childEFOTraits  {}", child));
             efoParentChildMap.put(shortForm, childEFOTraits);
         }
-        saveParentEFOMapping(efoParentChildMap);
         return efoParentChildMap;
     }
 
@@ -92,8 +91,8 @@ public class EFOTraitServiceImpl implements EFOTraitService {
            EfoTrait parentEfo = efoTraitRepository.findByShortForm(shortForm).orElse(null);
            List<EfoTrait> childEfos = efoTraitRepository.findByShortFormIn(efoParentChildMap.get(shortForm)).stream().filter(Objects::nonNull).collect(Collectors.toList());
            if(parentEfo != null) {
-               log.info("parent Efo is {}", parentEfo);
-               log.info("inside efo children  empty block");
+               //log.info("parent Efo is {}", parentEfo);
+              // log.info("inside efo children  empty block");
                   //childEfos.forEach(child -> log.info("EFO children {}", child.getShortForm()));
                parentEfo.setParentChildEfoTraits(childEfos);
                efoTraitRepository.save(parentEfo);
