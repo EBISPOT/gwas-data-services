@@ -13,6 +13,8 @@ import uk.ac.ebi.spot.gwas.config.RestAPIConfiguration;
 import uk.ac.ebi.spot.gwas.ols.OLSTermApiResponse;
 import uk.ac.ebi.spot.gwas.service.RestInteractionService;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class RestInteractionServiceImpl implements RestInteractionService {
@@ -40,9 +42,10 @@ public class RestInteractionServiceImpl implements RestInteractionService {
         }catch(Exception ex){
             log.error("Exception in Rest API call"+ex.getMessage(),ex);
         }
-        log.info("responseEntity status code"+responseEntity.getStatusCodeValue());
-        log.info("responseEntity Body"+responseEntity.getBody());
-        return responseEntity.getBody();
+        //log.info("responseEntity status code"+responseEntity.getStatusCodeValue());
+        //log.info("responseEntity Body"+responseEntity.getBody());
+
+        return Optional.ofNullable(responseEntity).map(ResponseEntity::getBody).orElse(null);
     }
 
 }
