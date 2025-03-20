@@ -20,7 +20,7 @@ public class Cli implements CommandLineRunner {
 
     private static String executionMode = null;
 
-    private static String[] efoIds = null;
+    private static String efoIds = null;
 
     @Autowired
     EFOTraitService efoTraitService;
@@ -33,7 +33,8 @@ public class Cli implements CommandLineRunner {
         log.info("Parent Trait mapping  started at {}",dateFormat.format(new Date()));
         long start = System.currentTimeMillis();
         if (mode) {
-            Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds));
+
+            Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
             efoTraitService.saveParentEFOMapping(efoParentChildMap);
             log.info("Total Parent Trait mapping time {}", (System.currentTimeMillis() - start));
             log.info("Parent Trait mapping ended at {}",dateFormat.format(new Date()));
@@ -54,7 +55,7 @@ public class Cli implements CommandLineRunner {
             if (cl.hasOption("e")) {
                 // print out mode help
                 log.info("Inside -e option");
-                efoIds = cl.getOptionValues("e");
+                efoIds = cl.getOptionValue("e");
             }
         } catch (ParseException e) {
             System.err.println("Failed to read supplied arguments");
