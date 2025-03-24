@@ -44,18 +44,9 @@ public class EFOLoaderServiceImpl implements EFOLoaderService {
     @Transactional
     public void loadAssociationsWithParentEfo(List<EfoTrait> parenEfos) {
        for (EfoTrait parentEfo : parenEfos) {
-           //log.info("Inside loadAssociationsWithParentEfo");
-           //log.info("parentEfo : {}", parentEfo);
+           updateAssociationsParentEfo(parentEfo, parentEfo);
            for (EfoTrait childEfo : parentEfo.getParentChildEfoTraits()) {
-               //log.info("childEfo : {}", childEfo);
-               Long count = associationRepository.countAssociationsByEfoTraitsShortForm(childEfo.getShortForm());
-               //log.info(" count childEfo : {},{}", childEfo, count);
-               long bucket = (count / 100);
-               for (int i = 0; i <= bucket; i++) {
-                   Pageable pageable = PageRequest.of(i, 100);
-                   associationService.findAssociationByShortForm(childEfo.getShortForm(), pageable).
-                           forEach(association -> parentEFOUpdateService.saveAssociationWithParentEfo(association, parentEfo));
-               }
+               updateAssociationsParentEfo(parentEfo, childEfo);
            }
        }
    }
@@ -64,15 +55,40 @@ public class EFOLoaderServiceImpl implements EFOLoaderService {
     @Transactional
     public  void loadStudiesWithParentEfo(List<EfoTrait> parenEfos) {
         for (EfoTrait parentEfo : parenEfos) {
+            updateStudiesParentEfo(parentEfo, parentEfo);
             for (EfoTrait childEfo : parentEfo.getParentChildEfoTraits()) {
-                Long count = studyRepository.countStudiesByEfoTraitsShortForm(childEfo.getShortForm());
-                long bucket = (count / 100);
-                for (int i = 0; i <= bucket; i++) {
-                    Pageable pageable = PageRequest.of(i, 100);
-                    studyService.findStudiesByShortForm(childEfo.getShortForm(), pageable)
-                            .forEach(study -> parentEFOUpdateService.saveStudyWithParentEfo(study, parentEfo));
-                }
+                updateStudiesParentEfo(parentEfo, childEfo);
             }
         }
     }
+
+    private void updateStudiesParentEfo(EfoTrait parentEfo, EfoTrait childEfo) {
+        log.info("Inside::updateStudiesParentEfo");
+        log.info("Parent efo is {}", parentEfo.getShortForm());
+        Long count = studyRepository.countStudiesByEfoTraitsShortForm(childEfo.getShortForm());
+        log.info("Child efo is {}", childEfo.getShortForm());
+        log.info("Child efo count is {}", count);
+        long bucket = (count / 100);
+        for (int i = 0; i <= bucket; i++) {
+            Pageable pageable = PageRequest.of(i, 100);
+            studyService.findStudiesByShortForm(childEfo.getShortForm(), pageable)
+                    .forEach(study -> parentEFOUpdateService.saveStudyWithParentEfo(study, parentEfo));
+        }
+    }
+
+
+    private void updateAssociationsParentEfo(EfoTrait parentEfo, EfoTrait childEfo) {
+        log.info("Inside::updateAssociationsParentEfo");
+        log.info("Parent efo is {}", parentEfo.getShortForm());
+        Long count = associationRepository.countAssociationsByEfoTraitsShortForm(childEfo.getShortForm());
+        log.info("Child efo is {}", childEfo.getShortForm());
+        log.info("Child efo count is {}", count);
+        long bucket = (count / 100);
+        for (int i = 0; i <= bucket; i++) {
+            Pageable pageable = PageRequest.of(i, 100);
+            associationService.findAssociationByShortForm(childEfo.getShortForm(), pageable).
+                    forEach(association -> parentEFOUpdateService.saveAssociationWithParentEfo(association, parentEfo));
+        }
+    }
+
 }
