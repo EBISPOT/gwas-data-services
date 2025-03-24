@@ -16,10 +16,7 @@ import uk.ac.ebi.spot.gwas.service.EFOTraitService;
 import uk.ac.ebi.spot.gwas.service.RestAPIEFOService;
 import uk.ac.ebi.spot.gwas.service.StudyService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -58,9 +55,7 @@ public class EFOTraitServiceImpl implements EFOTraitService {
         for(int i = 0; i <= bucket; i++) {
             Pageable pageable = PageRequest.of(i,1000);
             Page<EfoTrait> pages = efoTraitRepository.findAll(pageable);
-            pages.forEach(efoTrait -> {
-                efoTraitMap.put(efoTrait.getShortForm(), efoTrait.getTrait());
-            });
+            pages.forEach(efoTrait -> efoTraitMap.put(efoTrait.getShortForm(), efoTrait.getTrait()));
         }
         return efoTraitMap;
     }
@@ -74,10 +69,9 @@ public class EFOTraitServiceImpl implements EFOTraitService {
             efoShortFormMap =  restAPIEFOService.callOlsRestAPI(restAPIConfiguration.getOlaApiEndpoint(), efoShortFormMap, shortForm );
             if(efoShortFormMap != null) {
                 List<String> childEFOTraits = efoShortFormMap.keySet().stream()
-                        .filter(key -> {
+                        .filter(key ->
                             // log.info("The key in efoShortFormMap is {}", key);
-                            return efoTraitRepository.findByShortForm(key).isPresent();
-                        })
+                             efoTraitRepository.findByShortForm(key).isPresent())
                         .collect(Collectors.toList());
                 // childEFOTraits.forEach(child -> log.info("childEFOTraits  {}", child));
                 efoParentChildMap.put(shortForm, childEFOTraits);
@@ -87,21 +81,22 @@ public class EFOTraitServiceImpl implements EFOTraitService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void saveParentEFOMapping(Map<String, List<String>> efoParentChildMap) {
+    public List<EfoTrait> saveParentEFOMapping(Map<String, List<String>> efoParentChildMap) {
+        List<EfoTrait> efoTraitsToSave = new ArrayList<>();
         efoParentChildMap.keySet().forEach(shortForm -> {
             log.info("perent Efo is {}", shortForm);
-           EfoTrait parentEfo = efoTraitRepository.findByShortForm(shortForm).orElse(null);
-           List<EfoTrait> childEfos = efoTraitRepository.findByShortFormIn(efoParentChildMap.get(shortForm)).stream().filter(Objects::nonNull).collect(Collectors.toList());
-           if(parentEfo != null) {
-               //log.info("parent Efo is {}", parentEfo);
-              // log.info("inside efo children  empty block");
-                  //childEfos.forEach(child -> log.info("EFO children {}", child.getShortForm()));
-               parentEfo.setParentChildEfoTraits(childEfos);
-               efoTraitRepository.save(parentEfo);
-               associationService.loadAssociationsWithParentEfo(parentEfo);
-               studyService.loadStudiesWithParentEfo(parentEfo);
-               }
+            EfoTrait parentEfo = efoTraitRepository.findByShortForm(shortForm).orElse(null);
+            List<EfoTrait> childEfos = efoTraitRepository.findByShortFormIn(efoParentChildMap.get(shortForm)).stream().filter(Objects::nonNull).collect(Collectors.toList());
+            if(parentEfo != null) {
+                //log.info("parent Efo is {}", parentEfo);
+                // log.info("inside efo children  empty block");
+                //childEfos.forEach(child -> log.info("EFO children {}", child.getShortForm()));
+                parentEfo.setParentChildEfoTraits(childEfos);
+                efoTraitRepository.save(parentEfo);
+                efoTraitsToSave.add(parentEfo);
+            }
 
         });
+        return efoTraitsToSave;
     }
 }

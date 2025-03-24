@@ -5,13 +5,18 @@ import org.apache.commons.cli.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.spot.gwas.model.EfoTrait;
+import uk.ac.ebi.spot.gwas.service.EFOLoaderService;
 import uk.ac.ebi.spot.gwas.service.EFOTraitService;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -25,6 +30,10 @@ public class Cli implements CommandLineRunner {
     @Autowired
     EFOTraitService efoTraitService;
 
+    @Autowired
+    EFOLoaderService efoLoaderService;
+
+
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
         CommandLine commandLine = parseArguments(args);
@@ -35,7 +44,9 @@ public class Cli implements CommandLineRunner {
         if (mode) {
 
             Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
-            efoTraitService.saveParentEFOMapping(efoParentChildMap);
+            List<EfoTrait> efoTraits = efoTraitService.saveParentEFOMapping(efoParentChildMap);
+            efoLoaderService.loadAssociationsWithParentEfo(efoTraits);
+            efoLoaderService.loadStudiesWithParentEfo(efoTraits);
             log.info("Total Parent Trait mapping time {}", (System.currentTimeMillis() - start));
             log.info("Parent Trait mapping ended at {}",dateFormat.format(new Date()));
         } else {
