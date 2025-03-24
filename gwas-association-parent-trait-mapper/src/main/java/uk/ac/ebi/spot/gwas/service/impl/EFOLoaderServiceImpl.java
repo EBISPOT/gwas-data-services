@@ -63,11 +63,7 @@ public class EFOLoaderServiceImpl implements EFOLoaderService {
     }
 
     private void updateStudiesParentEfo(EfoTrait parentEfo, EfoTrait childEfo) {
-        log.info("Inside::updateStudiesParentEfo");
-        log.info("Parent efo is {}", parentEfo.getShortForm());
         Long count = studyRepository.countStudiesByEfoTraitsShortForm(childEfo.getShortForm());
-        log.info("Child efo is {}", childEfo.getShortForm());
-        log.info("Child efo count is {}", count);
         long bucket = (count / 100);
         for (int i = 0; i <= bucket; i++) {
             Pageable pageable = PageRequest.of(i, 100);
@@ -78,11 +74,7 @@ public class EFOLoaderServiceImpl implements EFOLoaderService {
 
 
     private void updateAssociationsParentEfo(EfoTrait parentEfo, EfoTrait childEfo) {
-        log.info("Inside::updateAssociationsParentEfo");
-        log.info("Parent efo is {}", parentEfo.getShortForm());
         Long count = associationRepository.countAssociationsByEfoTraitsShortForm(childEfo.getShortForm());
-        log.info("Child efo is {}", childEfo.getShortForm());
-        log.info("Child efo count is {}", count);
         long bucket = (count / 100);
         for (int i = 0; i <= bucket; i++) {
             Pageable pageable = PageRequest.of(i, 100);
