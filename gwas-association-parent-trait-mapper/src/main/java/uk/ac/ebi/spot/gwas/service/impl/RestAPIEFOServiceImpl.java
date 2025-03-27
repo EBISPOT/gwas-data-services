@@ -27,8 +27,8 @@ public class RestAPIEFOServiceImpl implements RestAPIEFOService {
         this.restInteractionService = restInteractionService;
     }
 
-    public Map<String, String> callOlsRestAPI(String uri, Map<String, String> olsTerms, String efoId) {
-        OLSTermApiResponse olsTermApiResponse = restInteractionService.callOlsRestAPI(uri, efoId);
+    public Map<String, String> callOlsRestAPI(String uri, Map<String, String> olsTerms, String efoId, Boolean next) {
+        OLSTermApiResponse olsTermApiResponse = restInteractionService.callOlsRestAPI(uri, efoId, next);
         if(olsTermApiResponse != null ) {
             Map<String, String> olsEFOids = retreiveOlsTerms(olsTermApiResponse);
             if(olsEFOids != null && !olsEFOids.isEmpty()) {
@@ -39,7 +39,7 @@ public class RestAPIEFOServiceImpl implements RestAPIEFOService {
             }
             Links links = olsTermApiResponse.getLinks();
             while(links != null && links.getNext() != null) {
-                return callOlsRestAPI(links.getNext().getHref(), olsTerms, efoId);
+                return callOlsRestAPI(links.getNext().getHref(), olsTerms, efoId, true);
             }
             if(links != null && links.getNext() == null) {
                 return olsTerms;

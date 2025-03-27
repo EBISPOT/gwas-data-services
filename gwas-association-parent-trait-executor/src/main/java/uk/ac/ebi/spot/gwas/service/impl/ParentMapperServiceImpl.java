@@ -1,5 +1,6 @@
 package uk.ac.ebi.spot.gwas.service.impl;
 
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +27,15 @@ public class ParentMapperServiceImpl implements ParentMapperService {
                                    TraitMapperJobSubmitterService traitMapperJobSubmitterService) {
         this.efoTraitRepository = efoTraitRepository;
         this.traitMapperJobSubmitterService = traitMapperJobSubmitterService;
+    }
+
+
+    public void executeFileBasedParentMapper(String outputDir, String inputDir, List<String> efoShortForms) {
+        int count = 0;
+        for (List<String> partshortForms : ListUtils.partition(efoShortForms, 50)) {
+            traitMapperJobSubmitterService.executePipeline(partshortForms, outputDir, inputDir, "executor-"+count);
+            count++;
+        }
     }
 
     public void executeParentMapper(String outputDir, String inputDir) {
