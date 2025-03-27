@@ -25,7 +25,7 @@ public class RestInteractionServiceImpl implements RestInteractionService {
     @Autowired
     RestAPIConfiguration restAPIConfiguration;
 
-    public OLSTermApiResponse callOlsRestAPI(String uri, String efoId) {
+    public OLSTermApiResponse callOlsRestAPI(String uri, String efoId, Boolean next) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> httpEntity = new HttpEntity<>(null, headers);
@@ -33,7 +33,12 @@ public class RestInteractionServiceImpl implements RestInteractionService {
         MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
         paramsMap.add("id",efoId);
         paramsMap.add("size","500");
-        String olsUri = UriComponentsBuilder.fromHttpUrl(uri).queryParams(paramsMap).build().toUriString();
+        String olsUri = "";
+        if(!next) {
+             olsUri = UriComponentsBuilder.fromHttpUrl(uri).queryParams(paramsMap).build().toUriString();
+        } else {
+            olsUri = uri;
+        }
         log.info("The OLS API call uri is ->"+olsUri);
         try {
             responseEntity = restTemplate.exchange(olsUri, HttpMethod.GET, httpEntity, new ParameterizedTypeReference

@@ -66,7 +66,7 @@ public class EFOTraitServiceImpl implements EFOTraitService {
         for ( String shortForm : shortForms ) {
             log.info("The shortform is {}", shortForm);
             Map<String, String> efoShortFormMap = new HashMap<>();
-            efoShortFormMap =  restAPIEFOService.callOlsRestAPI(restAPIConfiguration.getOlaApiEndpoint(), efoShortFormMap, shortForm );
+            efoShortFormMap =  restAPIEFOService.callOlsRestAPI(restAPIConfiguration.getOlaApiEndpoint(), efoShortFormMap, shortForm, false);
             if(efoShortFormMap != null) {
                 List<String> childEFOTraits = efoShortFormMap.keySet().stream()
                         .filter(key ->
