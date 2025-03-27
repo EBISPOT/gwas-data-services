@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.spot.gwas.service.FileHandlerService;
 import uk.ac.ebi.spot.gwas.service.ParentMapperService;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -26,9 +28,13 @@ public class Cli implements CommandLineRunner {
     private final HelpFormatter help = new HelpFormatter();
     private static String outputDir = null;
     private static String errorDir = null;
+    private static String inputDir = null;
 
     @Autowired
     ParentMapperService parentMapperService;
+
+    @Autowired
+    FileHandlerService fileHandlerService;
 
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
@@ -36,7 +42,13 @@ public class Cli implements CommandLineRunner {
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         long start = System.currentTimeMillis();
-        parentMapperService.executeParentMapper(outputDir, errorDir);
+        if(executionMode != null && executionMode.equals("full")) {
+            parentMapperService.executeParentMapper(outputDir, errorDir);
+        }
+        if(executionMode != null && executionMode.equals("file")) {
+          List<String> shortForms = fileHandlerService.readFileInput(inputDir);
+            parentMapperService.executeFileBasedParentMapper(outputDir, errorDir, shortForms);
+        }
         bsubLog.info("Association Mapper Executor started at {}",dateFormat.format(date));
         log.info("Association Mapper Executor took {} ms", (System.currentTimeMillis()- start));
         bsubLog.info("Association Mapper Executor took {} ms", (System.currentTimeMillis()- start));
@@ -55,6 +67,16 @@ public class Cli implements CommandLineRunner {
                 // print out mode help
                 help.printHelp("run-slurm-parent-trait-mapper", options, true);
 
+            }
+
+            if (cl.hasOption("m")) {
+                // print out mode help
+                log.info("Inside -m option");
+                executionMode = cl.getOptionValue("m");
+            }
+            if(cl.hasOption("i")) {
+                log.info("Inside -i option");
+                inputDir = cl.getOptionValue("i");
             }
             if (cl.hasOption("o")) {
                 //output file for Bjob
