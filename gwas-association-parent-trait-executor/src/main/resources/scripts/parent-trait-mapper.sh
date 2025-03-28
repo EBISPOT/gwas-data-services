@@ -34,7 +34,7 @@ echo "documentParameters is ${documentParameters}"
 
 rm -rf ${logslocation}/*
 
-java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dassociation.partition.size=${partition-size} -Dspring.datasource.username=${DB_USER} -Dspring.datasource.password=${DB_PWD} \
+java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dassociation.partition.size=${partition_size} -Dspring.datasource.username=${DB_USER} -Dspring.datasource.password=${DB_PWD} \
     ${documentParameters} \
     -jar ${jarLocation}/gwas-association-parent-trait-executor.jar -m ${mode} -i ${jarLocation}/Incorrectly_mapped_efoIds.tsv -o ${logslocation} -e ${logslocation}
 
