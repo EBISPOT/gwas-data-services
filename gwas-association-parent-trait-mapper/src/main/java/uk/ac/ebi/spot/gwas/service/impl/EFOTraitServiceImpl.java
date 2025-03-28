@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.gwas.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -70,8 +71,8 @@ public class EFOTraitServiceImpl implements EFOTraitService {
             if(efoShortFormMap != null) {
                 List<String> childEFOTraits = efoShortFormMap.keySet().stream()
                         .filter(key ->
-                            // log.info("The key in efoShortFormMap is {}", key);
-                             efoTraitRepository.findByShortForm(key).isPresent())
+                                // log.info("The key in efoShortFormMap is {}", key);
+                                efoTraitRepository.findByShortForm(key).isPresent())
                         .collect(Collectors.toList());
                 // childEFOTraits.forEach(child -> log.info("childEFOTraits  {}", child));
                 efoParentChildMap.put(shortForm, childEFOTraits);
@@ -86,8 +87,16 @@ public class EFOTraitServiceImpl implements EFOTraitService {
         efoParentChildMap.keySet().forEach(shortForm -> {
             log.info("perent Efo is {}", shortForm);
             EfoTrait parentEfo = efoTraitRepository.findByShortForm(shortForm).orElse(null);
-            List<EfoTrait> childEfos = efoTraitRepository.findByShortFormIn(efoParentChildMap.get(shortForm)).stream().filter(Objects::nonNull).collect(Collectors.toList());
-            if(parentEfo != null) {
+            List<String> childEfoShortForms = efoParentChildMap.get(shortForm);
+            List<EfoTrait> childEfos = new ArrayList<>();
+            for (List<String> partshortForms : ListUtils.partition(childEfoShortForms, 500)) {
+                List<EfoTrait> partChildEfos = efoTraitRepository.findByShortFormIn(partshortForms)
+                        .stream()
+                        .filter(Objects::nonNull).
+                        collect(Collectors.toList());
+                childEfos.addAll(partChildEfos);
+            }
+            if (parentEfo != null) {
                 //log.info("parent Efo is {}", parentEfo);
                 // log.info("inside efo children  empty block");
                 //childEfos.forEach(child -> log.info("EFO children {}", child.getShortForm()));
@@ -95,7 +104,6 @@ public class EFOTraitServiceImpl implements EFOTraitService {
                 efoTraitRepository.save(parentEfo);
                 efoTraitsToSave.add(parentEfo);
             }
-
         });
         return efoTraitsToSave;
     }
