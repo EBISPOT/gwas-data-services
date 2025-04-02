@@ -34,7 +34,7 @@ public class TraitMapperJobSubmitterServiceImpl implements TraitMapperJobSubmitt
     }
 
     @Transactional(readOnly = true)
-    public void executePipeline(List<String> shortForms, String outDir, String errorDir, String executorPool, String executionMode) {
+    public void executePipeline(List<String> shortForms, String outDir, String errorDir, String executorPool, String parentEfoTerm) {
         ThreadPoolExecutor poolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(config.getThreadPool());
         String activeProfile = config.getActiveProfile();
         log.info("Active profile is ->" + activeProfile);
@@ -49,8 +49,8 @@ public class TraitMapperJobSubmitterServiceImpl implements TraitMapperJobSubmitt
                         log.info("partshortForms is ->" + partshortForms.stream().collect(Collectors.joining(",")));
                         String slurmOutputFile = String.format("%s %s/%s/%s/%s", "-o", config.getSlurmLogsLocation(), executorPool, Math.abs(partshortForms.hashCode()), "output.log");
                         String slurmErrFile = String.format("%s %s/%s/%s/%s", "-e", config.getSlurmLogsLocation(), executorPool, Math.abs(partshortForms.hashCode()), "error.log");
-                        String command = String.format("%s %s %s %s %s %s %s %s", "sbatch", slurmOutputFile, slurmErrFile, "--wait", config.getScript(), Math.abs(partshortForms.hashCode())
-                                , partshortForms.stream().collect(Collectors.joining(",")), executorPool);
+                        String command = String.format("%s %s %s %s %s %s %s %s %s", "sbatch", slurmOutputFile, slurmErrFile, "--wait", config.getScript(), Math.abs(partshortForms.hashCode())
+                                , partshortForms.stream().collect(Collectors.joining(",")), executorPool, parentEfoTerm);
                         log.info("COmmand is ->" + command);
                         Process process = Runtime.getRuntime().exec(command);
                         String str = "";

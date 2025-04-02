@@ -8,6 +8,7 @@ scriptLocation=/hps/software/users/parkinso/spot/gwas/prod/sw/parent-trait-mappe
 hashdir=${1}
 efoIds=${2}
 executorPool=${3}
+parentEfo=${4}
 logslocation=/hps/nobackup/parkinso/spot/gwas/logs/parent-trait-mapper-executor/logs/childefos
 mkdir -p $logslocation/$executorPool/$hashdir
 #SBATCH --partition=short
@@ -16,5 +17,5 @@ echo "Bsub log dir is: ${logslocation}/${executorPool}/${hashdir}"
 
 echo "sbatch -t 1:00:00 -mem=4G -o ${logslocation}/${executorPool}/${hashdir}/output.log -e ${logslocation}/${executorPool}/${hashdir}/error.log -J  \"gwas-mapper\" --partition=short ${scriptLocation}/map-association.sh -m map-asscn-ids 40 ${asscnIds} ${logslocation}/${executorPool}/${hashdir} "
 
-${scriptLocation}/map-parent-traits-child-efos.sh ${efoIds} ${logslocation}/${executorPool}/${hashdir}
+${scriptLocation}/map-parent-traits-child-efos.sh ${efoIds} ${logslocation}/${executorPool}/${hashdir} ${parentEfo}
 exit $?

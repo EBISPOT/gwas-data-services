@@ -46,7 +46,7 @@ public class Cli implements CommandLineRunner {
         long start = System.currentTimeMillis();
         if (mode) {
 
-
+            log.info("executionMode is {}",executionMode);
             if(executionMode.equalsIgnoreCase("full")) {
                 Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
                 List<EfoTrait> efoTraits = efoTraitService.saveParentEFOMapping(efoParentChildMap);
