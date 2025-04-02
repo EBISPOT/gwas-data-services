@@ -38,3 +38,7 @@ slurm:
   logslocation: /hps/nobackup/parkinso/spot/gwas/logs/parent-trait-mapper-executor/logs/bsub
 
 
+exclude:
+  efo:
+    shortforms: EFO_0000408,EFO_0004747,EFO_0001444
+

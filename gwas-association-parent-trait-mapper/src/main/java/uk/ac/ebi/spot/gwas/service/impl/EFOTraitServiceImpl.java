@@ -12,10 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.config.RestAPIConfiguration;
 import uk.ac.ebi.spot.gwas.model.EfoTrait;
 import uk.ac.ebi.spot.gwas.repository.EFOTraitRepository;
-import uk.ac.ebi.spot.gwas.service.AssociationService;
-import uk.ac.ebi.spot.gwas.service.EFOTraitService;
-import uk.ac.ebi.spot.gwas.service.RestAPIEFOService;
-import uk.ac.ebi.spot.gwas.service.StudyService;
+import uk.ac.ebi.spot.gwas.service.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,6 +31,8 @@ public class EFOTraitServiceImpl implements EFOTraitService {
 
     StudyService studyService;
 
+    EfoTraitRetrieveService efoTraitRetrieveService;
+
     Map<String, String> efoTraitMap = new HashMap<>();
 
     @Autowired
@@ -41,12 +40,14 @@ public class EFOTraitServiceImpl implements EFOTraitService {
                                RestAPIEFOService restAPIEFOService,
                                RestAPIConfiguration restAPIConfiguration,
                                AssociationService associationService,
-                               StudyService studyService) {
+                               StudyService studyService,
+                               EfoTraitRetrieveService efoTraitRetrieveService) {
         this.efoTraitRepository = efoTraitRepository;
         this.restAPIEFOService = restAPIEFOService;
         this.restAPIConfiguration = restAPIConfiguration;
         this.associationService = associationService;
         this.studyService = studyService;
+        this.efoTraitRetrieveService = efoTraitRetrieveService;
     }
 
     public Map<String, String> findAllEfoTraits() {
@@ -90,7 +91,7 @@ public class EFOTraitServiceImpl implements EFOTraitService {
             List<String> childEfoShortForms = efoParentChildMap.get(shortForm);
             List<EfoTrait> childEfos = new ArrayList<>();
             for (List<String> partshortForms : ListUtils.partition(childEfoShortForms, 500)) {
-                List<EfoTrait> partChildEfos = efoTraitRepository.findByShortFormIn(partshortForms)
+                List<EfoTrait> partChildEfos = efoTraitRetrieveService.findByShortForms(partshortForms)
                         .stream()
                         .filter(Objects::nonNull).
                         collect(Collectors.toList());
@@ -107,4 +108,7 @@ public class EFOTraitServiceImpl implements EFOTraitService {
         });
         return efoTraitsToSave;
     }
+
+
+
 }
