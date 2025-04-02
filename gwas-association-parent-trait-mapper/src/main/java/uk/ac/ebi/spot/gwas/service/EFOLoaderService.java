@@ -9,4 +9,10 @@ public interface EFOLoaderService {
     void loadAssociationsWithParentEfo(List<EfoTrait> parenEfos);
 
     void loadStudiesWithParentEfo(List<EfoTrait> parenEfos);
+
+    void runDataForLargeEfo(List<EfoTrait> parenEfos);
+
+    void loadAssociationsForChildEfos(List<String> childEfos, String parentEfo);
+
+    void loadStudiesForChildEfos(List<String> childEfos, String parentEfo);
 }

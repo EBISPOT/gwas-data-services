@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface TraitMapperJobSubmitterService {
 
-    void executePipeline(List<String> shortForms, String outDir, String errorDir, String executorPool);
+    void executePipeline(List<String> shortForms, String outDir, String errorDir, String executorPool, String executionMode);
 }

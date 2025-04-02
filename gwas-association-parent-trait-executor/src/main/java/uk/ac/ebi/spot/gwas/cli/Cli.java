@@ -43,11 +43,14 @@ public class Cli implements CommandLineRunner {
         Date date = new Date();
         long start = System.currentTimeMillis();
         if(executionMode != null && executionMode.equals("full")) {
-            parentMapperService.executeParentMapper(outputDir, errorDir);
+            parentMapperService.executeParentMapper(outputDir, errorDir, executionMode);
         }
         if(executionMode != null && executionMode.equals("file")) {
           List<String> shortForms = fileHandlerService.readFileInput(inputDir);
-            parentMapperService.executeFileBasedParentMapper(outputDir, errorDir, shortForms);
+          parentMapperService.executeFileBasedParentMapper(outputDir, errorDir, shortForms, executionMode);
+        }
+        if(executionMode != null && executionMode.equals("largeefos")) {
+            parentMapperService.executeLargeEFOParentMapper(outputDir, errorDir, executionMode);
         }
         bsubLog.info("Association Mapper Executor started at {}",dateFormat.format(date));
         log.info("Association Mapper Executor took {} ms", (System.currentTimeMillis()- start));

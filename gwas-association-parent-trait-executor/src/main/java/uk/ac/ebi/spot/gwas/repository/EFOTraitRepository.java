@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.gwas.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import uk.ac.ebi.spot.gwas.model.EfoTrait;
 
 import java.util.List;
