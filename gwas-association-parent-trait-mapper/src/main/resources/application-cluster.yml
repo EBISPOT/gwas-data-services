@@ -31,4 +31,4 @@ association:
 script: /hps/software/users/parkinso/spot/gwas/prod/sw/parent-trait-mapper-executor/run-slurm-map-parent-traits-split-child-efos.sh
 
 slurm:
-  logslocation: /hps/nobackup/parkinso/spot/gwas/logs/parent-trait-mapper-executor/logs/bsub
+  logslocation: /hps/nobackup/parkinso/spot/gwas/logs/parent-trait-mapper-executor/logs/childefos
