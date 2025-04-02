@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.config.Config;
 import uk.ac.ebi.spot.gwas.service.TraitMapperJobSubmitterService;
 
@@ -32,6 +33,7 @@ public class TraitMapperJobSubmitterServiceImpl implements TraitMapperJobSubmitt
         this.config = config;
     }
 
+    @Transactional(readOnly = true)
     public void executePipeline(List<String> shortForms, String outDir, String errorDir, String executorPool, String executionMode) {
         ThreadPoolExecutor poolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(config.getThreadPool());
         String activeProfile = config.getActiveProfile();
@@ -47,8 +49,8 @@ public class TraitMapperJobSubmitterServiceImpl implements TraitMapperJobSubmitt
                         log.info("partshortForms is ->" + partshortForms.stream().collect(Collectors.joining(",")));
                         String slurmOutputFile = String.format("%s %s/%s/%s/%s", "-o", config.getSlurmLogsLocation(), executorPool, Math.abs(partshortForms.hashCode()), "output.log");
                         String slurmErrFile = String.format("%s %s/%s/%s/%s", "-e", config.getSlurmLogsLocation(), executorPool, Math.abs(partshortForms.hashCode()), "error.log");
-                        String command = String.format("%s %s %s %s %s %s %s %s %s", "sbatch", slurmOutputFile, slurmErrFile, "--wait", config.getScript(), Math.abs(partshortForms.hashCode())
-                                , partshortForms.stream().collect(Collectors.joining(",")), executorPool, executionMode);
+                        String command = String.format("%s %s %s %s %s %s %s %s", "sbatch", slurmOutputFile, slurmErrFile, "--wait", config.getScript(), Math.abs(partshortForms.hashCode())
+                                , partshortForms.stream().collect(Collectors.joining(",")), executorPool);
                         log.info("COmmand is ->" + command);
                         Process process = Runtime.getRuntime().exec(command);
                         String str = "";

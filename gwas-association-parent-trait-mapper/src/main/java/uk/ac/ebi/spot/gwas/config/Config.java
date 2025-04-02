@@ -21,8 +21,7 @@ public class Config {
     @Value("${slurm.logslocation}")
     private String slurmLogsLocation;
 
-    @Value("${exclude.efo.shortforms}")
-    private String excludeLargeEfos;
+
 
     public String getActiveProfile() {
         return activeProfile;
@@ -61,9 +60,6 @@ public class Config {
     }
 
 
-    public String getExcludeLargeEfos() {
-        return excludeLargeEfos;
-    }
 }
 
 

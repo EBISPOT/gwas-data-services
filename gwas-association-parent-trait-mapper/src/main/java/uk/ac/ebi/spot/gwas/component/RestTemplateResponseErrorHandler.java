@@ -1,4 +1,4 @@
-/*
+
 package uk.ac.ebi.spot.gwas.component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,4 +33,4 @@ public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
         }
     }
 }
-*/
+

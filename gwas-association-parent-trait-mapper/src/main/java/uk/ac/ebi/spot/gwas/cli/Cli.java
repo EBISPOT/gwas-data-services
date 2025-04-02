@@ -25,6 +25,8 @@ public class Cli implements CommandLineRunner {
 
     private static String executionMode = null;
 
+    private static String parentEfo = null;
+
     private static String efoIds = null;
 
     @Autowired
@@ -38,15 +40,30 @@ public class Cli implements CommandLineRunner {
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
         CommandLine commandLine = parseArguments(args);
         Boolean mode = commandLine.hasOption(CommandUtil.EXEC_EFOTRAITS);
+
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         log.info("Parent Trait mapping  started at {}",dateFormat.format(new Date()));
         long start = System.currentTimeMillis();
         if (mode) {
 
-            Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
-            List<EfoTrait> efoTraits = efoTraitService.saveParentEFOMapping(efoParentChildMap);
-            efoLoaderService.loadAssociationsWithParentEfo(efoTraits);
-            efoLoaderService.loadStudiesWithParentEfo(efoTraits);
+
+            if(executionMode.equalsIgnoreCase("full")) {
+                Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
+                List<EfoTrait> efoTraits = efoTraitService.saveParentEFOMapping(efoParentChildMap);
+                efoLoaderService.loadAssociationsWithParentEfo(efoTraits);
+                efoLoaderService.loadStudiesWithParentEfo(efoTraits);
+            }
+            if(executionMode.equalsIgnoreCase("childefos")) {
+                efoLoaderService.loadAssociationsForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
+                efoLoaderService.loadStudiesForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
+            }
+
+            if(executionMode.equalsIgnoreCase("largeefos")) {
+                Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
+                List<EfoTrait> efoTraits = efoTraitService.saveParentEFOMapping(efoParentChildMap);
+                efoLoaderService.runDataForLargeEfo(efoTraits);
+            }
+
             log.info("Total Parent Trait mapping time {}", (System.currentTimeMillis() - start));
             log.info("Parent Trait mapping ended at {}",dateFormat.format(new Date()));
         } else {
@@ -67,6 +84,16 @@ public class Cli implements CommandLineRunner {
                 // print out mode help
                 log.info("Inside -e option");
                 efoIds = cl.getOptionValue("e");
+            }
+            if (cl.hasOption("m")) {
+                // print out mode help
+                log.info("Inside -m option");
+                executionMode = cl.getOptionValue("m");
+            }
+            if (cl.hasOption("p")) {
+                // print out mode help
+                log.info("Inside -p option");
+                parentEfo = cl.getOptionValue("p");
             }
         } catch (ParseException e) {
             System.err.println("Failed to read supplied arguments");
