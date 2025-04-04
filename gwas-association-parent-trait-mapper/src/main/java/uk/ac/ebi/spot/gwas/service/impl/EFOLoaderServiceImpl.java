@@ -70,6 +70,7 @@ public class EFOLoaderServiceImpl implements EFOLoaderService {
     public void runDataForLargeEfo(List<EfoTrait> parenEfos) {
         for (EfoTrait parentEfo : parenEfos) {
             updateAssociationsParentEfo(parentEfo, parentEfo);
+            updateStudiesParentEfo(parentEfo, parentEfo);
             int count = 0;
             List<EfoTrait> childEfos = new ArrayList<>(parentEfo.getParentChildEfoTraits());
             List<String> shortForms = childEfos.stream().map(EfoTrait::getShortForm).collect(Collectors.toList());
