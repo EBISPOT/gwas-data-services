@@ -2,6 +2,8 @@
 
 # Capture absolute path for the script:
 scriptDir=${0%/*}/;
+mode=${1}
+partition_size=${2}
 # Links to files: Needs to be updated for all the environments:
 jarLocation=/hps/software/users/parkinso/spot/gwas/prod/sw/parent-trait-mapper-executor
 logslocation=/hps/nobackup/parkinso/spot/gwas/logs/parent-trait-mapper-executor/logs/bsub
