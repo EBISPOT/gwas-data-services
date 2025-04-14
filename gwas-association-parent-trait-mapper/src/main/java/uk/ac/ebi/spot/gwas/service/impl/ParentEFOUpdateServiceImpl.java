@@ -31,7 +31,6 @@ public class ParentEFOUpdateServiceImpl implements ParentEFOUpdateService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void saveAssociationWithParentEfo(Association association, EfoTrait parentEfo) {
-        log.info("Associationsaving parenf efo loading is {}", association.getId());
         List<String> shortForms = association.getParentEfoTraits().stream()
                 .map(EfoTrait::getShortForm)
                 .collect(Collectors.toList());

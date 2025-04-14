@@ -125,7 +125,6 @@ public class EFOLoaderServiceImpl implements EFOLoaderService {
     private void updateAssociationsParentEfo(EfoTrait parentEfo, EfoTrait childEfo) {
         Long count = associationRepository.countAssociationsByEfoTraitsShortForm(childEfo.getShortForm());
         long bucket = (count / 100);
-        log.info("child efo is {}",childEfo.getShortForm());
         for (int i = 0; i <= bucket; i++) {
             Pageable pageable = PageRequest.of(i, 100);
             associationService.findAssociationByShortForm(childEfo.getShortForm(), pageable).
