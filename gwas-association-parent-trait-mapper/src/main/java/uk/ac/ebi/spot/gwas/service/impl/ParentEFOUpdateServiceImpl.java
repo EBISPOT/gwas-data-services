@@ -1,5 +1,6 @@
 package uk.ac.ebi.spot.gwas.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import uk.ac.ebi.spot.gwas.service.ParentEFOUpdateService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ParentEFOUpdateServiceImpl implements ParentEFOUpdateService {
 
@@ -29,6 +31,7 @@ public class ParentEFOUpdateServiceImpl implements ParentEFOUpdateService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void saveAssociationWithParentEfo(Association association, EfoTrait parentEfo) {
+        log.info("Associationsaving parenf efo loading is {}", association.getId());
         List<String> shortForms = association.getParentEfoTraits().stream()
                 .map(EfoTrait::getShortForm)
                 .collect(Collectors.toList());
