@@ -128,7 +128,7 @@ public class EFOLoaderServiceImpl implements EFOLoaderService {
         for (int i = 0; i <= bucket; i++) {
             Pageable pageable = PageRequest.of(i, 100);
             associationService.findAssociationByShortForm(childEfo.getShortForm(), pageable).
-                    forEach(association -> parentEFOUpdateService.saveAssociationWithParentEfo(association, parentEfo));
+                    forEach(association ->  parentEFOUpdateService.saveAssociationWithParentEfo(association, parentEfo));
         }
     }
 

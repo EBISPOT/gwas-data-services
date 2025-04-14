@@ -2,6 +2,8 @@ package uk.ac.ebi.spot.gwas.cli;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,8 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 @Component
 public class Cli implements CommandLineRunner {
+
+    private final Logger msubLog = LoggerFactory.getLogger("msublogger");
 
     private static String executionMode = null;
 
@@ -48,20 +52,38 @@ public class Cli implements CommandLineRunner {
 
             log.info("executionMode is {}",executionMode);
             if(executionMode.equalsIgnoreCase("full") || executionMode.equalsIgnoreCase("file")) {
-                Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
-                List<EfoTrait> efoTraits = efoTraitService.saveParentEFOMapping(efoParentChildMap);
-                efoLoaderService.loadAssociationsWithParentEfo(efoTraits);
-                efoLoaderService.loadStudiesWithParentEfo(efoTraits);
+                try {
+                    Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
+                    List<EfoTrait> efoTraits = efoTraitService.saveParentEFOMapping(efoParentChildMap);
+                    efoLoaderService.loadAssociationsWithParentEfo(efoTraits);
+                    efoLoaderService.loadStudiesWithParentEfo(efoTraits);
+                } catch (Exception ex) {
+                    msubLog.error("EFoId's failed to run for the following {}", efoIds);
+                    log.error("Execution Mapper failed for the following EfoIds"+ex.getMessage(),ex);
+                    throw ex;
+                }
             }
             if(executionMode.equalsIgnoreCase("childefos")) {
-                efoLoaderService.loadAssociationsForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
-                efoLoaderService.loadStudiesForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
+                try {
+                    efoLoaderService.loadAssociationsForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
+                    efoLoaderService.loadStudiesForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
+                } catch (Exception ex) {
+                    msubLog.error("EFoId's failed to run for the following {}", efoIds);
+                    log.error("Execution Mapper failed for the following EfoIds"+ex.getMessage(),ex);
+                    throw ex;
+                }
             }
 
             if(executionMode.equalsIgnoreCase("largeefos")) {
-                Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
-                List<EfoTrait> efoTraits = efoTraitService.saveParentEFOMapping(efoParentChildMap);
-                efoLoaderService.runDataForLargeEfo(efoTraits);
+                try {
+                    Map<String, List<String>> efoParentChildMap = efoTraitService.loadParentChildEfo(Arrays.asList(efoIds.split(",")));
+                    List<EfoTrait> efoTraits = efoTraitService.saveParentEFOMapping(efoParentChildMap);
+                    efoLoaderService.runDataForLargeEfo(efoTraits);
+                } catch (Exception ex) {
+                    msubLog.error("EFoId's failed to run for the following {}", efoIds);
+                    log.error("Execution Mapper failed for the following EfoIds"+ex.getMessage(),ex);
+                    throw ex;
+                }
             }
 
             log.info("Total Parent Trait mapping time {}", (System.currentTimeMillis() - start));
