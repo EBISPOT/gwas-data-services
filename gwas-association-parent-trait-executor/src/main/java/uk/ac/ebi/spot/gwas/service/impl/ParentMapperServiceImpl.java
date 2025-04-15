@@ -38,14 +38,17 @@ public class ParentMapperServiceImpl implements ParentMapperService {
 
     public void executeFileBasedParentMapper(String outputDir, String inputDir, List<String> efoShortForms, String executionMode) {
         int count = 0;
-        for (List<String> partshortForms : ListUtils.partition(efoShortForms, 50)) {
+        for (List<String> partshortForms : ListUtils.partition(efoShortForms, 1000)) {
             traitMapperJobSubmitterService.executePipeline(partshortForms, outputDir, inputDir, "executor-"+count, executionMode);
             count++;
         }
     }
 
     public void executeLargeEFOParentMapper(String outputDir, String inputDir, String executionMode) {
-        traitMapperJobSubmitterService.executePipeline(Arrays.asList(config.getExcludeLargeEfos().split(",")), outputDir, inputDir, "executor-1", executionMode);
+        for(List<String> partshortForms : ListUtils.partition(Arrays.asList(config.getExcludeLargeEfos().split(",")), 3))
+        {
+            traitMapperJobSubmitterService.executePipeline(partshortForms, outputDir, inputDir, "executor-1", executionMode);
+        }
     }
 
     public void executeParentMapper(String outputDir, String inputDir, String executionMode) {
