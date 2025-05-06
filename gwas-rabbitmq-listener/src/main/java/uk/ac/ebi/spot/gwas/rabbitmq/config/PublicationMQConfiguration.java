@@ -10,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.ac.ebi.spot.gwas.deposition.config.PublicationMQConfigProperties;
-import uk.ac.ebi.spot.gwas.deposition.dto.curation.MetadataYmlUpdate;
 import uk.ac.ebi.spot.gwas.deposition.dto.curation.PublicationRabbitMessage;
-import uk.ac.ebi.spot.gwas.deposition.dto.curation.StudyRabbitMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +28,7 @@ public class PublicationMQConfiguration {
 
     @Bean
     DirectExchange publicationExchange(){
-        return new DirectExchange(publicationMQConfigProperties.getPublicationExchangeName());
+        return new DirectExchange(publicationMQConfigProperties.getPublicationExchangeName() );
     }
 
     @Bean
