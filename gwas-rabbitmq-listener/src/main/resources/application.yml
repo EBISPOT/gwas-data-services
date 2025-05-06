@@ -22,6 +22,30 @@ gwas-curation:
 spring:
   profiles:
     active: local
+  mail:
+    host: hh-smtp.ebi.ac.uk
+    port: 25
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+          auth: false
+          sendpartial: true
+          starttls:
+            enable: true
+
+email:
+  enabled: true
+  config:
+    from-address: no-reply@ebi.ac.uk
+    from-name: GWAS Rabbit Consumer
+    retries: 3
+
+email-config:
+  to-address: gwas-curator@ebi.ac.uk,gwas-dev-logs@ebi.ac.uk
+
 
 comms:
   messaging:
