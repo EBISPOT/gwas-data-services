@@ -25,9 +25,9 @@ ensembl:
     url: jdbc:mysql://useastdb.ensembl.org:3306
   #db_version: '113'
   db_version: '114'
-  #server: https://jan2024.rest.ensembl.org
   #server: https://oct2024.rest.ensembl.org
-  server: https://rest.ensembl.org/
+  server: https://may2025.rest.ensembl.org
+  #server: https://rest.ensembl.org/
 
 mapping:
   dbsnp_endpoint: /info/variation/homo_sapiens?content-type=application/json;filter=dbSNP
