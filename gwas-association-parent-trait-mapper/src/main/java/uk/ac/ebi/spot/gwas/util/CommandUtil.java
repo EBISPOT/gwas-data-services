@@ -28,7 +28,11 @@ public class CommandUtil {
 
     public static final String EXEC_MODE_PARENT_EFO_DESC = "-p [parent] EFO shortform";
 
+    public static final String EXEC_ACCSNS= "a";
 
+    public static final String EXEC_ACCSNS_DESC = "-e [AsscnIds] List of AsscnIds seperate by commas ";
+
+    public static final String EXEC_ACCSNS_LONG = "Asscn Ids";
     public CommandUtil() {
     }
 
@@ -41,9 +45,11 @@ public class CommandUtil {
         Option modeOption = new Option(EXEC_MODE_OPT, EXEC_MODE_OPT_LONG, true, EXEC_MODE_OPT_DESC);
         Option efoIdsOption = new Option(EXEC_EFOTRAITS, EXEC_EFOTRAITS_LONG, true, EXEC_EFOTRAITS_DESC );
         Option parentOption = new Option(EXEC_MODE_PARENT_EFO, EXEC_MODE_PARENT_EFO_LONG, true, EXEC_MODE_PARENT_EFO_DESC );
+        Option asscsnOption = new Option(EXEC_ACCSNS, EXEC_ACCSNS_LONG, true, EXEC_ACCSNS_DESC );
         options.addOption(modeOption);
         options.addOption(efoIdsOption);
         options.addOption(parentOption);
+        options.addOption(asscsnOption);
         options.addOptionGroup(optionGroup);
         return options;
     }

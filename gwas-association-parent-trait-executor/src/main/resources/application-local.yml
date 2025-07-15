@@ -34,5 +34,8 @@ association:
 
 script: /Users/sajo/Documents/git/projects/gwas-data-services/gwas-mapping-pipeline/src/main/scripts/run-bjobs-mapper-local.sh
 
+gene-mapper:
+  script: /hps/software/users/parkinso/spot/gwas/prod/sw/parent-trait-mapper-executor/run-slurm-map-asscn-gene.sh
+
 
 

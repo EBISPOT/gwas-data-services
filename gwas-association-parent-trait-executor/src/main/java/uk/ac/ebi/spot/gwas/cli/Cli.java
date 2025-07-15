@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.spot.gwas.service.AssociationGeneMapperService;
 import uk.ac.ebi.spot.gwas.service.FileHandlerService;
 import uk.ac.ebi.spot.gwas.service.ParentMapperService;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
@@ -36,6 +37,9 @@ public class Cli implements CommandLineRunner {
     @Autowired
     FileHandlerService fileHandlerService;
 
+    @Autowired
+    AssociationGeneMapperService associationGeneMapperService;
+
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
         parseArguments(args);
@@ -51,6 +55,9 @@ public class Cli implements CommandLineRunner {
         }
         if(executionMode != null && executionMode.equals("largeefos")) {
             parentMapperService.executeLargeEFOParentMapper(outputDir, errorDir, executionMode);
+        }
+        if(executionMode != null && executionMode.equals("mappedgenes")) {
+            associationGeneMapperService.mapGenes(outputDir, errorDir, executionMode);
         }
         bsubLog.info("Association Mapper Executor started at {}",dateFormat.format(date));
         log.info("Association Mapper Executor took {} ms", (System.currentTimeMillis()- start));
