@@ -78,7 +78,7 @@ public class Cli implements CommandLineRunner {
                     efoLoaderService.loadAssociationsForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
                     efoLoaderService.loadStudiesForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
                 } catch (Exception ex) {
-                    msubLog.error("EFoId's failed to run for the following {}", efoIds);
+                    msubLog.error("EFoId's failed to run for the following {}", asscnIds);
                     log.error("Execution Mapper failed for the following EfoIds"+ex.getMessage(),ex);
                     throw ex;
                 }
@@ -98,9 +98,10 @@ public class Cli implements CommandLineRunner {
 
             if(executionMode.equalsIgnoreCase("mappedgenes")) {
                 try {
-                    List<Long> accns = Stream.of(asscnIds).map(Long::valueOf).collect(Collectors.toList());
+                    List<Long> accns = Stream.of(asscnIds.split(",")).map(Long::valueOf).collect(Collectors.toList());
                     associationService.updateAssociationMappingGenes(accns);
                 } catch (Exception ex) {
+                    msubLog.error("AsscnId's failed to run for the following {}", asscnIds);
                     log.error("Execution Mapper failed for the following Asscn IDs"+ex.getMessage(),ex);
                     throw ex;
                 }
