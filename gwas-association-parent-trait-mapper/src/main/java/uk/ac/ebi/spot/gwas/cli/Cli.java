@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.gwas.model.EfoTrait;
+import uk.ac.ebi.spot.gwas.service.AssociationService;
 import uk.ac.ebi.spot.gwas.service.EFOLoaderService;
 import uk.ac.ebi.spot.gwas.service.EFOTraitService;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
@@ -20,6 +21,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -33,6 +36,11 @@ public class Cli implements CommandLineRunner {
 
     private static String efoIds = null;
 
+    private static String asscnIds = null;
+
+    @Autowired
+    AssociationService associationService;
+
     @Autowired
     EFOTraitService efoTraitService;
 
@@ -40,10 +48,12 @@ public class Cli implements CommandLineRunner {
     EFOLoaderService efoLoaderService;
 
 
+
+
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
         CommandLine commandLine = parseArguments(args);
-        Boolean mode = commandLine.hasOption(CommandUtil.EXEC_EFOTRAITS);
+        Boolean mode = commandLine.hasOption(CommandUtil.EXEC_MODE_OPT);
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         log.info("Parent Trait mapping  started at {}",dateFormat.format(new Date()));
@@ -86,6 +96,16 @@ public class Cli implements CommandLineRunner {
                 }
             }
 
+            if(executionMode.equalsIgnoreCase("mappedgenes")) {
+                try {
+                    List<Long> accns = Stream.of(asscnIds).map(Long::valueOf).collect(Collectors.toList());
+                    associationService.updateAssociationMappingGenes(accns);
+                } catch (Exception ex) {
+                    log.error("Execution Mapper failed for the following Asscn IDs"+ex.getMessage(),ex);
+                    throw ex;
+                }
+            }
+
             log.info("Total Parent Trait mapping time {}", (System.currentTimeMillis() - start));
             log.info("Parent Trait mapping ended at {}",dateFormat.format(new Date()));
         } else {
@@ -116,6 +136,10 @@ public class Cli implements CommandLineRunner {
                 // print out mode help
                 log.info("Inside -p option");
                 parentEfo = cl.getOptionValue("p");
+            }
+            if (cl.hasOption("a")) {
+                log.info("Inside -a option");
+                asscnIds = cl.getOptionValue("a");
             }
         } catch (ParseException e) {
             System.err.println("Failed to read supplied arguments");

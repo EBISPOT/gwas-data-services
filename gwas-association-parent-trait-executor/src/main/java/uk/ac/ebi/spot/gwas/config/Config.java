@@ -9,6 +9,9 @@ public class Config {
     @Value("${script}")
     private String script;
 
+    @Value("${gene-mapper.script}")
+    private String geneMapperScript;
+
     @Value("${executor.thread-pool.count}")
     private Integer threadPool;
 
@@ -54,6 +57,15 @@ public class Config {
 
     public void setScript(String script) {
         this.script = script;
+    }
+
+
+    public String getGeneMapperScript() {
+        return geneMapperScript;
+    }
+
+    public void setGeneMapperScript(String geneMapperScript) {
+        this.geneMapperScript = geneMapperScript;
     }
 
     public String getSlurmLogsLocation() {
