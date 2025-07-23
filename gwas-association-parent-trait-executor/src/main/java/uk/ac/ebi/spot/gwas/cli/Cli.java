@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.gwas.service.AssociationGeneMapperService;
 import uk.ac.ebi.spot.gwas.service.FileHandlerService;
 import uk.ac.ebi.spot.gwas.service.ParentMapperService;
+import uk.ac.ebi.spot.gwas.service.SnpGeneMapperService;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
 import java.io.IOException;
@@ -40,6 +41,9 @@ public class Cli implements CommandLineRunner {
     @Autowired
     AssociationGeneMapperService associationGeneMapperService;
 
+    @Autowired
+    SnpGeneMapperService snpGeneMapperService;
+
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
         parseArguments(args);
@@ -57,7 +61,8 @@ public class Cli implements CommandLineRunner {
             parentMapperService.executeLargeEFOParentMapper(outputDir, errorDir, executionMode);
         }
         if(executionMode != null && executionMode.equals("mappedgenes")) {
-            associationGeneMapperService.mapGenes(outputDir, errorDir, executionMode);
+            //associationGeneMapperService.mapGenes(outputDir, errorDir, executionMode);
+            snpGeneMapperService.mapGenes(outputDir, errorDir, executionMode);
         }
         bsubLog.info("Association Mapper Executor started at {}",dateFormat.format(date));
         log.info("Association Mapper Executor took {} ms", (System.currentTimeMillis()- start));
