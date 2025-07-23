@@ -33,6 +33,14 @@ public class CommandUtil {
     public static final String EXEC_ACCSNS_DESC = "-e [AsscnIds] List of AsscnIds seperate by commas ";
 
     public static final String EXEC_ACCSNS_LONG = "Asscn Ids";
+
+    public static final String EXEC_SNPS = "s";
+
+    public static final String EXEC_SNPS_DESC = "-s [SnpIds] List of SnpIds seperate by commas ";
+
+    public static final String EXEC_SNPS_LONG = "Snp Ids";
+
+
     public CommandUtil() {
     }
 
@@ -46,10 +54,12 @@ public class CommandUtil {
         Option efoIdsOption = new Option(EXEC_EFOTRAITS, EXEC_EFOTRAITS_LONG, true, EXEC_EFOTRAITS_DESC );
         Option parentOption = new Option(EXEC_MODE_PARENT_EFO, EXEC_MODE_PARENT_EFO_LONG, true, EXEC_MODE_PARENT_EFO_DESC );
         Option asscsnOption = new Option(EXEC_ACCSNS, EXEC_ACCSNS_LONG, true, EXEC_ACCSNS_DESC );
+        Option snpsOption = new Option(EXEC_SNPS, EXEC_SNPS_LONG, true, EXEC_SNPS_DESC );
         options.addOption(modeOption);
         options.addOption(efoIdsOption);
         options.addOption(parentOption);
         options.addOption(asscsnOption);
+        options.addOption(snpsOption);
         options.addOptionGroup(optionGroup);
         return options;
     }

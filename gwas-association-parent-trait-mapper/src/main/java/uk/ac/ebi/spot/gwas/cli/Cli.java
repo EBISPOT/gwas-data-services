@@ -11,6 +11,7 @@ import uk.ac.ebi.spot.gwas.model.EfoTrait;
 import uk.ac.ebi.spot.gwas.service.AssociationService;
 import uk.ac.ebi.spot.gwas.service.EFOLoaderService;
 import uk.ac.ebi.spot.gwas.service.EFOTraitService;
+import uk.ac.ebi.spot.gwas.service.SnpService;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
 import java.io.IOException;
@@ -38,6 +39,8 @@ public class Cli implements CommandLineRunner {
 
     private static String asscnIds = null;
 
+    private static String snpIds = null;
+
     @Autowired
     AssociationService associationService;
 
@@ -46,6 +49,9 @@ public class Cli implements CommandLineRunner {
 
     @Autowired
     EFOLoaderService efoLoaderService;
+
+    @Autowired
+    SnpService snpService;
 
 
 
@@ -98,11 +104,14 @@ public class Cli implements CommandLineRunner {
 
             if(executionMode.equalsIgnoreCase("mappedgenes")) {
                 try {
-                    List<Long> accns = Stream.of(asscnIds.split(",")).map(Long::valueOf).collect(Collectors.toList());
-                    associationService.updateAssociationMappingGenes(accns);
+                    //List<Long> accns = Stream.of(asscnIds.split(",")).map(Long::valueOf).collect(Collectors.toList());
+                    //associationService.updateAssociationMappingGenes(accns);
+                    List<Long> snps = Stream.of(snpIds.split(",")).map(Long::valueOf).collect(Collectors.toList());
+                    snpService.updateSnpMappingGenes(snps);
+
                 } catch (Exception ex) {
-                    msubLog.error("AsscnId's failed to run for the following {}", asscnIds);
-                    log.error("Execution Mapper failed for the following Asscn IDs"+ex.getMessage(),ex);
+                    msubLog.error("snpIds's failed to run for the following {}", snpIds);
+                    log.error("Execution Mapper failed for the following snpIds IDs"+ex.getMessage(),ex);
                     throw ex;
                 }
             }
@@ -141,6 +150,10 @@ public class Cli implements CommandLineRunner {
             if (cl.hasOption("a")) {
                 log.info("Inside -a option");
                 asscnIds = cl.getOptionValue("a");
+            }
+            if (cl.hasOption("s")) {
+                log.info("Inside -s option");
+                snpIds = cl.getOptionValue("s");
             }
         } catch (ParseException e) {
             System.err.println("Failed to read supplied arguments");
