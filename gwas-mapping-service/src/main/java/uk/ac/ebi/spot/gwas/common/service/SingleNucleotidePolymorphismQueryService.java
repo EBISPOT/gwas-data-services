@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.model.SingleNucleotidePolymorphism;
+import uk.ac.ebi.spot.gwas.common.projection.SnpGeneProjection;
 import uk.ac.ebi.spot.gwas.common.repository.SingleNucleotidePolymorphismRepository;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class SingleNucleotidePolymorphismQueryService {
@@ -39,5 +41,21 @@ public class SingleNucleotidePolymorphismQueryService {
         if (snp.getGenomicContexts() != null) {
             snp.getGenomicContexts().size();
         }
+    }
+
+    @Transactional(readOnly = true)
+    public SingleNucleotidePolymorphism getSnp(String rsId) {
+        return singleNucleotidePolymorphismRepository.findByRsId(rsId);
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<SnpGeneProjection> findOverLappingGenes(Long snpId , String source) {
+        return singleNucleotidePolymorphismRepository.findOverLappingGenes(snpId, source);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SnpGeneProjection> findUpDownStreamGenes(Long snpId , String source) {
+        return singleNucleotidePolymorphismRepository.findUpDownStreamGenes(snpId, source);
     }
 }

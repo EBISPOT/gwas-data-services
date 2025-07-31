@@ -9,13 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.association.Association;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.OperationMode;
+import uk.ac.ebi.spot.gwas.common.service.*;
 import uk.ac.ebi.spot.gwas.mapping.dto.*;
 import uk.ac.ebi.spot.gwas.common.model.*;
 import uk.ac.ebi.spot.gwas.ensembl_data.EnsemblData;
-import uk.ac.ebi.spot.gwas.common.service.MappingRecordService;
-import uk.ac.ebi.spot.gwas.common.service.SecureUserRepository;
-import uk.ac.ebi.spot.gwas.common.service.SingleNucleotidePolymorphismQueryService;
-import uk.ac.ebi.spot.gwas.common.service.TrackingOperationService;
 import uk.ac.ebi.spot.gwas.variation.Variant;
 import uk.ac.ebi.spot.gwas.variation.VariationService;
 
@@ -43,6 +40,7 @@ public class MappingService {
     private AppConfig config;
     @Autowired
     private VariationService variationService;
+
 
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRED)
@@ -78,7 +76,6 @@ public class MappingService {
         }
 
         dataSavingService.createAssociationReports(association, mappingDto);
-
         SecureUser user = secureUserRepository.findByEmail("automatic_mapping_process");
         String performer = "automatic_mapping_process";
 

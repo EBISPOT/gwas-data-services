@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.spot.gwas.common.model.SingleNucleotidePolymorphism;
 import uk.ac.ebi.spot.gwas.common.projection.MappingProjection;
+import uk.ac.ebi.spot.gwas.common.projection.SnpGeneProjection;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,6 +34,27 @@ public interface SingleNucleotidePolymorphismRepository extends JpaRepository<Si
     @Query("select new SingleNucleotidePolymorphism(s.id) from SingleNucleotidePolymorphism s join s.locations loc " +
             "where loc.id = :locationId")
     List<SingleNucleotidePolymorphism> findIdsByLocationId(Long locationId);
+
+    @Query("select snp.id as snpId, g.id as geneId from SingleNucleotidePolymorphism snp " +
+            "join snp.genomicContexts as gc " +
+            "join gc.gene as g " +
+            "join gc.location loc " +
+            "where snp.id = :snpId " +
+            "and  length(loc.chromosomeName) < 3 " +
+            "and gc.source = :source " +
+            "and gc.isIntergenic = false ")
+    List<SnpGeneProjection> findOverLappingGenes(Long snpId, String source);
+
+    @Query("select snp.id as snpId, g.id as geneId from SingleNucleotidePolymorphism snp " +
+            "join snp.genomicContexts as gc " +
+            "join gc.gene as g " +
+            "join gc.location loc " +
+            "where snp.id = :snpId " +
+            "and  length(loc.chromosomeName) < 3 "+
+            "and gc.source = :source "+
+            "and gc.isClosestGene = true " +
+            "and (gc.isUpstream = true OR gc.isDownstream = true) ")
+    List<SnpGeneProjection> findUpDownStreamGenes(Long snpId, String source);
 
 }
 
