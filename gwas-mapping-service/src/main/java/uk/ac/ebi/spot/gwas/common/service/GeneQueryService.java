@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.model.Gene;
 import uk.ac.ebi.spot.gwas.common.repository.GeneRepository;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class GeneQueryService {
@@ -34,4 +36,11 @@ public class GeneQueryService {
             gene.getEnsemblGeneIds().size();
         }
     }
+
+
+    @Transactional(readOnly = true)
+    public List<Gene> findGenesByIds(List<Long> mappedGeneIds) {
+        return geneRepository.findAllById(mappedGeneIds);
+    }
+
 }

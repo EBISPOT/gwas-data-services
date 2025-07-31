@@ -12,6 +12,7 @@ import uk.ac.ebi.spot.gwas.assembly_info.AssemblyInfo;
 import uk.ac.ebi.spot.gwas.association.Association;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.Uri;
+import uk.ac.ebi.spot.gwas.common.projection.SnpGeneProjection;
 import uk.ac.ebi.spot.gwas.mapping.dto.*;
 import uk.ac.ebi.spot.gwas.common.model.*;
 import uk.ac.ebi.spot.gwas.common.repository.SingleNucleotidePolymorphismRepository;
@@ -46,6 +47,12 @@ public class MappingSavingService {
     private EnsemblRestcallHistoryService historyService;
     @Autowired
     private AppConfig config;
+    @Autowired
+    private SingleNucleotidePolymorphismQueryService singleNucleotidePolymorphismQueryService;
+
+    @Autowired
+    SnpGeneMappingService snpGeneMappingService;
+
     @Transactional(propagation = Propagation.SUPPORTS)
     public MappingDto   saveMappedData(SingleNucleotidePolymorphism snpLinkedToLocus, EnsemblMappingResult ensemblMappingResult, Map<String, Set<Location>> snpToLocationsMap,
                                        Collection<GenomicContext> allGenomicContexts, Collection<String> associationPipelineErrors) {
@@ -162,6 +169,13 @@ public class MappingSavingService {
             snpGenomicContextMappingService.processGenomicContext(allGenomicContexts);
             log.info("Updating genomic context details complete");
         }
+        try {
+            Set<String> rsIdList = snpToLocationsMap.keySet();
+            snpGeneMappingService.updateSnpMappingGenes(rsIdList);
+        } catch (Exception ex) {
+            log.error("Exception in Snp Gene Mapping"+ex.getMessage(),ex);
+        }
+
     }
 
     public void saveRestHistory(EnsemblData ensembleData,
@@ -263,5 +277,6 @@ public class MappingSavingService {
             log.info("Finished Processing {} History", restcallHistories.size());
         }
     }
+
 
 }
