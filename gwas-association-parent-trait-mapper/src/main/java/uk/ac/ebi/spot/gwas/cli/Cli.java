@@ -84,7 +84,7 @@ public class Cli implements CommandLineRunner {
                     efoLoaderService.loadAssociationsForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
                     efoLoaderService.loadStudiesForChildEfos(Arrays.asList(efoIds.split(",")), parentEfo);
                 } catch (Exception ex) {
-                    msubLog.error("EFoId's failed to run for the following {}", asscnIds);
+                    msubLog.error("EFoId's failed to run for the following {}", efoIds);
                     log.error("Execution Mapper failed for the following EfoIds"+ex.getMessage(),ex);
                     throw ex;
                 }

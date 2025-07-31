@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.model.*;
+import uk.ac.ebi.spot.gwas.common.projection.SnpGeneProjection;
 import uk.ac.ebi.spot.gwas.common.repository.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SnpGenomicContextMappingService {
@@ -38,6 +40,8 @@ public class SnpGenomicContextMappingService {
     private LocationCreationService locationCreationService;
     @Autowired
     private GenomicContextCreationService genomicContextCreationService;
+    @Autowired
+    private SnpUpdateService snpUpdateService;
 
     private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -569,5 +573,29 @@ public class SnpGenomicContextMappingService {
             locationRepository.deleteById(id);
         }
     }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void updateSnpMappedGene(Long snpId, List<Gene> mappedGenes) {
+        singleNucleotidePolymorphismRepository.findById(snpId).ifPresent(snp -> {
+            snp.setMappedSnpGenes(mappedGenes);
+            singleNucleotidePolymorphismRepository.save(snp);
+        });
+    }
+
+
+    public void updateSnpGeneMapping(List<SnpGeneProjection> snpGeneProjections) {
+
+        Map<Long, List<SnpGeneProjection>> snpGeneMap = snpGeneProjections.
+                stream()
+                .collect(Collectors.groupingBy(SnpGeneProjection::getSnpId));
+        snpGeneMap.keySet().forEach(snpId -> {
+            List<Long> mappedGeneIds = snpGeneMap.get(snpId).stream()
+                    .map(SnpGeneProjection::getGeneId)
+                    .collect(Collectors.toList());
+            List<Gene> mappedGenes = geneQueryService.findGenesByIds(mappedGeneIds);
+            snpUpdateService.updateSnpMappedGene(snpId, mappedGenes);
+        });
+    }
+
 }
 
