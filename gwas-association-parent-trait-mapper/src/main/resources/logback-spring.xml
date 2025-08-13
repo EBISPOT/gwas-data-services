@@ -58,22 +58,13 @@
         </appender>
 
 
-        <appender name="msubloggerAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <appender name="msubloggerAppender" class="ch.qos.logback.core.FileAppender">
 
             <encoder>
                 <pattern>${LOG_PATTERN}</pattern>
             </encoder>
             <!--current log file-->
             <file>${FILE_LOG_PATH}/gwas-association-parent-trait-executor-msub-status.log</file>
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <!-- rollover daily -->
-                <fileNamePattern>${FILE_LOG_PATH}/gwas-association-parent-trait-executor-msub-status.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-                <!--determines when we rollover-->
-                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                    <maxFileSize>20MB</maxFileSize>
-                </timeBasedFileNamingAndTriggeringPolicy>
-                <maxHistory>5000</maxHistory>
-            </rollingPolicy>
         </appender>
 
         <root level="error">
