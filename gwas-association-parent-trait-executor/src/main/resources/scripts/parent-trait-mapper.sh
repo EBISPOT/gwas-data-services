@@ -39,7 +39,7 @@ echo "documentParameters is ${documentParameters}"
 
 rm -rf ${logslocation}/*
 rm -rf ${childlogslocation}/*
-if [ -f ${logslocation}/${errorfile} ]
+if [ -f ${workdirlocation}/${errorfile} ]
 then
         rm  ${workdirlocation}/${errorfile}
 fi
