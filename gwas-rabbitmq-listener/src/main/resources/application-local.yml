@@ -8,8 +8,8 @@ spring:
     port: 5672
 
   datasource:
-    #url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
-    url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
+    url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
+   #url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
     username:
     password: 
     driver-class-name: oracle.jdbc.driver.OracleDriver
@@ -52,3 +52,11 @@ rabbitmq:
     queue-name: publication-sandbox
     exchange-name: publication-exchange-sandbox
     routing-key: publication-route-sandbox
+  efotrait:
+    queue-name: efotrait-sandbox
+    exchange-name: efotrait-exchange-sandbox
+    routing-key: efotrait-route-sandbox
+  diseasetrait:
+    queue-name: diseasetrait-sandbox
+    exchange-name: diseasetrait-exchange-sandbox
+    routing-key: diseasetrait-route-sandbox
