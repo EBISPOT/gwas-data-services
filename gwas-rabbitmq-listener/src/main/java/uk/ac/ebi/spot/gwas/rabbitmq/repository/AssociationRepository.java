@@ -112,4 +112,6 @@ public interface AssociationRepository extends JpaRepository<Association, Long> 
 
 
     Page<Association> findByStudyPublicationIdPubmedId(String pubmedId, Pageable pageable);
+
+    Collection<Association> findByParentEfoTraitsId(Long efoTraitId);
 }

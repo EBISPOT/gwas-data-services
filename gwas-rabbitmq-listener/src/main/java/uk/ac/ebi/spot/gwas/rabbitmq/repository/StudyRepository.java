@@ -181,5 +181,8 @@ public interface StudyRepository extends JpaRepository<Study, Long>, JpaSpecific
 
     Page<Study> findAll(Pageable pageable);
 
+
+    Collection<Study> findByParentStudyEfoTraitsId(Long efoTraitId);
+
 }
 

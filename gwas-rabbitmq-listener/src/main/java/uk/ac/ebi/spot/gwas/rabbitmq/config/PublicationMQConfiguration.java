@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.ac.ebi.spot.gwas.deposition.config.PublicationMQConfigProperties;
+import uk.ac.ebi.spot.gwas.deposition.dto.curation.DiseaseTraitRabbitMessage;
 import uk.ac.ebi.spot.gwas.deposition.dto.curation.PublicationRabbitMessage;
+import uk.ac.ebi.spot.gwas.deposition.dto.curation.EfoTraitRabbitMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +22,7 @@ public class PublicationMQConfiguration {
 
     @Autowired
     PublicationMQConfigProperties publicationMQConfigProperties;
+
 
     @Bean
     Queue publicationQueue(){
@@ -48,6 +51,8 @@ public class PublicationMQConfiguration {
         DefaultClassMapper classMapper = new DefaultClassMapper();
         Map<String, Class<?>> idClassMapping = new HashMap<>();
         idClassMapping.put("publicationRabbitMessage", PublicationRabbitMessage.class);
+        idClassMapping.put("efoTraitRabbitMessage", EfoTraitRabbitMessage.class);
+        idClassMapping.put("diseaseTraitRabbitMessage", DiseaseTraitRabbitMessage.class);
         classMapper.setIdClassMapping(idClassMapping);
         classMapper.setDefaultType(Map.class);
         classMapper.setTrustedPackages("*");

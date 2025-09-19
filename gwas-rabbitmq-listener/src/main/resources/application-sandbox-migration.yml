@@ -4,17 +4,17 @@ server:
 
 spring:
   rabbitmq:
-    host: hx-rke-wp-webadmin-09-worker-2.caas.ebi.ac.uk
+    host: hh-rke-wp-webadmin-09-worker-1.caas.ebi.ac.uk
     port: 30672
     username:
     password:
   datasource:
-    #url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
-    url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
+    url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
+   #url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
     username:
-    password:
+    password: 
     driver-class-name: oracle.jdbc.driver.OracleDriver
-    #hikari:
+   #hikari:
       #maximumPoolSize: 80
   jpa:
     hibernate:
@@ -24,6 +24,10 @@ spring:
         jdbc:
           batch_size: 10
 
+
+email-config:
+  #to-address: gwas-curator@ebi.ac.uk,gwas-dev-logs@ebi.ac.uk
+  to-address: sajo@ebi.ac.uk,sajo@ebi.ac.uk
 
 executor:
   thread-pool:
@@ -50,13 +54,10 @@ rabbitmq:
     exchange-name: publication-exchange-sandbox
     routing-key: publication-route-sandbox
   efotrait:
-    queue-name: efotrait
-    exchange-name: efotrait-exchange
-    routing-key: efotrait-route
+    queue-name: efotrait-sandbox
+    exchange-name: efotrait-exchange-sandbox
+    routing-key: efotrait-route-sandbox
   diseasetrait:
-    queue-name: diseasetrait
-    exchange-name: diseasetrait-exchange
-    routing-key: diseasetrait-route
-  dead-letter:
-    queue-name: dead-letter-queue
-    exchange-name: dead-letter-exchange
+    queue-name: diseasetrait-sandbox
+    exchange-name: diseasetrait-exchange-sandbox
+    routing-key: diseasetrait-route-sandbox
