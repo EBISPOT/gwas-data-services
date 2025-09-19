@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import uk.ac.ebi.spot.gwas.model.EfoTrait;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by emma on 04/12/14.
@@ -66,7 +67,7 @@ public interface EfoTraitRepository extends JpaRepository<EfoTrait, Long> {
 
     EfoTrait findByShortForm(String shortForm);
 
-    EfoTrait findByMongoSeqId(String mongoSeqId);
+    Optional<EfoTrait> findByMongoSeqId(String mongoSeqId);
 
 
     Page<EfoTrait> findByStudiesPublicationIdPubmedId(String pumbedId, Pageable pageable);

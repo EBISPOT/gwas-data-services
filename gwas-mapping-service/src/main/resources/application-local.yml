@@ -23,11 +23,11 @@ ensembl:
   datasource:
     driver-class: org.mariadb.jdbc.Driver
     url: jdbc:mysql://useastdb.ensembl.org:3306
-  #db_version: '113'
-  db_version: '114'
+  #db_version: '114'
+  db_version: '115'
   #server: https://jul2023.rest.ensembl.org
-  #server: https://oct2024.rest.ensembl.org
-  server: https://may2025.rest.ensembl.org
+  #server: https://may2025.rest.ensembl.org
+  server: https://sep2025.rest.ensembl.org
 mapping:
   dbsnp_endpoint: /info/variation/homo_sapiens?content-type=application/json;filter=dbSNP
   ensembl_source: Ensembl
@@ -43,8 +43,8 @@ mapping:
   requestCount: 0
   requestPerSecond: 15
   snp_lookup_endpoint: variation
-  #version: 113
-  version: 114
+  #version: 114
+  version: 115
   cache: /Users/sajo/Downloads/cache
   #cache: /nfs/gwas/data/prod/sw/mapper/ensembl-cache
 
