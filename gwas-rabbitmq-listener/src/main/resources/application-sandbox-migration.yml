@@ -1,0 +1,63 @@
+server:
+  port: 8685
+
+
+spring:
+  rabbitmq:
+    host: hh-rke-wp-webadmin-09-worker-1.caas.ebi.ac.uk
+    port: 30672
+    username:
+    password:
+  datasource:
+    url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
+   #url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
+    username:
+    password: 
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+   #hikari:
+      #maximumPoolSize: 80
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 10
+
+
+email-config:
+  #to-address: gwas-curator@ebi.ac.uk,gwas-dev-logs@ebi.ac.uk
+  to-address: sajo@ebi.ac.uk,sajo@ebi.ac.uk
+
+executor:
+  thread-pool:
+    count:
+
+association:
+  partition:
+    size:
+
+gwas-curation:
+  #db: deposition-backend-sandbox
+  db: gwasdepo
+
+rabbitmq:
+  queue-name: study_change_sandbox
+  exchange-name: study_change_exchange_sandbox
+  routing-key: study-ingest_sandbox
+  sumstats:
+    queue-name: metadata-yml-update-sandbox
+    exchange-name: metadata-yml-update-exchange-sandbox
+    routing-key: metadata-yml-update-route-sandbox
+  publication:
+    queue-name: publication-sandbox
+    exchange-name: publication-exchange-sandbox
+    routing-key: publication-route-sandbox
+  efotrait:
+    queue-name: efotrait-sandbox
+    exchange-name: efotrait-exchange-sandbox
+    routing-key: efotrait-route-sandbox
+  diseasetrait:
+    queue-name: diseasetrait-sandbox
+    exchange-name: diseasetrait-exchange-sandbox
+    routing-key: diseasetrait-route-sandbox

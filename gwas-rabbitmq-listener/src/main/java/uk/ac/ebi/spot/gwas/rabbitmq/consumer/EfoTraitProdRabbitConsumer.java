@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.gwas.deposition.dto.curation.EfoTraitRabbitMessage;
 import uk.ac.ebi.spot.gwas.deposition.messaging.email.EmailService;
@@ -14,7 +15,8 @@ import uk.ac.ebi.spot.gwas.rabbitmq.service.EfoTraitImportService;
 
 @Slf4j
 @Component
-public class EfoTraitRabbitConsumer {
+@Profile({"cluster","fallback"})
+public class EfoTraitProdRabbitConsumer {
 
     private final Logger bsubLog = LoggerFactory.getLogger("bsublogger");
 
@@ -28,8 +30,7 @@ public class EfoTraitRabbitConsumer {
     BackendEmailConfig backendEmailConfig;
 
 
-    @RabbitListener(queues = {DepositionCurationConstants.QUEUE_EFOTRAIT_SANDBOX,
-            DepositionCurationConstants.QUEUE_EFOTRAIT_PROD})
+    @RabbitListener(queues = {DepositionCurationConstants.QUEUE_EFOTRAIT_PROD})
     public void listen(EfoTraitRabbitMessage efoTraitRabbitMessage) {
         try {
             log.info("Consuming message for efoTraitRabbitMessage : {}", efoTraitRabbitMessage.getShortForm());
