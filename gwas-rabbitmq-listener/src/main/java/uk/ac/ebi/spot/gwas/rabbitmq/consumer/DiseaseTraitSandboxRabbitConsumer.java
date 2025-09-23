@@ -15,8 +15,8 @@ import uk.ac.ebi.spot.gwas.rabbitmq.service.DiseaseTraitImportService;
 
 @Slf4j
 @Component
-@Profile({"cluster","fallback"})
-public class DiseaseTraitRabbitConsumer {
+@Profile({"sandbox-migration", "local"})
+public class DiseaseTraitSandboxRabbitConsumer {
 
     private final Logger bsubLog = LoggerFactory.getLogger("bsublogger");
 
@@ -31,7 +31,7 @@ public class DiseaseTraitRabbitConsumer {
     BackendEmailConfig backendEmailConfig;
 
 
-    @RabbitListener(queues = {DepositionCurationConstants.QUEUE_DISEASETRAIT_PROD})
+    @RabbitListener(queues = {DepositionCurationConstants.QUEUE_DISEASETRAIT_SANDBOX})
     public void listen(DiseaseTraitRabbitMessage diseaseTraitRabbitMessage) {
         try {
             log.info("Consuming message for diseaseTraitRabbitMessage : {}", diseaseTraitRabbitMessage.getTrait());
