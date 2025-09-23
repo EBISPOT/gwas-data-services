@@ -22,10 +22,10 @@ import uk.ac.ebi.spot.gwas.rabbitmq.service.PublicationImportService;
 
 
 @Component
-@Profile({"cluster","fallback"})
-public class PublicationRabbitConsumer {
+@Profile({"sandbox-migration", "local"})
+public class PublicationSandboxRabbitConsumer {
 
-    private static final Logger log = LoggerFactory.getLogger(PublicationRabbitConsumer.class);
+    private static final Logger log = LoggerFactory.getLogger(PublicationSandboxRabbitConsumer.class);
 
     private final Logger bsubLog = LoggerFactory.getLogger("bsublogger");
 
@@ -38,7 +38,7 @@ public class PublicationRabbitConsumer {
     @Autowired
     BackendEmailConfig backendEmailConfig;
 
-    @RabbitListener(queues = {DepositionCurationConstants.QUEUE_PUBLICATION_PROD} )
+    @RabbitListener(queues = {DepositionCurationConstants.QUEUE_PUBLICATION_SANDBOX} )
     public void listen(PublicationRabbitMessage publicationRabbitMessage) {
         try {
             log.info("Consuming message for publicationRabbitMessage : {}",publicationRabbitMessage.getPmid());
