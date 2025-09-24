@@ -8,7 +8,7 @@ jarLocation=/hps/software/users/parkinso/spot/gwas/prod/sw/gwas-rabbitmq-listene
 logslocation=/hps/nobackup/parkinso/spot/gwas/logs/gwas-rabbitmq-listener/logs/bsub
 jvmparams='-Xms4096m -Xmx4096m'
 configlocation=/hps/software/users/parkinso/spot/gwas/prod/sw/gwas-rabbitmq-listener/config
-source ${configlocation}/db-env-sandbox
+source ${configlocation}/db-env
 
 # Print out help message:
 function display_help(){
