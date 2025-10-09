@@ -26,8 +26,8 @@ ensembl:
   #db_version: '114'
   db_version: '115'
   #server: https://may2025.rest.ensembl.org
-  #server: https://sep2025.rest.ensembl.org
-  server: https://rest.ensembl.org/
+  server: https://sep2025.rest.ensembl.org
+  #server: https://rest.ensembl.org/
 
 mapping:
   dbsnp_endpoint: /info/variation/homo_sapiens?content-type=application/json;filter=dbSNP
