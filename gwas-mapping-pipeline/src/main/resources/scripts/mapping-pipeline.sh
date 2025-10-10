@@ -35,7 +35,7 @@ echo "documentParameters is ${documentParameters}"
 
 rm -rf ${logslocation}/*
 
-java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=10 -Dassociation.partition.size=15 -Dspring.datasource.username=${DB_USER} -Dspring.datasource.password=${DB_PWD} \
+java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=${POOL_SIZE} -Dassociation.partition.size=15 -Dspring.datasource.username=${DB_USER} -Dspring.datasource.password=${DB_PWD} \
     ${documentParameters} \
     -jar ${jarLocation}/gwas-mapping-pipeline.jar -m ${mode} -i ${jarLocation}/Incorrecly_mapped_variants.tsv -o ${logslocation} -e ${logslocation}
 
