@@ -10,5 +10,5 @@ public interface CuratorRepository extends JpaRepository<Curator, Long> {
 
    Optional<Curator> findByEmail(String email);
 
-   Optional<Curator> findByLastName(String lastName);
+   Optional<Curator> findByLastNameIgnoreCase(String lastName);
 }

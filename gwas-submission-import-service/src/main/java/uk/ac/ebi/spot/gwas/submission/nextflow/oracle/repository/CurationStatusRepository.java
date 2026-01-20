@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface CurationStatusRepository extends JpaRepository<CurationStatus, Long> {
 
-  Optional<CurationStatus> findBYStatus(String curationStatus);
+  Optional<CurationStatus> findByStatus(String curationStatus);
 }

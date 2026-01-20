@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.gwas.submission.nextflow.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.model.Platform;
 import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.PlatformRepository;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.PlatformService;
@@ -14,8 +15,9 @@ public class PlatformServiceImpl implements PlatformService {
         this.platformRepository = platformRepository;
     }
 
-   public  Platform findByManufacturer(String manufacturer) {
+    @Transactional(readOnly = true)
+    public  Platform findByManufacturer(String manufacturer) {
         return platformRepository.findByManufacturer(manufacturer).orElse(null);
-   }
+    }
 
 }

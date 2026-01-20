@@ -6,14 +6,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import uk.ac.ebi.spot.gwas.model.Study;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.SubmissionImportProgressService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.util.CommandUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 @Slf4j
+@Component
 public class Cli implements CommandLineRunner {
     private final Logger bsubLog = LoggerFactory.getLogger("bsublogger");
 
@@ -28,14 +32,24 @@ public class Cli implements CommandLineRunner {
 
 
     public void run(String... args) throws Exception {
-        CommandLine commandLine = parseArguments(args);
+        parseArguments(args);
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         bsubLog.info("Submission Nextflow job started at {}", dateFormat.format(date));
-        long start = System.currentTimeMillis();
+        try {
+            long start = System.currentTimeMillis();
+            submissionImportProgressService.deleteStudiesForPublication(Arrays.asList(studyIds.split(",")));
+            submissionImportProgressService.importSubmission(submissionId, Arrays.asList(studyIds.split(",")), curatorEmail, pmid);
+            log.info("Total time taken to import {}", System.currentTimeMillis()- start);
+        } catch(Exception ex) {
+            log.error("Exception in import submission"+ex.getMessage(),ex);
+            throw ex;
+        }
+
+
     }
 
-    private CommandLine parseArguments(String[] args) {
+    private CommandLine parseArguments(String[] args) throws Exception{
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter help = new HelpFormatter();
@@ -49,7 +63,7 @@ public class Cli implements CommandLineRunner {
             }
             if (cl.hasOption("s")) {
                 log.info("Inside -s option");
-                submissionId = cl.getOptionValue("g");
+                submissionId = cl.getOptionValue("s");
             }
             if (cl.hasOption("t")) {
                 log.info("Inside -t option");

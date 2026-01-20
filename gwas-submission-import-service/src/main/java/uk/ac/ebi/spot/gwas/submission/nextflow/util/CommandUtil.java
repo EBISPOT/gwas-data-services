@@ -21,6 +21,9 @@ public class CommandUtil {
     public static final String EXEC_CURATOR_ID = "c";
     public static final String EXEC_CURATOR_ID_LONG = "curator";
     public static final String EXEC_CURATOR_ID_DESC = "-c [curator emailId] Curator Email Id";
+    public static final String EXEC_PMID_ID = "p";
+    public static final String EXEC_PMID_ID_LONG = "pmid";
+    public static final String EXEC_PMID_ID_DESC = "-p [Pmid] PubmedId";
 
 
 
@@ -35,11 +38,13 @@ public class CommandUtil {
         Option submissionIdOption = new Option(EXEC_SUBMISSIONID, EXEC_SUBMISSIONID_LONG, true, EXEC_SUBMISSIONID_DESC);
         Option submissionTypeOption = new Option(EXEC_SUBMISSION_TYPE, EXEC_SUBMISSION_TYPE_LONG, true, EXEC_SUBMISSION_TYPE_DESC);
         Option curatorOption = new Option(EXEC_CURATOR_ID, EXEC_CURATOR_ID_LONG, true, EXEC_CURATOR_ID_DESC);
+        Option pmIdOption = new Option(EXEC_PMID_ID,EXEC_PMID_ID_LONG,true,EXEC_PMID_ID_DESC);
         options.addOption(helpOption);
         options.addOption(studyIdsOption);
         options.addOption(submissionIdOption);
         options.addOption(submissionTypeOption);
         options.addOption(curatorOption);
+        options.addOption(pmIdOption);
         return options;
     }
 }

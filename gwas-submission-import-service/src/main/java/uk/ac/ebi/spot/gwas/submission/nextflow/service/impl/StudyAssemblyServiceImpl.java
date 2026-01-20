@@ -24,20 +24,18 @@ public class StudyAssemblyServiceImpl implements StudyAssemblyService {
 
     EfoTraitService efoTraitService;
 
-    StudiesService studiesService;
 
     public StudyAssemblyServiceImpl(DiseaseTraitService diseaseTraitService,
                                     PlatformService platformService,
                                     GenotypingTechnologyService genotypingTechnologyService,
                                     HousekeepingService housekeepingService,
-                                    EfoTraitService efoTraitService,
-                                    StudiesService studiesService) {
+                                    EfoTraitService efoTraitService
+                                    ) {
         this.diseaseTraitService = diseaseTraitService;
         this.platformService = platformService;
         this.genotypingTechnologyService = genotypingTechnologyService;
         this.housekeepingService = housekeepingService;
         this.efoTraitService = efoTraitService;
-        this.studiesService = studiesService;
     }
 
     public Study assemble(uk.ac.ebi.spot.gwas.deposition.domain.Study mongoStudy) {

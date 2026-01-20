@@ -1,6 +1,7 @@
 package uk.ac.ebi.spot.gwas.submission.nextflow.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.model.Country;
 import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.CountryRepository;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.CountryService;
@@ -14,6 +15,7 @@ public class CountryServiceImpl implements CountryService {
         this.countryRepository = countryRepository;
     }
 
+    @Transactional(readOnly = true)
     public  Country findByCountryOfRecruitement(String country) {
         return countryRepository.findByCountryNameIgnoreCase(country).orElse(null);
    }

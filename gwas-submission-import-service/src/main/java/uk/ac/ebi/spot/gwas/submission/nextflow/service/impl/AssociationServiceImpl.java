@@ -16,6 +16,8 @@ import uk.ac.ebi.spot.gwas.submission.nextflow.service.AssociationAssemblyServic
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.AssociationService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.LociAttributesService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.SnpService;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -63,11 +65,13 @@ public class AssociationServiceImpl implements AssociationService {
 
     public void saveAssociations(List<Association> associations, Study study) {
         for (Association mongoAssociation : associations) {
+            log.info("Association is {}", mongoAssociation.getVariantId());
             uk.ac.ebi.spot.gwas.model.Association association = associationAssemblyService.assemble(mongoAssociation);
-            association.setEfoTraits(study.getEfoTraits());
-            association.setBkgEfoTraits(study.getMappedBackgroundTraits());
+            association.setEfoTraits(study.getEfoTraits() != null ? new ArrayList<>(study.getEfoTraits()) : new ArrayList<>());
+            association.setBkgEfoTraits(study.getMappedBackgroundTraits() != null ? new ArrayList<>(study.getMappedBackgroundTraits()) : new ArrayList<>());
             lociAttributesService.saveLocusAttributes(association.getLoci());
             AssociationExtension associationExtension = associationAssemblyService.assembleAssociationExtension(mongoAssociation);
+            associationRepository.save(association);
             associationExtension.setAssociation(association);
             associationExtensionRepository.save(associationExtension);
             association.setAssociationExtension(associationExtension);

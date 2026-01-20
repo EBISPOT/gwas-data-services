@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import uk.ac.ebi.spot.gwas.model.Study;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -14,7 +15,10 @@ public interface StudyRepository extends JpaRepository<Study , Long> {
 
    Long countByPublicationIdPubmedId(String pmid);
 
-   Optional<Study> findByAccession(String accession);
+   List<Study> findByAccessionIdIn(List<String> accessionIds);
 
+   Page<Study> findByPublicationIdId(Long publicationId, Pageable pageable);
+
+   Long countStudiesByPublicationIdId(Long publicationId);
 
 }

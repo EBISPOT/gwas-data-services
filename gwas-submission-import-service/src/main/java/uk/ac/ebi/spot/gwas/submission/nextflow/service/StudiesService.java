@@ -8,26 +8,24 @@ import uk.ac.ebi.spot.gwas.model.Publication;
 import uk.ac.ebi.spot.gwas.model.Study;
 import uk.ac.ebi.spot.gwas.model.StudyExtension;
 
+import java.util.List;
+
 public interface StudiesService {
 
-    Page<Study> getStudies(String pmid, Pageable pageable);
-
-    Long countStudies(String pmid);
 
     uk.ac.ebi.spot.gwas.deposition.domain.Study getMongoStudy(String studyId);
 
-    Page<uk.ac.ebi.spot.gwas.deposition.domain.Study> getMongoStudies(String submissionId, Pageable pageable);
 
-    Study findByAccessionId(String accessionId);
 
     void deleteChildrenByStudyId(Long studyId);
 
     void saveStudy(Study study);
 
-    void saveStudyExtension(StudyExtension studyExtension);
 
     Study processStudy(uk.ac.ebi.spot.gwas.deposition.domain.Study mongoStudy,
                       Curator curator,
                       Publication publication,
                       Submission submission);
+
+    void deleteStudiesForPublication(List<String> accessionIds);
 }
