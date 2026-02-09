@@ -13,4 +13,6 @@ public interface AssociationService {
   Long findBySubmissionId(String submissionId);
 
   Boolean checkAssociationExists(String submissionId);
+
+  void deleteAssociation(Long studyId);
 }

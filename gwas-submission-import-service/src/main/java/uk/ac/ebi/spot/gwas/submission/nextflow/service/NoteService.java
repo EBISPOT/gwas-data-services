@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface NoteService {
 
-  void deleteNotesByStudyId(Long studyId);
 
   StudyNote createStudyNote(Study study, Note note, Curator curator);
 

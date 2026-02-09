@@ -14,4 +14,6 @@ public interface StudyRepository extends MongoRepository<Study, String> {
   Page<Study> findBySubmissionId(String submissionId, Pageable pageable);
 
   Stream<Study> findBySubmissionId(String submissionId);
+
+ Long countStudiesBySubmissionId(String submissionId);
 }

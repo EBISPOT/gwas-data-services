@@ -9,7 +9,6 @@ import uk.ac.ebi.spot.gwas.model.Study;
 import uk.ac.ebi.spot.gwas.submission.nextflow.mongo.repository.SampleMongoRepository;
 import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.AncestryExtensionRepository;
 import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.AncestryRepository;
-import uk.ac.ebi.spot.gwas.submission.nextflow.service.AncestryService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.SampleAssemblyService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.SampleService;
 

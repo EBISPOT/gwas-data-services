@@ -24,6 +24,9 @@ public class CommandUtil {
     public static final String EXEC_PMID_ID = "p";
     public static final String EXEC_PMID_ID_LONG = "pmid";
     public static final String EXEC_PMID_ID_DESC = "-p [Pmid] PubmedId";
+    public static final String EXEC_MODE_ID = "m";
+    public static final String EXEC_MODE_LONG = "mode";
+    public static final String EXEC_MODE_DESC = "-m [mode] Mode";
 
 
 
@@ -39,12 +42,14 @@ public class CommandUtil {
         Option submissionTypeOption = new Option(EXEC_SUBMISSION_TYPE, EXEC_SUBMISSION_TYPE_LONG, true, EXEC_SUBMISSION_TYPE_DESC);
         Option curatorOption = new Option(EXEC_CURATOR_ID, EXEC_CURATOR_ID_LONG, true, EXEC_CURATOR_ID_DESC);
         Option pmIdOption = new Option(EXEC_PMID_ID,EXEC_PMID_ID_LONG,true,EXEC_PMID_ID_DESC);
+        Option modeOption = new Option(EXEC_MODE_ID,EXEC_MODE_LONG,true,EXEC_MODE_DESC);
         options.addOption(helpOption);
         options.addOption(studyIdsOption);
         options.addOption(submissionIdOption);
         options.addOption(submissionTypeOption);
         options.addOption(curatorOption);
         options.addOption(pmIdOption);
+        options.addOption(modeOption);
         return options;
     }
 }

@@ -9,4 +9,6 @@ public interface SubmissionService {
   Submission findById(String submissionId);
 
   SubmissionType getSubmissionType(Submission submission);
+
+  void updateSubmissionStatus(String submissionId, String status, String email);
 }

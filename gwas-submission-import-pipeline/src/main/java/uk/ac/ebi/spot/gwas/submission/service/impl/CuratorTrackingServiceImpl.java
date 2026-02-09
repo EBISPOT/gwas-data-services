@@ -1,10 +1,8 @@
-package uk.ac.ebi.spot.gwas.submission.nextflow.service.impl;
+package uk.ac.ebi.spot.gwas.submission.service.impl;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.CuratorTrackingRepository;
-import uk.ac.ebi.spot.gwas.submission.nextflow.service.CuratorTrackingService;
+import uk.ac.ebi.spot.gwas.submission.oracle.repository.CuratorTrackingRepository;
+import uk.ac.ebi.spot.gwas.submission.service.CuratorTrackingService;
 
 @Service
 public class CuratorTrackingServiceImpl implements CuratorTrackingService {
@@ -15,7 +13,6 @@ public class CuratorTrackingServiceImpl implements CuratorTrackingService {
         this.curatorTrackingRepository = curatorTrackingRepository;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     public void deleteCuratorTrackingHistory(Long studyId) {
         curatorTrackingRepository.deleteAll(curatorTrackingRepository.findByStudyId(studyId));
     }

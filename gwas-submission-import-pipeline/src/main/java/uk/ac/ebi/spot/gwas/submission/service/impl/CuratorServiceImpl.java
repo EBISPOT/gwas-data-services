@@ -17,4 +17,8 @@ public class CuratorServiceImpl implements CuratorService {
     public Curator findById(String curatorId) {
         return curatorRepository.findById(curatorId).orElse(null);
     }
+
+    public Curator findByEmail(String email) {
+        return curatorRepository.findByEmail(email).orElse(null);
+    }
 }

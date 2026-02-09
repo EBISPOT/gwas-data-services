@@ -1,15 +1,11 @@
 package uk.ac.ebi.spot.gwas.submission.nextflow.service.impl;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.deposition.domain.Note;
-import uk.ac.ebi.spot.gwas.deposition.domain.Sample;
 import uk.ac.ebi.spot.gwas.model.*;
 import uk.ac.ebi.spot.gwas.submission.nextflow.mongo.repository.NoteMongoRepository;
 import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.NoteRepository;
 import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.NoteSubjectRepository;
-import uk.ac.ebi.spot.gwas.submission.nextflow.service.CuratorService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.NoteService;
 
 import java.util.List;
@@ -23,6 +19,7 @@ public class NoteServiceImpl implements NoteService {
 
     NoteMongoRepository noteMongoRepository;
 
+
     public NoteServiceImpl(NoteRepository noteRepository,
                            NoteSubjectRepository noteSubjectRepository,
                            NoteMongoRepository noteMongoRepository) {
@@ -31,10 +28,6 @@ public class NoteServiceImpl implements NoteService {
         this.noteMongoRepository = noteMongoRepository;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public void deleteNotesByStudyId(Long studyId) {
-        noteRepository.deleteAll(noteRepository.findByStudyId(studyId));
-    }
 
 
     public StudyNote createStudyNote(Study study, Note note, Curator curator) {

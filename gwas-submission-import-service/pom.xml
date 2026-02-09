@@ -147,7 +147,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <outputDirectory>${project.basedir}/target</outputDirectory>
-                    <finalName>gwas-submission-import-pipeline</finalName>
+                    <finalName>gwas-submission-import-service</finalName>
                 </configuration>
                 <executions>
                     <execution>

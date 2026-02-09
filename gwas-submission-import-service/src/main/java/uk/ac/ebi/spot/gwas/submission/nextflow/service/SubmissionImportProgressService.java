@@ -5,11 +5,15 @@ import java.util.List;
 public interface SubmissionImportProgressService {
 
 
-    void importSubmission(String submissionId,
+    Integer importSubmission(String submissionId,
                           List<String> studyIds,
                           String curatorEmail,
                           String pmid);
 
+    Integer publishSummaryStats(String submissionId,
+                            List<String> studyIds,
+                            String pmid);
 
-    void deleteStudiesForPublication(List<String> studyIds) ;
+
+    void savePmidReporting(String submissionId, Integer studiesImported);
 }

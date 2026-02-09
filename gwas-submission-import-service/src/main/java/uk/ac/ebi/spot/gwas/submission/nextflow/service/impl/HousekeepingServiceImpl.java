@@ -6,8 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.model.CurationStatus;
 import uk.ac.ebi.spot.gwas.model.Curator;
 import uk.ac.ebi.spot.gwas.model.Housekeeping;
-import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.CurationStatusRepository;
-import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.CuratorRepository;
 import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.HousekeepingRepository;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.CurationStatusService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.CuratorService;
@@ -39,7 +37,7 @@ public class HousekeepingServiceImpl implements HousekeepingService {
         Housekeeping housekeeping = new Housekeeping();
         Date studyAddedDate = new Date();
         housekeeping.setStudyAddedDate(studyAddedDate);
-        CurationStatus curationStatus = curationStatusService.findByStatus("Level 1 curation done");
+        CurationStatus curationStatus = curationStatusService.findByStatus("Level 2 curation done");
         housekeeping.setCurationStatus(curationStatus);
 
         Curator curator = curatorService.findByLastName("Level 2 Curator");

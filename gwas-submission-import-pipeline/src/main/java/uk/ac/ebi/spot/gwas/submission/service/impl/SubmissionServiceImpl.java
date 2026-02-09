@@ -1,19 +1,14 @@
 package uk.ac.ebi.spot.gwas.submission.service.impl;
 
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import uk.ac.ebi.spot.gwas.deposition.domain.Association;
-import uk.ac.ebi.spot.gwas.deposition.domain.Publication;
-import uk.ac.ebi.spot.gwas.deposition.domain.Study;
-import uk.ac.ebi.spot.gwas.deposition.domain.Submission;
+import uk.ac.ebi.spot.gwas.deposition.domain.*;
 import uk.ac.ebi.spot.gwas.submission.constants.SubmissionType;
 import uk.ac.ebi.spot.gwas.submission.mongo.repository.SubmissionRepository;
-import uk.ac.ebi.spot.gwas.submission.service.AssociationService;
-import uk.ac.ebi.spot.gwas.submission.service.PublicationService;
-import uk.ac.ebi.spot.gwas.submission.service.StudiesService;
-import uk.ac.ebi.spot.gwas.submission.service.SubmissionService;
+import uk.ac.ebi.spot.gwas.submission.service.*;
 
 @Service
 public class SubmissionServiceImpl implements SubmissionService {
@@ -26,13 +21,18 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     AssociationService associationService;
 
+    UserDetailsService userDetailsService;
+
     public SubmissionServiceImpl(SubmissionRepository submissionRepository,
                                  PublicationService publicationService,
                                  StudiesService studiesService,
-                                 AssociationService associationService) {
+                                 AssociationService associationService,
+                                 UserDetailsService userDetailsService) {
         this.submissionRepository = submissionRepository;
         this.publicationService = publicationService;
         this.studiesService = studiesService;
+        this.associationService = associationService;
+        this.userDetailsService = userDetailsService;
     }
 
     public Submission findById(String submissionId) {
@@ -78,6 +78,15 @@ public class SubmissionServiceImpl implements SubmissionService {
            }
         }
         return SubmissionType.UNKNOWN;
+    }
+
+
+    public void updateSubmissionStatus(String submissionId, String status, String email) {
+        Submission submission = findById(submissionId);
+        User user = userDetailsService.findUserByEmail(email);
+        submission.setOverallStatus(status);
+        submission.setLastUpdated(new Provenance(DateTime.now(), user.getId()));
+        submissionRepository.save(submission);
     }
 
 

@@ -1,9 +1,6 @@
 package uk.ac.ebi.spot.gwas.submission.nextflow.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +14,7 @@ import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.StudyExtensionR
 import uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository.StudyRepository;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.*;
 
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -26,11 +23,6 @@ public class StudiesServiceImpl implements StudiesService {
     StudyRepository studyRepository;
 
     AssociationService associationService;
-
-
-    AncestryService ancestryService;
-
-    CuratorTrackingService curatorTrackingService;
 
     NoteService noteService;
 
@@ -43,82 +35,29 @@ public class StudiesServiceImpl implements StudiesService {
 
     SampleService sampleService;
 
-    StudiesRetrieveService studiesRetrieveService;
+
 
     public StudiesServiceImpl(StudyRepository studyRepository,
                               StudyMongoRepository studyMongoRepository,
                               AssociationService associationService,
-                              AncestryService ancestryService,
-                              CuratorTrackingService curatorTrackingService,
                               NoteService noteService,
                               StudyExtensionRepository studyExtensionRepository,
                               StudyAssemblyService studyAssemblyService,
-                              SampleService sampleService,
-                              StudiesRetrieveService studiesRetrieveService) {
+                              SampleService sampleService) {
         this.studyRepository = studyRepository;
         this.studyMongoRepository = studyMongoRepository;
         this.associationService = associationService;
-        this.ancestryService = ancestryService;
-        this.curatorTrackingService = curatorTrackingService;
         this.noteService = noteService;
         this.studyExtensionRepository = studyExtensionRepository;
         this.studyAssemblyService = studyAssemblyService;
         this.sampleService = sampleService;
-        this.studiesRetrieveService = studiesRetrieveService;
     }
 
-
-
-    @Transactional(readOnly = true)
-    public Long countStudies(String pmid) {
-        return studyRepository.countByPublicationIdPubmedId(pmid);
-    }
 
     public uk.ac.ebi.spot.gwas.deposition.domain.Study getMongoStudy(String studyId) {
         return studyMongoRepository.findById(studyId).orElse(null);
     }
 
-    @Transactional(readOnly = true)
-    public List<Study> findByAccessionIds(List<String> accessionIds) {
-        return studyRepository.findByAccessionIdIn(accessionIds);
-    }
-
-
-    //@Transactional
-    public void deleteStudiesForPublication(List<String> accessionIds) {
-      //Long count = studiesRetrieveService.countStudies(publicationId);
-      //log.info("The count of studies for publication id {} {}", publicationId, count);
-      //long bucket = (count/100);
-      //for(int i = 0 ; i <= bucket ; i++) {
-          //Pageable pageable = PageRequest.of(i , 100);
-          //Page<Study> pagedStudies = studiesRetrieveService.getStudies(publicationId, pageable);
-        List<Study> pagedStudies = studiesRetrieveService.findByAccessionIds(accessionIds);
-          pagedStudies.forEach(study -> {
-              deleteChildrenByStudyId(study.getId());
-              deleteStudy(study.getId());
-          });
-         // }
-      }
-
-
-
-    public void deleteStudy(Long studyId) {
-        log.info("Inside delete study");
-        studyRepository.deleteById(studyId);//studyRepository.delete(Objects.requireNonNull(studyRepository.findById(studyId).orElse(null)));
-    }
-
-
-    public void deleteChildrenByStudyId(Long studyId) {
-        log.info("Inside delete children for studies");
-        associationService.deleteAssociation(studyId);
-        ancestryService.deleteAncestries(studyId);
-        curatorTrackingService.deleteCuratorTrackingHistory(studyId);
-        noteService.deleteNotesByStudyId(studyId);
-    }
-
-    public void saveStudy(Study study) {
-        studyRepository.save(study);
-    }
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public Study processStudy(uk.ac.ebi.spot.gwas.deposition.domain.Study mongoStudy,
@@ -129,6 +68,7 @@ public class StudiesServiceImpl implements StudiesService {
             study.setOpenTargets(publication.isOpenTargets());
             study.setUserRequested(publication.isUserRequested());
             StudyExtension studyExtension = studyAssemblyService.assembleStudyExtension(mongoStudy);
+            study.getHousekeeping().setCurator(curator);
             studyRepository.save(study);
             studyExtension.setStudy(study);
             studyExtensionRepository.save(studyExtension);
@@ -145,17 +85,19 @@ public class StudiesServiceImpl implements StudiesService {
                 study.addNote(studyNote);
                 studyRepository.save(study);
             };
-
         return study;
     }
 
 
-    public void saveStudyExtension(StudyExtension studyExtension) {
-        studyExtensionRepository.save(studyExtension);
+    public void publishSummaryStats(uk.ac.ebi.spot.gwas.deposition.domain.Study mongoStudy, Publication publication) {
+
+      Study study = studyRepository.findByAccessionIdAndPublicationIdPubmedId(mongoStudy.getAccession()
+              , publication.getPubmedId()).orElse(null);
+      if(study != null) {
+          study.setFullPvalueSet(true);
+          studyRepository.save(study);
+      }
     }
-
-
-
 }
 
 

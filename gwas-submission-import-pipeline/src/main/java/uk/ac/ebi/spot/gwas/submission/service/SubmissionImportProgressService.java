@@ -6,5 +6,7 @@ public interface SubmissionImportProgressService {
 
     Boolean checkSubmissionExists(String submissionId);
 
-    void saveNewSubmission(String submissionId, Curator curator);
+    void saveNewSubmission(String submissionId, String curatorEmail);
+
+    void deleteSubmissionInProgressEntry(String submissionId);
 }

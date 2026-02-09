@@ -1,4 +1,4 @@
-package uk.ac.ebi.spot.gwas.submission.nextflow.oracle.repository;
+package uk.ac.ebi.spot.gwas.submission.oracle.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import uk.ac.ebi.spot.gwas.model.CuratorTracking;

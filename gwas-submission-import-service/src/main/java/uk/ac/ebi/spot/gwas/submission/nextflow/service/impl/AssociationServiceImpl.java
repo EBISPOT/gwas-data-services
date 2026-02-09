@@ -1,11 +1,7 @@
 package uk.ac.ebi.spot.gwas.submission.nextflow.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.deposition.domain.Association;
 import uk.ac.ebi.spot.gwas.model.AssociationExtension;
 import uk.ac.ebi.spot.gwas.model.Study;
@@ -38,6 +34,7 @@ public class AssociationServiceImpl implements AssociationService {
 
     SnpService snpService;
 
+
     public AssociationServiceImpl(AssociationRepository associationRepository,
                                   AssociationMongoRepository associationMongoRepository,
                                   LociAttributesService lociAttributesService,
@@ -52,16 +49,6 @@ public class AssociationServiceImpl implements AssociationService {
         this.snpService = snpService;
     }
 
-    @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public void deleteAssociation(Long studyId) {
-        Long totalAsscns = associationRepository.countByStudyId(studyId);
-        Long bucket = totalAsscns/1000;
-        for(int i = 0; i <= bucket; i++) {
-            Pageable pageable = PageRequest.of(i, 1000);
-            associationRepository.deleteAll(associationRepository.findByStudyId(studyId, pageable));
-        }
-    }
 
     public void saveAssociations(List<Association> associations, Study study) {
         for (Association mongoAssociation : associations) {

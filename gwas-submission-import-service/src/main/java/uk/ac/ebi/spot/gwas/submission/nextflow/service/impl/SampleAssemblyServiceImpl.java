@@ -8,7 +8,6 @@ import uk.ac.ebi.spot.gwas.model.Ancestry;
 import uk.ac.ebi.spot.gwas.model.AncestryExtension;
 import uk.ac.ebi.spot.gwas.model.Country;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.AncestralGroupService;
-import uk.ac.ebi.spot.gwas.submission.nextflow.service.AncestryService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.CountryService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.SampleAssemblyService;
 
