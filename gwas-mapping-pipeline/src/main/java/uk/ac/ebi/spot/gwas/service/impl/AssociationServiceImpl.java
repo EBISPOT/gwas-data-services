@@ -16,6 +16,7 @@ import uk.ac.ebi.spot.gwas.repository.SingleNucleotidePolymorphismRepository;
 import uk.ac.ebi.spot.gwas.service.AssociationService;
 import uk.ac.ebi.spot.gwas.service.FileHandlerService;
 import uk.ac.ebi.spot.gwas.service.MappingJobSubmitterService;
+import uk.ac.ebi.spot.gwas.service.PmidReportingService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,6 +41,11 @@ public class AssociationServiceImpl implements AssociationService {
     FileHandlerService fileHandlerService;
     @Autowired
     SingleNucleotidePolymorphismRepository singleNucleotidePolymorphismRepository;
+
+    @Autowired
+    PmidReportingService pmidReportingService;
+
+
     @Transactional(readOnly = true)
     public Set<Association> getAssociationBasedOnRsId(String rsId) {
         log.info("Rsid is ->"+rsId);
@@ -85,10 +91,18 @@ public class AssociationServiceImpl implements AssociationService {
                     .stream().map(Association::getId)
                     .collect(Collectors.toList());
             updateMappingDetails(asscns);
-            mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-"+i);
+            mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-"+i, "full",null);
         }
     }
 
+    public void mapAssociationsBasedOnPmid(String pmid, String submissionId,  String outputDir, String errorDir, String mode) {
+      List<Long> asscnIds = associationRepository.findAssociationIdsByPmid(pmid);
+      int executorIndex = 0;
+      for(List<Long> partAsscnIds : ListUtils.partition(asscnIds, 1000)) {
+          mappingJobSubmitterService.executePipeline(partAsscnIds, outputDir, errorDir, "executor-"+executorIndex, mode, submissionId);
+          executorIndex++;
+      }
+    }
 
     public void findAssociationMappingError() {
       List<String> assncIds =  fileHandlerService.readFileInput("/Users/sajo/Documents/proj_files/Association-error-mapping.tsv");
@@ -159,7 +173,7 @@ public class AssociationServiceImpl implements AssociationService {
                     .stream().map(Association::getId)
                     .collect(Collectors.toList());
             //updateMappingDetails(asscns);
-            mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-" + pool);
+            mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-" + pool, "schedule", null);
             count = countAssociationsWithMappingDateNull();
             pool++;
         }
@@ -168,6 +182,16 @@ public class AssociationServiceImpl implements AssociationService {
 
     private Long countAssociationsWithMappingDateNull(){
         return associationRepository.countByLastMappingDateIsNull();
+    }
+
+    @Transactional
+    public void savePmidReporting(String submissionId, String status) {
+        pmidReportingService.save(submissionId, status);
+    }
+
+    @Transactional
+    public PmidImportReporting savePmidReporting(PmidImportReporting pmidImportReporting) {
+        return pmidReportingService.save(pmidImportReporting);
     }
 
 }

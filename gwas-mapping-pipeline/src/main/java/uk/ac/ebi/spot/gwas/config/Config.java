@@ -9,6 +9,9 @@ public class Config {
     @Value("${script}")
     private String script;
 
+    @Value("${pmid.script}")
+    private String pmidScript;
+
     @Value("${executor.thread-pool.count}")
     private Integer threadPool;
 
@@ -20,6 +23,9 @@ public class Config {
 
     @Value("${slurm.logslocation}")
     private String slurmLogsLocation;
+
+    @Value("${slurm.pmid.logslocation}")
+    private String pmidSlurmLogsLocation;
 
     public String getActiveProfile() {
         return activeProfile;
@@ -55,6 +61,18 @@ public class Config {
 
     public String getSlurmLogsLocation() {
         return slurmLogsLocation;
+    }
+
+    public String getPmidScript() {
+        return pmidScript;
+    }
+
+    public void setPmidScript(String pmidScript) {
+        this.pmidScript = pmidScript;
+    }
+
+    public String getPmidSlurmLogsLocation() {
+        return pmidSlurmLogsLocation;
     }
 }
 

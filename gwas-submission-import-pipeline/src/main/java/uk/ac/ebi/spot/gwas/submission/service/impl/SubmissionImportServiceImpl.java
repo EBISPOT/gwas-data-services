@@ -121,8 +121,8 @@ public class SubmissionImportServiceImpl implements SubmissionImportService {
     }
 
     @Transactional
-    public void savePmidReporting(PmidImportReporting pmidImportReporting) {
-        pmidImportReportingService.save(pmidImportReporting);
+    public PmidImportReporting savePmidReporting(PmidImportReporting pmidImportReporting) {
+       return pmidImportReportingService.save(pmidImportReporting);
     }
 
 

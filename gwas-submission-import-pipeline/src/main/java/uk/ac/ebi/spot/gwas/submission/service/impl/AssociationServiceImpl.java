@@ -30,7 +30,7 @@ public class AssociationServiceImpl implements AssociationService {
     }
 
     public Long findBySubmissionId(String submissionId) {
-        return associationRepository.findBySubmissionId(submissionId).count();
+        return associationRepository.countAssociationsBySubmissionId(submissionId);
     }
 
     public Boolean checkAssociationExists(String submissionId) {

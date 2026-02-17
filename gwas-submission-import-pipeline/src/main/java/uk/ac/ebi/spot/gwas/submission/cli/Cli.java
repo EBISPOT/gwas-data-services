@@ -19,6 +19,7 @@ import uk.ac.ebi.spot.gwas.submission.util.EmailHelperUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -41,6 +42,9 @@ public class Cli implements CommandLineRunner {
 
     @Autowired
     StudiesService studiesService;
+
+    @Autowired
+    AssociationService associationService;
 
     @Autowired
     UnpublishedStudiesService unpublishedStudiesService;
@@ -66,23 +70,26 @@ public class Cli implements CommandLineRunner {
         List<PmidImportReporting> pmidImportReportingsInProgress = pmidImportReportingService.findByStatus(PmidReportingStatus.IMPORT_IN_PROGRESS.name());
         if(pmidImportReportingsInProgress != null && !pmidImportReportingsInProgress.isEmpty()) {
             if(pmidImportReportingsInProgress.size() > 1) {
-                log.error("Submission Import limit reached , Please wait for some time one of the submission finishes");
+                log.error("Submission Import limit reached , Please wait for some time until one of the submission finishes");
                 throw new SlurmProcessException("Submission Import limit reached , Please wait for some time one of the submission finishes");
             }
         }
 
         List<PmidImportReporting> pmidImportReportings = pmidImportReportingService.findByStatus(PmidReportingStatus.IMPORT_PENDING.name());
         for(List<PmidImportReporting> pmidImportReportingPartition : ListUtils.partition(pmidImportReportings, 2)) {
+            List<PmidImportReporting> updatedPmidImportReportingPartition = new ArrayList<>();
             for(PmidImportReporting pmidImportReporting : pmidImportReportingPartition) {
                 try {
                     submissionId = pmidImportReporting.getSubmissionId();
                     curatorEmail = pmidImportReporting.getCuratorEmail();
                     Long totalStudies = studiesService.findBySubmissionId(pmidImportReporting.getSubmissionId());
+                    Long associationsTotal = associationService.findBySubmissionId(pmidImportReporting.getSubmissionId());
                     pmidImportReporting.setStatus(PmidReportingStatus.IMPORT_IN_PROGRESS.name());
                     pmidImportReporting.setStudiesTotal(totalStudies.intValue());
+                    pmidImportReporting.setAssociationTotal(associationsTotal.intValue());
                     pmidImportReporting.setStartDate(new Date());
                     log.info("Calling pmidImportReporting with status  IN_PROGRESS");
-                    submissionImportService.savePmidReporting(pmidImportReporting);
+                    updatedPmidImportReportingPartition.add(submissionImportService.savePmidReporting(pmidImportReporting));
                 }catch(Exception ex) {
                     log.error("Exception in import submission"+ex.getMessage(),ex);
                     failed = true;
@@ -94,8 +101,8 @@ public class Cli implements CommandLineRunner {
                     log.info("Sending Email content end");
                 }
             };
-            pmidImportReportingPartition.sort(Comparator.comparing(PmidImportReporting::getStudiesTotal));
-            for (PmidImportReporting pmidImportReporting : pmidImportReportingPartition) {
+            updatedPmidImportReportingPartition.sort(Comparator.comparing(PmidImportReporting::getStudiesTotal));
+            for (PmidImportReporting pmidImportReporting : updatedPmidImportReportingPartition) {
                 try {
                     submissionId = pmidImportReporting.getSubmissionId();
                     curatorEmail = pmidImportReporting.getCuratorEmail();

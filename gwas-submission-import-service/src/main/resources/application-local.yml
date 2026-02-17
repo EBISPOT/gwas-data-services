@@ -22,7 +22,7 @@ spring:
       hibernate:
         jdbc:
           batch_size: 10
-        #show_sql: true
+        show_sql: true
 
 executor:
   thread-pool:

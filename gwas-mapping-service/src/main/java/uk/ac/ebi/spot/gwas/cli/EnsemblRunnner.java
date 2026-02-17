@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.config.AppConfig;
 import uk.ac.ebi.spot.gwas.common.constant.OperationMode;
+import uk.ac.ebi.spot.gwas.common.model.Study;
+import uk.ac.ebi.spot.gwas.common.service.PmidImportReportingService;
+import uk.ac.ebi.spot.gwas.common.service.StudiesService;
 import uk.ac.ebi.spot.gwas.ensembl_data.EnsemblData;
 import uk.ac.ebi.spot.gwas.mapping.MappingSavingService;
 import uk.ac.ebi.spot.gwas.mapping.MappingService;
@@ -41,6 +44,12 @@ public class EnsemblRunnner {
     private final MappingSavingService dataSavingService;
     @Autowired
     private AssociationService associationService;
+
+    @Autowired
+    PmidImportReportingService pmidImportReportingService;
+
+    @Autowired
+    StudiesService studiesService;
 
     //@Autowired
     //private AppConfig config;
@@ -93,12 +102,29 @@ public class EnsemblRunnner {
         this.mapAssociations(mode, associations, ensemblData);
     }
 
+
+
     public void mapAssociationList(List<Long> associationIds) {
         OperationMode mode = OperationMode.MAP_SOME_SNPS_INDB;
         List<Association> associations = associationService.getAssociations(associationIds);
         log.info("associations size"+associations.size());
         this.mapAssociations(mode, associations, ensemblData);
     }
+
+    @Transactional
+    public void approveSnpList(List<Long> associationIds) {
+        List<Association> associations = associationService.getAssociations(associationIds);
+        log.info("associations size"+associations.size());
+        associationService.approveSnps(associations);
+    }
+
+    @Transactional
+    public void publishStudies(List<Long> studyIds) {
+        List<Study> studies = studiesService.getStudies(studyIds);
+        log.info("publish studies  size"+studies.size());
+        studiesService.publishStudies(studies);
+    }
+
 
     //@Transactional(propagation = Propagation.SUPPORTS)
     public void mapAssociations(OperationMode mode,
@@ -131,5 +157,10 @@ public class EnsemblRunnner {
 
         log.info("Total Association mapping time {}", (System.currentTimeMillis() - start));
         log.trace(String.valueOf(mappingDtoList));
+    }
+
+    @Transactional
+    public void savePmidReporting(String submissionId, Integer asscnsMapped, String executionMode) {
+        pmidImportReportingService.savePmidReporting(submissionId, asscnsMapped, executionMode);
     }
 }

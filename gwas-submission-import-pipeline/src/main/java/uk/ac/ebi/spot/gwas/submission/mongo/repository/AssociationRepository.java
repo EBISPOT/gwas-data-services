@@ -12,4 +12,6 @@ public interface AssociationRepository extends MongoRepository<Association, Stri
     Page<Association> findBySubmissionId(String submissionId, Pageable pageable);
 
     Stream<Association> findBySubmissionId(String submissionId);
+
+    Long countAssociationsBySubmissionId(String submissionId);
 }

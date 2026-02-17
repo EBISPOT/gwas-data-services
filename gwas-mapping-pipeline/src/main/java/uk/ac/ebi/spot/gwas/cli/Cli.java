@@ -1,23 +1,22 @@
 package uk.ac.ebi.spot.gwas.cli;
 
 import org.apache.commons.cli.*;
+import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.spot.gwas.exception.SlurmProcessException;
 import uk.ac.ebi.spot.gwas.model.Association;
-import uk.ac.ebi.spot.gwas.service.AssociationService;
-import uk.ac.ebi.spot.gwas.service.FileHandlerService;
-import uk.ac.ebi.spot.gwas.service.MappingJobSubmitterService;
+import uk.ac.ebi.spot.gwas.model.PmidImportReporting;
+import uk.ac.ebi.spot.gwas.service.*;
 import uk.ac.ebi.spot.gwas.util.CommandUtil;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -45,8 +44,14 @@ public class Cli implements CommandLineRunner {
     @Autowired
     FileHandlerService fileHandlerService;
 
+    @Autowired
+    PmidReportingService pmidReportingService;
+
+    @Autowired
+    StudiesService studiesService;
+
     @Override
-    public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException {
+    public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException, Exception {
        // CommandLine commandLine = parser.parse(options, args, true);
         CommandLine commandLine = parseArguments(args);
         Boolean mode = commandLine.hasOption(CommandUtil.EXEC_MODE_OPT);
@@ -71,6 +76,105 @@ public class Cli implements CommandLineRunner {
                 associationService.fullRemapping(outputDir, errorDir);
             }else if(executionMode.equals("mapping-error-list")) {
                 associationService.findAssociationMappingError();
+            }else if(executionMode.equals("auto-import") || executionMode.equals("approve-snps") || executionMode.equals("publish-studies")) {
+                Boolean failed = false;
+                List<PmidImportReporting> pmidImportReportingsInProgress = null;
+                if(executionMode.equals("auto-import")) {
+                    pmidImportReportingsInProgress = pmidReportingService.findByStatus("MAPPING_IN_PROGRESS");
+                } else if(executionMode.equals("publish-studies")) {
+                    pmidImportReportingsInProgress = pmidReportingService.findByStatus("PUBLISH_IN_PROGRESS");
+                } else {
+                    pmidImportReportingsInProgress = pmidReportingService.findByStatus("SNP_APPROVAL_IN_PROGRESS");
+                }
+                if(pmidImportReportingsInProgress != null && !pmidImportReportingsInProgress.isEmpty()) {
+                    if(pmidImportReportingsInProgress.size() > 1) {
+                        if(executionMode.equals("auto-import")) {
+                            log.error("Mapping  limit reached , Please wait for some time until one of the mapping finishes");
+                            throw new SlurmProcessException("Mapping  limit reached , Please wait for some time one of the submission finishes");
+                        }else if(executionMode.equals("publish-studies")) {
+                            log.error("Publish Studies limit reached , Please wait for some time until one of the mapping finishes");
+                            throw new SlurmProcessException("Publish Studie limit reached , Please wait for some time one of the submission finishes");
+                        }else {
+                            log.error("Snp Approval  limit reached , Please wait for some time until one of the Snp Approval finishes");
+                            throw new SlurmProcessException("Snp Approval limit reached , Please wait for some time one of the submission finishes");
+                        }
+                    }
+                }
+                List<PmidImportReporting> pmidImportReportings = null;
+                if(executionMode.equals("auto-import")) {
+                    pmidImportReportings = pmidReportingService.findByStatus("IMPORT_COMPLETED");
+                }else if(executionMode.equals("publish-studies")) {
+                    pmidImportReportings = pmidReportingService.findByStatus("SNP_APPROVAL_COMPLETED");
+                }  else {
+                    pmidImportReportings = pmidReportingService.findByStatus("MAPPING_COMPLETED");
+                }
+                for(List<PmidImportReporting> pmidImportReportingPartition : ListUtils.partition(pmidImportReportings, 2)) {
+                    List<PmidImportReporting> updatedPmidImportReportingPartition = new ArrayList<>();
+                    for (PmidImportReporting pmidImportReporting : pmidImportReportingPartition) {
+                        if(executionMode.equals("auto-import")) {
+                            pmidImportReporting.setStatus("MAPPING_IN_PROGRESS");
+                        }else if(executionMode.equals("publish-studies")) {
+                            pmidImportReporting.setStatus("PUBLISH_IN_PROGRESS");
+                        }else {
+                            pmidImportReporting.setStatus("SNP_APPROVAL_IN_PROGRESS");
+                        }
+                        updatedPmidImportReportingPartition.add(associationService.savePmidReporting(pmidImportReporting));
+                    }
+                    if(executionMode.equals("auto-import") || executionMode.equals("approve-snps")) {
+                        updatedPmidImportReportingPartition.sort(Comparator.comparing(PmidImportReporting::getAssociationTotal));
+                    } else {
+                        updatedPmidImportReportingPartition.sort(Comparator.comparing(PmidImportReporting::getStudiesTotal));
+                    }
+                    for (PmidImportReporting pmidImportReporting : updatedPmidImportReportingPartition) {
+                        String pmid = pmidImportReporting.getPublication().getPubmedId();
+                        String submissionId = pmidImportReporting.getSubmissionId();
+                        log.info("Pmid to map assciation is {}", pmid);
+                        try {
+                            if(executionMode.equals("auto-import") || executionMode.equals("approve-snps")) {
+                                associationService.mapAssociationsBasedOnPmid(pmid, submissionId, outputDir, errorDir, executionMode);
+                            } else {
+                                studiesService.publishStudiesForPmid(pmid, submissionId, outputDir, errorDir, executionMode);
+                            }
+                            if(executionMode.equals("auto-import")) {
+                                associationService.savePmidReporting(submissionId, "MAPPING_COMPLETED");
+                            } else if(executionMode.equals("publish-studies")) {
+                                associationService.savePmidReporting(submissionId, "PUBLISH_COMPLETED");
+                            } else {
+                                associationService.savePmidReporting(submissionId, "SNP_APPROVAL_COMPLETED");
+                            }
+                        } catch (SlurmProcessException ex) {
+                            failed = true;
+                            if(executionMode.equals("auto-import")) {
+                                associationService.savePmidReporting(submissionId, "MAPPING_FAILED");
+                                log.error("SlurmProcessException in mapping pipeline "+ex.getMessage(),ex);
+                            } else if(executionMode.equals("publish-studies")) {
+                                associationService.savePmidReporting(submissionId, "PUBLISH_FAILED");
+                                log.error("SlurmProcessException in published studies "+ex.getMessage(),ex);
+                            } else {
+                                associationService.savePmidReporting(submissionId, "SNP_APPROVAL_FAILED");
+                                log.error("SlurmProcessException in snp approval "+ex.getMessage(),ex);
+                            }
+
+                        } catch (Exception ex) {
+                            failed = true;
+                            if(executionMode.equals("auto-import")) {
+                                associationService.savePmidReporting(submissionId, "MAPPING_FAILED");
+                                log.error("SlurmProcessException in mapping pipeline "+ex.getMessage(),ex);
+                            }else if(executionMode.equals("publish-studies")) {
+                                associationService.savePmidReporting(submissionId, "PUBLISH_FAILED");
+                                log.error("SlurmProcessException in published studies "+ex.getMessage(),ex);
+                            }
+                            else{
+                                associationService.savePmidReporting(submissionId, "SNP_APPROVAL_FAILED");
+                                log.error("SlurmProcessException in snp approval "+ex.getMessage(),ex);
+                            }
+                            log.error("Exception in Snp Approval"+ex.getMessage(),ex);
+                        }
+                    }
+                }
+                if(failed) {
+                    throw new SlurmProcessException("SlurmProcessException in importing submissions");
+                }
             } else {
                 asscns = Arrays.asList(rsIds).stream()
                         .map(associationService::getAssociationBasedOnRsId)
@@ -81,9 +185,11 @@ public class Cli implements CommandLineRunner {
                         .flatMap(asscnIds -> asscnIds.stream())
                         .collect(Collectors.toList());
             }
-            if( !executionMode.equals("full") && !executionMode.equals("schedule") && !executionMode.equals("mapping-error-list")) {
+            if( !executionMode.equals("full") && !executionMode.equals("schedule")
+                    && !executionMode.equals("mapping-error-list") && !executionMode.equals("auto-import")
+                    && !executionMode.equals("approve-snps") && !executionMode.equals("publish-studies")) {
                 associationService.updateMappingDetails(asscns);
-                mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-1");
+                mappingJobSubmitterService.executePipeline(asscns, outputDir, errorDir, "executor-1", executionMode, null);
                 log.info("Total Association count to map is {}", asscns.size());
             }
             log.info("Mapping Pipeline took {} ms", (System.currentTimeMillis()- start));

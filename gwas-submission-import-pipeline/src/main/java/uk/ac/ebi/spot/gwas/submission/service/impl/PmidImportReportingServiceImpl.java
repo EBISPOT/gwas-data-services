@@ -37,8 +37,8 @@ public class PmidImportReportingServiceImpl implements PmidImportReportingServic
     }
 
 
-    public void save(PmidImportReporting pmidImportReporting) {
-        pmidImportReportingRepository.save(pmidImportReporting);
+    public PmidImportReporting save(PmidImportReporting pmidImportReporting) {
+        return pmidImportReportingRepository.save(pmidImportReporting);
     }
 
 

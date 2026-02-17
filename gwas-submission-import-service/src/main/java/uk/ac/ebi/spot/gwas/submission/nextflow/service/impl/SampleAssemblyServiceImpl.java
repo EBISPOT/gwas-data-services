@@ -38,10 +38,13 @@ public class SampleAssemblyServiceImpl implements SampleAssemblyService {
         }
         List<Country> countryList = new ArrayList<>();
         String countryOfRecruitment = sample.getCountryRecruitement();
+        log.info("countryOfRecruitment is {}", countryOfRecruitment);
         if (countryOfRecruitment != null) {
             String[] countries = countryOfRecruitment.split("\\|");
             for (String country : countries) {
+                //log.info("country is {}", country);
                 Country country1 = countryService.findByCountryOfRecruitement(country);
+                //log.info("country1 is {}", country1.getCountryName());
                 if (country1 != null) {
                     countryList.add(country1);
                 } else {
