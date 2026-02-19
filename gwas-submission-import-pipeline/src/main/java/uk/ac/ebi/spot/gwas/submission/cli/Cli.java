@@ -76,9 +76,9 @@ public class Cli implements CommandLineRunner {
         }
 
         List<PmidImportReporting> pmidImportReportings = pmidImportReportingService.findByStatus(PmidReportingStatus.IMPORT_PENDING.name());
-        for(List<PmidImportReporting> pmidImportReportingPartition : ListUtils.partition(pmidImportReportings, 2)) {
+        //for(List<PmidImportReporting> pmidImportReportingPartition : ListUtils.partition(pmidImportReportings, 2)) {
             List<PmidImportReporting> updatedPmidImportReportingPartition = new ArrayList<>();
-            for(PmidImportReporting pmidImportReporting : pmidImportReportingPartition) {
+            for(PmidImportReporting pmidImportReporting : pmidImportReportings) {
                 try {
                     submissionId = pmidImportReporting.getSubmissionId();
                     curatorEmail = pmidImportReporting.getCuratorEmail();
@@ -100,9 +100,10 @@ public class Cli implements CommandLineRunner {
                     emailHelperUtil.sendMessage(emailContent.getLeft(), emailContent.getRight());
                     log.info("Sending Email content end");
                 }
-            };
+            }
             updatedPmidImportReportingPartition.sort(Comparator.comparing(PmidImportReporting::getStudiesTotal));
-            for (PmidImportReporting pmidImportReporting : updatedPmidImportReportingPartition) {
+            for(List<PmidImportReporting> pmidImportReportingPartition : ListUtils.partition(updatedPmidImportReportingPartition, 2)) {
+            for (PmidImportReporting pmidImportReporting : pmidImportReportingPartition) {
                 try {
                     submissionId = pmidImportReporting.getSubmissionId();
                     curatorEmail = pmidImportReporting.getCuratorEmail();

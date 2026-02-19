@@ -108,9 +108,8 @@ public class Cli implements CommandLineRunner {
                 }  else {
                     pmidImportReportings = pmidReportingService.findByStatus("MAPPING_COMPLETED");
                 }
-                for(List<PmidImportReporting> pmidImportReportingPartition : ListUtils.partition(pmidImportReportings, 2)) {
                     List<PmidImportReporting> updatedPmidImportReportingPartition = new ArrayList<>();
-                    for (PmidImportReporting pmidImportReporting : pmidImportReportingPartition) {
+                    for (PmidImportReporting pmidImportReporting : pmidImportReportings) {
                         if(executionMode.equals("auto-import")) {
                             pmidImportReporting.setStatus("MAPPING_IN_PROGRESS");
                         }else if(executionMode.equals("publish-studies")) {
@@ -125,7 +124,8 @@ public class Cli implements CommandLineRunner {
                     } else {
                         updatedPmidImportReportingPartition.sort(Comparator.comparing(PmidImportReporting::getStudiesTotal));
                     }
-                    for (PmidImportReporting pmidImportReporting : updatedPmidImportReportingPartition) {
+                    for(List<PmidImportReporting> pmidImportReportingPartition : ListUtils.partition(updatedPmidImportReportingPartition, 2)) {
+                    for (PmidImportReporting pmidImportReporting : pmidImportReportingPartition) {
                         String pmid = pmidImportReporting.getPublication().getPubmedId();
                         String submissionId = pmidImportReporting.getSubmissionId();
                         log.info("Pmid to map assciation is {}", pmid);
