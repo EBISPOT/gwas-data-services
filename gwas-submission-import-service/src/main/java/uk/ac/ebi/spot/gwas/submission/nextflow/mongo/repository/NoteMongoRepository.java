@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface NoteMongoRepository extends MongoRepository<Note, Long> {
 
-   List<Note> findBySubmissionIdAndStudyTag(String submissionId, String studyTag);
+   List<Note> findBySubmissionIdAndStudyTagIgnoreCase(String submissionId, String studyTag);
 }

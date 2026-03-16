@@ -96,12 +96,16 @@ public class AssociationServiceImpl implements AssociationService {
     }
 
     public void mapAssociationsBasedOnPmid(String pmid, String submissionId,  String outputDir, String errorDir, String mode) {
-      List<Long> asscnIds = associationRepository.findAssociationIdsByPmid(pmid);
-      int executorIndex = 0;
-      for(List<Long> partAsscnIds : ListUtils.partition(asscnIds, 1000)) {
-          mappingJobSubmitterService.executePipeline(partAsscnIds, outputDir, errorDir, "executor-"+executorIndex, mode, submissionId);
-          executorIndex++;
-      }
+        List<Long> asscnIds = associationRepository.findAssociationIdsByPmid(pmid);
+        int executorIndex = 0;
+        int partitionSize = 1000;
+        if(mode.equals("approve-snps") || mode.equals("publish-studies")) {
+            partitionSize = 100000;
+        }
+        for(List<Long> partAsscnIds : ListUtils.partition(asscnIds, partitionSize)) {
+            mappingJobSubmitterService.executePipeline(partAsscnIds, outputDir, errorDir, "executor-"+executorIndex, mode, submissionId);
+            executorIndex++;
+        }
     }
 
     public void findAssociationMappingError() {

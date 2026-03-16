@@ -46,8 +46,12 @@ public class MappingJobSubmitterServiceImpl implements MappingJobSubmitterServic
         DateFormat dateFormat = new SimpleDateFormat(   "yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         List<Future> futures = new ArrayList<>();
+        int partitionSize = config.getPartitionSize();
+        if(mode.equals("approve-snps") || mode.equals("publish-studies")) {
+            partitionSize = 1000;
+        }
         bsubLog.info("Bsub for Mapping Pipeline started at {}",dateFormat.format(date));
-        for(List<Long> partAsscnIds : ListUtils.partition(asscnIds, config.getPartitionSize())) {
+        for(List<Long> partAsscnIds : ListUtils.partition(asscnIds, partitionSize)) {
 
             List<String> partAssociations = partAsscnIds.stream().map(String::valueOf).collect(Collectors.toList());
             if(activeProfile.equals("cluster")) {

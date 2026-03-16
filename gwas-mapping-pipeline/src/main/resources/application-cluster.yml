@@ -11,6 +11,10 @@ spring:
     driver-class-name: oracle.jdbc.driver.OracleDriver
     hikari:
       maximumPoolSize: 80
+  data:
+    mongodb:
+      #uri: mongo-0.mongo.gwas-dev.svc.cluster.local,mongo-1.mongo.gwas-dev.svc.cluster.local,mongo-2.mongo.gwas-dev.svc.cluster.local:27017
+      uri: mongodb-hhvm-062.ebi.ac.uk:27017,mongodb-hxvm-063.ebi.ac.uk:27017/admin?replicaSet=gwasdepodevrs039
   jpa:
     hibernate:
       ddl-auto: none
@@ -31,6 +35,10 @@ association:
   partition:
     size: 
 
+
+mapping-pipeline:
+  mongo:
+    db: gwasdepo
 
 #script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-bjobs-mapper.sh
 script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-slurm-mapper.sh

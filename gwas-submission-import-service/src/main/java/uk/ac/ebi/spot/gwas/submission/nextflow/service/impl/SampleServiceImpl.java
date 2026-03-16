@@ -37,7 +37,7 @@ public class SampleServiceImpl implements SampleService {
     }
 
     public List<Sample> getSamples(String submissionId, String studyTag) {
-        return sampleMongoRepository.findBySubmissionIdAndStudyTag(submissionId, studyTag);
+        return sampleMongoRepository.findBySubmissionIdAndStudyTagIgnoreCase(submissionId, studyTag);
    }
 
    public void saveSamples(List<Sample> samples, Study study) {
@@ -47,6 +47,7 @@ public class SampleServiceImpl implements SampleService {
             ancestry.setStudy(study);
             ancestryRepository.save(ancestry);
             AncestryExtension ancestryExtension = sampleAssemblyService.assembleAncestryExtension(mongoSample);
+            ancestryExtension.setAncestry(ancestry);
             ancestryExtensionRepository.save(ancestryExtension);
             ancestry.setAncestryExtension(ancestryExtension);
             ancestryRepository.save(ancestry);

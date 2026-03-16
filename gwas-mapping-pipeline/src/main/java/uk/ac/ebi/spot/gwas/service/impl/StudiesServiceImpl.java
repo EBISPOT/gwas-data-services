@@ -25,7 +25,11 @@ public class StudiesServiceImpl implements StudiesService {
     public void publishStudiesForPmid(String pubmedId, String submissionId,  String outputDir, String errorDir, String mode) {
        List<Long> studyIds = studyRepository.findStudiesByPmid(pubmedId);
         int executorIndex = 0;
-        for(List<Long> partStudyIds : ListUtils.partition(studyIds, 1000)) {
+        int partitionSize = 1000;
+        if(mode.equals("approve-snps") || mode.equals("publish-studies")) {
+            partitionSize = 100000;
+        }
+        for(List<Long> partStudyIds : ListUtils.partition(studyIds, partitionSize)) {
             mappingJobSubmitterService.executePipeline(partStudyIds, outputDir, errorDir, "executor-"+executorIndex, mode, submissionId);
             executorIndex++;
         }

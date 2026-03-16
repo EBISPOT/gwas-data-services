@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface AssociationMongoRepository extends MongoRepository<Association, Long> {
 
- List<Association> findBySubmissionIdAndStudyTag(String submissionId , String studyTag);
+ List<Association> findBySubmissionIdAndStudyTagIgnoreCase(String submissionId , String studyTag);
 }

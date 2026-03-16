@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface SampleMongoRepository extends MongoRepository<Sample, String> {
 
- List<Sample> findBySubmissionIdAndStudyTag(String submissionId , String studyTag);
+ List<Sample> findBySubmissionIdAndStudyTagIgnoreCase(String submissionId , String studyTag);
 }

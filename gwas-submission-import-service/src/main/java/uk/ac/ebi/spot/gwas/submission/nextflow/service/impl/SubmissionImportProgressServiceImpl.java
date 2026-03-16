@@ -52,7 +52,9 @@ public class SubmissionImportProgressServiceImpl implements SubmissionImportProg
                 String accessionId = momngoStudy.getAccession();
                 log.info("Accession Id is {}", accessionId);
                 uk.ac.ebi.spot.gwas.model.Study study = studiesService.processStudy(momngoStudy, curator, publication, submission);
-                studiesImported++;
+                if(study != null) {
+                    studiesImported++;
+                }
             }
         }
         return studiesImported;

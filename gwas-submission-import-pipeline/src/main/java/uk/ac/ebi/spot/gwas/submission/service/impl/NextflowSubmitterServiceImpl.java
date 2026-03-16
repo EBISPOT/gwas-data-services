@@ -37,19 +37,29 @@ public class NextflowSubmitterServiceImpl implements NextflowSubmitterService {
     }
 
 
-    private void retryCommand(String command) throws SlurmProcessException{
-
+    private void retryCommand(String command) throws SlurmProcessException {
         int maxTries = nextFlowJobConfig.getRetries();
-        if(!command.contains("resume")){
-            command =  command.concat(" ").concat("-resume");
+
+
+        if(retryCount == 1) {
+            command = command.concat(" ").concat("-qs 2");
+        }else if(retryCount == 2) {
+            command = command.replace("-qs 2","-qs 1");
         }
+
+        if(!command.contains("resume")) {
+            command = command.concat(" ").concat("-resume");
+        }
+
+        log.info("Command for Nextflow after retry is is {}", command);
+
         while (retryCount <= maxTries) {
-                if(retryCount == maxTries) {
-                    log.error("Max retries of nextflow pipeline reached");
-                    throw new SlurmProcessException("Nextflow returned error status");
-                }
-                log.info("Retry counter for nextflow pipeline is {}", retryCount);
-                fireNextflowCommand(command);
+            if(retryCount == maxTries) {
+                log.error("Max retries of nextflow pipeline reached");
+                throw new SlurmProcessException("Nextflow returned error status");
+            }
+            log.info("Retry counter for nextflow pipeline is {}", retryCount);
+            fireNextflowCommand(command);
         }
     }
 

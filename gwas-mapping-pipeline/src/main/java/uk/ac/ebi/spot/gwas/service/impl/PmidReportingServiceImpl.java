@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.model.PmidImportReporting;
 import uk.ac.ebi.spot.gwas.repository.PmidImportReportingRepository;
 import uk.ac.ebi.spot.gwas.service.PmidReportingService;
+import uk.ac.ebi.spot.gwas.service.PublicationService;
 
 import java.util.Date;
 import java.util.List;
@@ -15,8 +16,12 @@ public class PmidReportingServiceImpl implements PmidReportingService {
 
     PmidImportReportingRepository pmidImportReportingRepository;
 
-    public PmidReportingServiceImpl(PmidImportReportingRepository pmidImportReportingRepository) {
+    PublicationService publicationService;
+
+    public PmidReportingServiceImpl(PmidImportReportingRepository pmidImportReportingRepository,
+                                    PublicationService publicationService) {
         this.pmidImportReportingRepository = pmidImportReportingRepository;
+        this.publicationService = publicationService;
     }
 
     public  PmidImportReporting findBySubmissionId(String submissionId) {
@@ -45,6 +50,7 @@ public class PmidReportingServiceImpl implements PmidReportingService {
         }
         if(status.equals("PUBLISH_COMPLETED")) {
             pmidImportReporting.setCompletionDate(new Date());
+            publicationService.updateCurationStatus(pmidImportReporting.getPublication().getPubmedId(), pmidImportReporting.getCuratorEmail());
         }
         pmidImportReportingRepository.save(pmidImportReporting);
     }

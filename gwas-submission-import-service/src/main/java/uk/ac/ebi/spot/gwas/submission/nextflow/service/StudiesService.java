@@ -5,6 +5,8 @@ import uk.ac.ebi.spot.gwas.model.Curator;
 import uk.ac.ebi.spot.gwas.model.Publication;
 import uk.ac.ebi.spot.gwas.model.Study;
 
+import java.util.List;
+
 public interface StudiesService {
 
 

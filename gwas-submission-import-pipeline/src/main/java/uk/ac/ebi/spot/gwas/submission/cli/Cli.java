@@ -19,10 +19,7 @@ import uk.ac.ebi.spot.gwas.submission.util.EmailHelperUtil;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j

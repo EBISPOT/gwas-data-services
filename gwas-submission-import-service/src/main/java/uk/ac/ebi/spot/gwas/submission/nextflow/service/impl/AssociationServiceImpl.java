@@ -69,6 +69,6 @@ public class AssociationServiceImpl implements AssociationService {
     }
 
     public List<Association> getAssociations(String submissionId, String studyTag) {
-        return associationMongoRepository.findBySubmissionIdAndStudyTag(submissionId, studyTag);
+        return associationMongoRepository.findBySubmissionIdAndStudyTagIgnoreCase(submissionId, studyTag);
     }
 }

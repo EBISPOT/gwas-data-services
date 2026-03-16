@@ -3,6 +3,7 @@ package uk.ac.ebi.spot.gwas.cli;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
@@ -89,14 +90,18 @@ public class Cli implements CommandLineRunner {
             case "publish-studies":
                 log.info("Publishing studies");
                 log.info("Publishing studies for association for submissionId is {}", submissionId);
-                ensemblRunnner.publishStudies(asscnIds);
-                ensemblRunnner.savePmidReporting(submissionId, asscnIds.size(), executionMode);
+                for(List<Long> partAsscnIds : ListUtils.partition(asscnIds, 30)) {
+                    ensemblRunnner.publishStudies(partAsscnIds);
+                    ensemblRunnner.savePmidReporting(submissionId, partAsscnIds.size(), executionMode);
+                }
                 break;
             case "approve-snps":
                 log.info("Approving  snps");
                 log.info("Approving  snps for association for submissionId is {}", submissionId);
-                ensemblRunnner.approveSnpList(asscnIds);
-                ensemblRunnner.savePmidReporting(submissionId, asscnIds.size(), executionMode);
+                for(List<Long> partAsscnIds : ListUtils.partition(asscnIds, 30)) {
+                    ensemblRunnner.approveSnpList(partAsscnIds);
+                    ensemblRunnner.savePmidReporting(submissionId, partAsscnIds.size(), executionMode);
+                }
                 break;
             default:
                 log.info("The mode value {} is not recognized", executionMode);

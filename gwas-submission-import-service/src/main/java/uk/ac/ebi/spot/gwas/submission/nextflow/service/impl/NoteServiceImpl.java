@@ -51,7 +51,7 @@ public class NoteServiceImpl implements NoteService {
 
 
     public List<Note> getNotes(String submissionId, String studyTag) {
-        return noteMongoRepository.findBySubmissionIdAndStudyTag(submissionId, studyTag);
+        return noteMongoRepository.findBySubmissionIdAndStudyTagIgnoreCase(submissionId, studyTag);
     }
 
 }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import uk.ac.ebi.spot.gwas.deposition.constants.SubmissionType;
-import uk.ac.ebi.spot.gwas.model.Study;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.SubmissionImportProgressService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.util.CommandUtil;
 
@@ -24,6 +23,7 @@ public class Cli implements CommandLineRunner {
 
     @Autowired
     SubmissionImportProgressService submissionImportProgressService;
+    
 
     private String studyIds = null;
     private String submissionId = null;
@@ -39,18 +39,18 @@ public class Cli implements CommandLineRunner {
         Date date = new Date();
         bsubLog.info("Submission Nextflow job started at {}", dateFormat.format(date));
         try {
-            Integer studiesImported = 0;
-            long start = System.currentTimeMillis();
-            for(String studyId : studyIds.split("_")){
-                log.info("StudyId is {}", studyId);
-            }
-            if(submissionType.equals(SubmissionType.SUMMARY_STATS.name())) {
-                studiesImported =  submissionImportProgressService.publishSummaryStats(submissionId, Arrays.asList(studyIds.split("_")), pmid);
-            } else {
-                studiesImported = submissionImportProgressService.importSubmission(submissionId, Arrays.asList(studyIds.split("_")), curatorEmail, pmid);
-            }
-            submissionImportProgressService.savePmidReporting(submissionId, studiesImported);
-            log.info("Total time taken to import {}", System.currentTimeMillis()- start);
+                Integer studiesImported = 0;
+                long start = System.currentTimeMillis();
+                for (String studyId : studyIds.split("_")) {
+                    log.info("StudyId is {}", studyId);
+                }
+                if (submissionType.equals(SubmissionType.SUMMARY_STATS.name())) {
+                    studiesImported = submissionImportProgressService.publishSummaryStats(submissionId, Arrays.asList(studyIds.split("_")), pmid);
+                } else {
+                    studiesImported = submissionImportProgressService.importSubmission(submissionId, Arrays.asList(studyIds.split("_")), curatorEmail, pmid);
+                }
+                submissionImportProgressService.savePmidReporting(submissionId, studiesImported);
+                log.info("Total time taken to import {}", System.currentTimeMillis() - start);
         } catch(Exception ex) {
             log.error("Exception in import submission"+ex.getMessage(),ex);
             throw ex;
@@ -88,6 +88,12 @@ public class Cli implements CommandLineRunner {
                 log.info("Inside -p option");
                 pmid = cl.getOptionValue("p");
             }
+
+            if(cl.hasOption("m")) {
+                log.info("Inside -m option");
+                mode = cl.getOptionValue("m");
+            }
+
 
         } catch (ParseException e) {
             System.err.println("Failed to read supplied arguments");
