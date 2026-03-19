@@ -3,6 +3,7 @@ package uk.ac.ebi.spot.gwas.cli;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.cli.*;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
@@ -49,14 +50,15 @@ public class Cli implements CommandLineRunner {
             if(associationIds != null) {
                 asscnIds = associationIds.stream().map(asscnId -> new Long(asscnId)).collect(Collectors.toList());
             }
-            this.menuDecision(execMode, threadSize, asscnIds);
+            String submissionId = (argList.size() > 4) ? argList.get(4) : null;
+            this.menuDecision(execMode, threadSize, asscnIds, submissionId);
         } else {
             help.printHelp(130, APP_COMMAND,  "", options,"");
             System.exit(1);
         }
     }
 
-    public void menuDecision(String executionMode, int threadSize, List<Long> asscnIds) throws InterruptedException, ExecutionException, IOException {
+    public void menuDecision(String executionMode, int threadSize, List<Long> asscnIds, String submissionId) throws InterruptedException, ExecutionException, IOException {
         switch (executionMode) {
             case "map-all-snp":
                 log.info("Mapping -r {}", executionMode);
@@ -78,6 +80,28 @@ public class Cli implements CommandLineRunner {
             case "map-asscn-ids":
                 log.info("Mapping some associations with ids");
                 ensemblRunnner.mapAssociationList(asscnIds);
+                break;
+            case "auto-import":
+                log.info("Mapping some associations with Pmid");
+                log.info("submissionId is {}", submissionId);
+                ensemblRunnner.mapAssociationList(asscnIds);
+                ensemblRunnner.savePmidReporting(submissionId, asscnIds.size(), executionMode);
+                break;
+            case "publish-studies":
+                log.info("Publishing studies");
+                log.info("Publishing studies for association for submissionId is {}", submissionId);
+                for(List<Long> partAsscnIds : ListUtils.partition(asscnIds, 30)) {
+                    ensemblRunnner.publishStudies(partAsscnIds);
+                    ensemblRunnner.savePmidReporting(submissionId, partAsscnIds.size(), executionMode);
+                }
+                break;
+            case "approve-snps":
+                log.info("Approving  snps");
+                log.info("Approving  snps for association for submissionId is {}", submissionId);
+                for(List<Long> partAsscnIds : ListUtils.partition(asscnIds, 30)) {
+                    ensemblRunnner.approveSnpList(partAsscnIds);
+                    ensemblRunnner.savePmidReporting(submissionId, partAsscnIds.size(), executionMode);
+                }
                 break;
             default:
                 log.info("The mode value {} is not recognized", executionMode);

@@ -5,11 +5,16 @@ server:
 spring:
   datasource:
     url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
+    #url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
     username:
     password:
     driver-class-name: oracle.jdbc.driver.OracleDriver
     hikari:
       maximumPoolSize: 80
+  data:
+    mongodb:
+      #uri: mongodb-hhvm-062.ebi.ac.uk:27017,mongodb-hxvm-063.ebi.ac.uk:27017/admin?replicaSet=gwasdepodevrs039
+      uri: mongodb-hx-gwasdepopro-001.ebi.ac.uk:27017,mongodb-hl-gwasdepopro-002.ebi.ac.uk:27017/admin?replicaSet=gwasdepoprors080
   jpa:
     hibernate:
       ddl-auto: none
@@ -31,9 +36,17 @@ association:
     size: 
 
 
+mapping-pipeline:
+  mongo:
+    db: gwasdepo
+
 #script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-bjobs-mapper.sh
 script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline/run-slurm-mapper.sh
+pmid:
+  script: /hps/software/users/parkinso/spot/gwas/prod/sw/mapping-pipeline-pmid/run-slurm-mapper-pmid.sh
 slurm:
+  pmid:
+    logslocation: /hps/nobackup/parkinso/spot/gwas/logs/mapping-pipeline-pmid/logs/bsub
   logslocation: /hps/nobackup/parkinso/spot/gwas/logs/mapping-pipeline/logs/bsub
 
 

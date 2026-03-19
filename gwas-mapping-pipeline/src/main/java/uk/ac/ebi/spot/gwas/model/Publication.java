@@ -99,6 +99,9 @@ public class Publication {
     @Transient
     private boolean userRequested = false;
 
+    @OneToMany(mappedBy = "publication")
+    private Collection<PmidImportReporting> pmidImportReportings;
+
     // JPA no-args constructor
     public Publication() {
     }
@@ -210,5 +213,13 @@ public class Publication {
 
     public void setUserRequested(boolean userRequested) {
         this.userRequested = userRequested;
+    }
+
+    public Collection<PmidImportReporting> getPmidImportReportings() {
+        return pmidImportReportings;
+    }
+
+    public void setPmidImportReportings(Collection<PmidImportReporting> pmidImportReportings) {
+        this.pmidImportReportings = pmidImportReportings;
     }
 }
