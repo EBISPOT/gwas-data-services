@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.spot.gwas.common.constant.OperationMode;
+import uk.ac.ebi.spot.gwas.common.service.PmidImportReportingService;
 import uk.ac.ebi.spot.gwas.mapping.dto.MappingDto;
 import uk.ac.ebi.spot.gwas.common.projection.MappingProjection;
 import uk.ac.ebi.spot.gwas.common.repository.GeneRepository;
@@ -20,6 +21,7 @@ import uk.ac.ebi.spot.gwas.common.repository.SingleNucleotidePolymorphismReposit
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -37,6 +39,7 @@ public class AssociationService {
     private GeneRepository generepository;
     @Autowired
     private SingleNucleotidePolymorphismRepository snpRepo;
+
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public Page<Association> getAssociationPageInfo(int start, int size) {
@@ -93,6 +96,15 @@ public class AssociationService {
     }
 
 
+    public void approveSnps(List<Association> associations) {
+        associations.forEach(association -> {
+            association.setSnpApproved(true);
+            association.setLastUpdateDate(new Date());
+            associationRepository.save(association);
+        });
+    }
+
+
     @Async("asyncExecutor")
     @Transactional(propagation = Propagation.REQUIRED)
     public CompletableFuture<List<Association>> getAssociations(int start, int size, OperationMode mode) {
@@ -114,6 +126,8 @@ public class AssociationService {
     public List<Association> getAssociationsByStudy(Long studyId){
         return associationRepository.findAssociationByStudyId(studyId);
     }
+
+
 
 }
 
