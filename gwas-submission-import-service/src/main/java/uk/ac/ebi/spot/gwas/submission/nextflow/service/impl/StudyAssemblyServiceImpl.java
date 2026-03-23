@@ -90,7 +90,7 @@ public class StudyAssemblyServiceImpl implements StudyAssemblyService {
         study.setMappedBackgroundTraits(bgEfoTraits);
         String bgTrait = mongoStudy.getBackgroundTrait();
         if(bgTrait != null) {
-            DiseaseTrait bgDiseaseTrait = diseaseTraitService.getMongoDiseaseTrait(bgTrait);
+            DiseaseTrait bgDiseaseTrait = diseaseTraitService.getMongoDiseaseTraitBasedOnTrait(bgTrait);
             Optional.ofNullable(diseaseTraitService.getDiseaseTrait(bgDiseaseTrait.getTrait())).ifPresent(study::setBackgroundTrait);
         }
         if(mongoStudy.getVariantCount() != -1) {
