@@ -26,6 +26,11 @@ public class DiseaseTraitServiceImpl implements DiseaseTraitService {
       return diseaseTraitMongoRepository.findById(traitId).orElse(null);
     }
 
+    public DiseaseTrait getMongoDiseaseTraitByTrait(String trait) {
+        return diseaseTraitMongoRepository.findByTraitIgnoreCase(trait).orElse(null);
+    }
+
+
     @Transactional(readOnly = true)
     public uk.ac.ebi.spot.gwas.model.DiseaseTrait getDiseaseTrait(String trait) {
         log.info("Disease Trait is {}", trait);
