@@ -26,7 +26,7 @@ public class DiseaseTraitServiceImpl implements DiseaseTraitService {
       return diseaseTraitMongoRepository.findById(traitId).orElse(null);
     }
 
-    public DiseaseTrait getMongoDiseaseTraitBasedOnTrait(String trait) {
+    public DiseaseTrait getMongoDiseaseTraitByTrait(String trait) {
         return diseaseTraitMongoRepository.findByTraitIgnoreCase(trait).orElse(null);
     }
 
