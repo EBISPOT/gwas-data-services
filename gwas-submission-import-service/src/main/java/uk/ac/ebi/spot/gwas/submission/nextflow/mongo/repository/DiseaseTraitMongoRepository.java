@@ -8,4 +8,7 @@ import java.util.Optional;
 public interface DiseaseTraitMongoRepository extends MongoRepository<DiseaseTrait, Long> {
 
   Optional<DiseaseTrait> findById(String id);
+
+  Optional<DiseaseTrait> findByTraitIgnoreCase(String trait);
+
 }

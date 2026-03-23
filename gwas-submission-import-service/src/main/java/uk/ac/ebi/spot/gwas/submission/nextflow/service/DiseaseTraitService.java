@@ -6,5 +6,8 @@ public interface DiseaseTraitService {
 
     DiseaseTrait getMongoDiseaseTrait(String traitId);
 
+
+    DiseaseTrait getMongoDiseaseTraitByTrait(String trait);
+
     uk.ac.ebi.spot.gwas.model.DiseaseTrait getDiseaseTrait(String trait);
 }
