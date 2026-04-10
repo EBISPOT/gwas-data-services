@@ -6,6 +6,7 @@ import uk.ac.ebi.spot.gwas.updateefo.dto.OlsEfoTrait;
 import uk.ac.ebi.spot.gwas.updateefo.dto.OlsEfoTraitPage;
 import uk.ac.ebi.spot.gwas.updateefo.report.ReportTemplate;
 import uk.ac.ebi.spot.gwas.updateefo.repository.EfoTraitRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -21,13 +22,15 @@ public class ObsoleteOnlyTask implements Runnable{
     private final CountDownLatch latch;
     private final ReportTemplate reportTemplate;
     private final EfoTraitRepository efoTraitRepository;
+    private final JdbcTemplate jdbcTemplate;
 
-    public ObsoleteOnlyTask(int pageNumber, int olsBatchSize, EfoTraitRepository efoTraitRepository, CountDownLatch latch, ReportTemplate reportTemplate) {
+    public ObsoleteOnlyTask(int pageNumber, int olsBatchSize, EfoTraitRepository efoTraitRepository, CountDownLatch latch, ReportTemplate reportTemplate, JdbcTemplate jdbcTemplate) {
         this.pageNumber = pageNumber;
         this.olsPageSize = olsBatchSize;
         this.latch = latch;
         this.reportTemplate = reportTemplate;
         this.efoTraitRepository = efoTraitRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -54,6 +57,8 @@ public class ObsoleteOnlyTask implements Runnable{
                         }
                         newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
                         efoTraitRepository.save(newEfo);
+                        jdbcTemplate.update("UPDATE EFO_TRAIT SET trait = ?, short_form = ?, uri = ? WHERE short_form = ?",
+                                newEfo.getTrait(), newEfo.getShortForm(), newEfo.getUri(), efoTrait.getShortForm());
                         reportTemplate.addObsolete(efoTrait, newEfo);
                     }
                     else

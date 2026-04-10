@@ -11,6 +11,7 @@ import uk.ac.ebi.spot.gwas.updateefo.dto.OlsEfoTraitPage;
 import uk.ac.ebi.spot.gwas.updateefo.report.ReportTemplate;
 import uk.ac.ebi.spot.gwas.updateefo.repository.EfoTraitRepository;
 import uk.ac.ebi.spot.gwas.updateefo.runnable.ObsoleteOnlyTask;
+import org.springframework.jdbc.core.JdbcTemplate;
 import uk.ac.ebi.spot.gwas.updateefo.runnable.UpdateAndObsoleteTask;
 
 import java.util.concurrent.CountDownLatch;
@@ -26,13 +27,15 @@ public class Executor implements ApplicationRunner {
     private int olsBatchSize;
     private final EfoTraitRepository efoTraitRepository;
     private final EmailService emailService;
+    private final JdbcTemplate jdbcTemplate;
     private final ReportTemplate reportTemplate = new ReportTemplate();
     private final Environment environment;
 
-    public Executor(EfoTraitRepository efoTraitRepository, EmailService emailService, Environment environment) {
+    public Executor(EfoTraitRepository efoTraitRepository, EmailService emailService, Environment environment, JdbcTemplate jdbcTemplate) {
         this.efoTraitRepository = efoTraitRepository;
         this.emailService = emailService;
         this.environment = environment;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class Executor implements ApplicationRunner {
                 latch = new CountDownLatch((int) count / dbBatchSize + 1);
             }
             for (int i = 0; i < count; i += dbBatchSize) {
-                executorService.execute(new UpdateAndObsoleteTask(i, dbBatchSize, efoTraitRepository, latch, reportTemplate));
+                executorService.execute(new UpdateAndObsoleteTask(i, dbBatchSize, efoTraitRepository, latch, reportTemplate, jdbcTemplate));
             }
         } else if ("obsolete".equals(environment.getActiveProfiles()[0])) {
             RestTemplate restTemplate = new RestTemplate();
@@ -54,7 +57,7 @@ public class Executor implements ApplicationRunner {
             int totalPages = olsEfoTraitPage.getPage().getTotalPages();
             latch = new CountDownLatch(totalPages);
             for (int i = 0; i < totalPages; i++) {
-                executorService.execute(new ObsoleteOnlyTask(i, olsBatchSize, efoTraitRepository, latch, reportTemplate));
+                executorService.execute(new ObsoleteOnlyTask(i, olsBatchSize, efoTraitRepository, latch, reportTemplate, jdbcTemplate));
             }
         }
         else {
