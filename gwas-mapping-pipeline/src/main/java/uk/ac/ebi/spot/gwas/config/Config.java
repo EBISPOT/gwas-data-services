@@ -2,12 +2,17 @@ package uk.ac.ebi.spot.gwas.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.ac.ebi.spot.gwas.constants.GeneralCommon;
+
 
 @Component
 public class Config {
 
     @Value("${script}")
     private String script;
+
+    @Value("${pmid.script}")
+    private String pmidScript;
 
     @Value("${executor.thread-pool.count}")
     private Integer threadPool;
@@ -20,6 +25,19 @@ public class Config {
 
     @Value("${slurm.logslocation}")
     private String slurmLogsLocation;
+
+    @Value("${slurm.pmid.logslocation}")
+    private String pmidSlurmLogsLocation;
+
+    @Value("${mapping-pipeline.mongo.db:#{NULL}}")
+    private String dbName;
+
+    @Value("${spring.data.mongodb.uri:#{NULL}}")
+    private String mongoUri;
+
+
+
+
 
     public String getActiveProfile() {
         return activeProfile;
@@ -56,6 +74,37 @@ public class Config {
     public String getSlurmLogsLocation() {
         return slurmLogsLocation;
     }
+
+    public String getPmidScript() {
+        return pmidScript;
+    }
+
+    public void setPmidScript(String pmidScript) {
+        this.pmidScript = pmidScript;
+    }
+
+    public String getPmidSlurmLogsLocation() {
+        return pmidSlurmLogsLocation;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+
+    public String getMongoUri() {
+        return mongoUri;
+    }
+
+    public String getDbUser() {
+        return System.getenv(GeneralCommon.DB_USER);
+    }
+
+    public String getDbPassword() {
+        return System.getenv(GeneralCommon.DB_PASSWORD);
+    }
+
+
 }
 
 
