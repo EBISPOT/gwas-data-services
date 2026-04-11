@@ -16,5 +16,5 @@ java -DentityExpansionLimit=100000000 \
   -Dspring.datasource.url=${DB_URL} \
   -Dspring.datasource.username=${DB_USER} \
   -Dspring.datasource.password=${DB_PWD} \
-  -Dspring.datasource.driver-class-name={DB_DRIVER} \
+  -Dspring.datasource.driver-class-name=${DB_DRIVER} \
   $proxy_settings -Xms4096m -Xmx4096m -jar $base/update-efo.jar
