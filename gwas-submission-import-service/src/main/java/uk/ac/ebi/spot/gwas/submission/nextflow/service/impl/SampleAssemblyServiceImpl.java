@@ -36,16 +36,16 @@ public class SampleAssemblyServiceImpl implements SampleAssemblyService {
         } else {
             log.error("Unknown Ancestry type: " + sample.getStage());
         }
-        List<Country> countryList = new ArrayList<>();
+        Collection<Country> countryList = new ArrayList<>();
         String countryOfRecruitment = sample.getCountryRecruitement();
         log.info("countryOfRecruitment is {}", countryOfRecruitment);
         if (countryOfRecruitment != null) {
             String[] countries = countryOfRecruitment.split("\\|");
             for (String country : countries) {
-                //log.info("country is {}", country);
+                log.info("country is {}", country);
                 Country country1 = countryService.findByCountryOfRecruitement(country);
-                //log.info("country1 is {}", country1.getCountryName());
                 if (country1 != null) {
+                    log.info("country1 is {}", country1.getCountryName());
                     countryList.add(country1);
                 } else {
                     log.error("Unknown Country: " + country);

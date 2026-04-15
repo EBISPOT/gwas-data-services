@@ -19,6 +19,6 @@ public class CountryServiceImpl implements CountryService {
 
     @Transactional(readOnly = true)
     public  Country findByCountryOfRecruitement(String country) {
-        return countryRepository.findByCountryNameIgnoreCase(country);
+        return countryRepository.findByCountryNameIgnoreCase(country).orElse(null);
    }
 }
