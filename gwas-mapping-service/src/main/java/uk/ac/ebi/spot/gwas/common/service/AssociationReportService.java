@@ -133,12 +133,13 @@ public class AssociationReportService {
         log.info("Checking existing report for association: {}", association.getId());
 
         if (existingReport != null) {
+            log.info("Inside delete existingReport {}", association.getId());
             associationReportRepository.delete(existingReport);
         }
         associationReport.setAssociation(association);
 
         // Save association report
-        associationReportRepository.deleteByAssociationId(association.getId());
+        //associationReportRepository.deleteByAssociationId(association.getId());
         associationReportRepository.save(associationReport);
 
     }
