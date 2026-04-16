@@ -7,15 +7,13 @@ spring:
     url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
     #url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
     username:
-    password: 
+    password:
     driver-class-name: oracle.jdbc.driver.OracleDriver
   data:
     mongodb:
       uri: mongodb-hhvm-062.ebi.ac.uk:27017,mongodb-hxvm-063.ebi.ac.uk:27017/admin?replicaSet=gwasdepodevrs039
       #uri: mongodb-hx-gwasdepopro-001.ebi.ac.uk:27017,mongodb-hl-gwasdepopro-002.ebi.ac.uk:27017/admin?replicaSet=gwasdepoprors080
-
-
-   #hikari:
+      #hikari:
       #maximumPoolSize: 80
   jpa:
     hibernate:
@@ -25,7 +23,7 @@ spring:
       hibernate:
         jdbc:
           batch_size: 10
-        show_sql: true
+        #show_sql: true
 
 executor:
   thread-pool:
@@ -39,7 +37,6 @@ nextflow-import:
   #db: deposition-backend-sandbox
   db: gwasdepo
 
-
 rabbitmq:
   queue-name: study_change_sandbox
   exchange-name: study_change_exchange_sandbox
@@ -50,12 +47,3 @@ rabbitmq:
     routing-key: metadata-yml-update-route-sandbox
 
 
-logging:
-  level:
-    org:
-      hibernate:
-        sql: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: trace
