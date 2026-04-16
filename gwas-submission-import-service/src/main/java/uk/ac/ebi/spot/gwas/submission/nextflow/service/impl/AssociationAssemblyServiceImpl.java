@@ -7,6 +7,7 @@ import uk.ac.ebi.spot.gwas.model.*;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.AssociationAssemblyService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.AssociationCalculationService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.LociAttributesService;
+import uk.ac.ebi.spot.gwas.submission.nextflow.service.SnpService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,10 +21,14 @@ public class AssociationAssemblyServiceImpl implements AssociationAssemblyServic
 
     AssociationCalculationService associationCalculationService;
 
+    SnpService snpService;
+
     public AssociationAssemblyServiceImpl(LociAttributesService lociAttributesService,
-                                          AssociationCalculationService associationCalculationService) {
+                                          AssociationCalculationService associationCalculationService,
+                                          SnpService snpService) {
         this.lociAttributesService = lociAttributesService;
         this.associationCalculationService = associationCalculationService;
+        this.snpService = snpService;
     }
 
     public Association assemble(uk.ac.ebi.spot.gwas.deposition.domain.Association mongoAssociation) {
@@ -53,6 +58,7 @@ public class AssociationAssemblyServiceImpl implements AssociationAssemblyServic
         association.setPvalueDescription(mongoAssociation.getPvalueText());
         String rsId = mongoAssociation.getVariantId();
         if(StringUtils.isNotBlank(rsId)) {
+
             SingleNucleotidePolymorphism snp = lociAttributesService.createSnp(rsId);
             log.info("Creating Snp {}.", rsId);
             RiskAllele riskAllele = lociAttributesService.createRiskAllele(String.format("%s-%s", rsId, mongoAssociation.getEffectAllele()), snp);

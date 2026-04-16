@@ -33,7 +33,6 @@ public class DiseaseTraitServiceImpl implements DiseaseTraitService {
 
     @Transactional(readOnly = true)
     public uk.ac.ebi.spot.gwas.model.DiseaseTrait getDiseaseTrait(String trait) {
-        log.info("Disease Trait is {}", trait);
        return diseaseTraitRepository.findByTrait(trait).orElse(null);
     }
 }

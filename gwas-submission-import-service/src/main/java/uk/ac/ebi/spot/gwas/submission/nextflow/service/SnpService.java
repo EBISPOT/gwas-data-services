@@ -5,4 +5,7 @@ import uk.ac.ebi.spot.gwas.model.SingleNucleotidePolymorphism;
 public interface SnpService {
 
     SingleNucleotidePolymorphism saveSnp(SingleNucleotidePolymorphism singleNucleotidePolymorphism);
+
+    SingleNucleotidePolymorphism getSnp(String rsId);
+
 }
