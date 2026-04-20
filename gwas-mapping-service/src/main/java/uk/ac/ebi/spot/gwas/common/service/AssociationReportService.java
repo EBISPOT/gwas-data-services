@@ -117,9 +117,15 @@ public class AssociationReportService {
         if (!geneErrors.isEmpty()) {
             allGeneErrors = String.join(", ", geneErrors);
         }
+        AssociationReport associationReport = associationReportRepository.findByAssociationId(association.getId());
+        log.info("Checking existing report for association: {}", association.getId());
+
+        if (associationReport == null) {
+             associationReport = new AssociationReport();
+        }
 
         // Create association report object
-        AssociationReport associationReport = new AssociationReport();
+
         associationReport.setLastUpdateDate(new Date());
         associationReport.setSnpError(allSnpErrors);
         associationReport.setSnpGeneOnDiffChr(allSnpGeneOnDiffChrErrors);
@@ -129,13 +135,11 @@ public class AssociationReportService {
         associationReport.setGeneError(allGeneErrors);
 
         // Before setting link to association check for any existing reports linked to this association
-        AssociationReport existingReport = associationReportRepository.findByAssociationId(association.getId());
-        log.info("Checking existing report for association: {}", association.getId());
 
-        if (existingReport != null) {
-            log.info("Inside delete existingReport {}", association.getId());
-            associationReportRepository.delete(existingReport);
-        }
+        //AssociationReport existingReportII = associationReportRepository.findByAssociationId(association.getId());
+        log.info("Deleted existing report");
+        //log.info("Checking existing report for association: {}", existingReportII.getAssociation().getId());
+
         associationReport.setAssociation(association);
 
         // Save association report

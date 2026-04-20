@@ -50,3 +50,12 @@ mapping:
   cache: /Users/sajo/Downloads/cache
   #cache: /nfs/gwas/data/prod/sw/mapper/ensembl-cache
 
+logging:
+  level:
+    org:
+      hibernate:
+        sql: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: trace

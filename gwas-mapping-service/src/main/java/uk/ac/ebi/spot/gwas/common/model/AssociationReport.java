@@ -146,4 +146,8 @@ public class AssociationReport {
     public void setGeneError(String geneError) {
         this.geneError = geneError;
     }
+
+    public Throwable geA() {
+        return null;
+    }
 }
