@@ -49,7 +49,7 @@ public class Cli implements CommandLineRunner {
                 } else {
                     studiesImported = submissionImportProgressService.importSubmission(submissionId, Arrays.asList(studyIds.split("_")), curatorEmail, pmid);
                 }
-                submissionImportProgressService.savePmidReporting(submissionId, studiesImported);
+                //submissionImportProgressService.savePmidReporting(submissionId, studiesImported);
                 log.info("Total time taken to import {}", System.currentTimeMillis() - start);
         } catch(Exception ex) {
             log.error("Exception in import submission"+ex.getMessage(),ex);

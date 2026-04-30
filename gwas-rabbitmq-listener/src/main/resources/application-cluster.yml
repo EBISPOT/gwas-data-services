@@ -14,6 +14,7 @@ spring:
     username:
     password:
     driver-class-name: oracle.jdbc.driver.OracleDriver
+    #driver-class-name: org.postgresql.Driver
     #hikari:
       #maximumPoolSize: 80
   jpa:

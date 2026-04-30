@@ -50,7 +50,7 @@
         <dependency>
             <groupId>uk.ac.ebi.spot.gwas</groupId>
             <artifactId>gwas-data-commons</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.3-pg-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -81,14 +81,19 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jetty</artifactId>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
             <version>21.1.0.0</version>
             <scope>runtime</scope>
+        </dependency>-->
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.6.0</version>
+            <scope>runtime</scope>
         </dependency>
-
-
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
