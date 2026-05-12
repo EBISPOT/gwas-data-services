@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import uk.ac.ebi.spot.gwas.deposition.constants.SubmissionType;
+import uk.ac.ebi.spot.gwas.deposition.dto.curation.SubmissionType;
 import uk.ac.ebi.spot.gwas.submission.nextflow.service.SubmissionImportProgressService;
 import uk.ac.ebi.spot.gwas.submission.nextflow.util.CommandUtil;
 
@@ -44,12 +44,12 @@ public class Cli implements CommandLineRunner {
                 for (String studyId : studyIds.split("_")) {
                     log.info("StudyId is {}", studyId);
                 }
-                if (submissionType.equals(SubmissionType.SUMMARY_STATS.name())) {
+                if (submissionType.equals(SubmissionType.SUM_STATS.name())) {
                     studiesImported = submissionImportProgressService.publishSummaryStats(submissionId, Arrays.asList(studyIds.split("_")), pmid);
                 } else {
                     studiesImported = submissionImportProgressService.importSubmission(submissionId, Arrays.asList(studyIds.split("_")), curatorEmail, pmid);
                 }
-                //submissionImportProgressService.savePmidReporting(submissionId, studiesImported);
+                submissionImportProgressService.savePmidReporting(submissionId, studiesImported);
                 log.info("Total time taken to import {}", System.currentTimeMillis() - start);
         } catch(Exception ex) {
             log.error("Exception in import submission"+ex.getMessage(),ex);

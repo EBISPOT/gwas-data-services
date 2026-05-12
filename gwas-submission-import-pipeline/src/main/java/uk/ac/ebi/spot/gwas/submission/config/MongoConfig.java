@@ -18,7 +18,7 @@ public class MongoConfig {
     @Configuration
     @EnableMongoRepositories(basePackages =  {"uk.ac.ebi.spot.gwas.submission.mongo.repository"})
     @EnableTransactionManagement
-    @Profile({"dev", "test", "local","cluster"})
+    @Profile({"dev", "test", "local","cluster","sandbox"})
     public static class MongoConfigDev extends AbstractMongoConfiguration {
 
         @Autowired

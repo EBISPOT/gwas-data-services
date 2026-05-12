@@ -1,5 +1,6 @@
 package uk.ac.ebi.spot.gwas.submission.nextflow.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.deposition.domain.DiseaseTrait;
 import uk.ac.ebi.spot.gwas.deposition.domain.EfoTrait;
@@ -8,9 +9,11 @@ import uk.ac.ebi.spot.gwas.submission.nextflow.service.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class StudyAssemblyServiceImpl implements StudyAssemblyService {
 
@@ -50,6 +53,7 @@ public class StudyAssemblyServiceImpl implements StudyAssemblyService {
             uk.ac.ebi.spot.gwas.model.DiseaseTrait diseaseTrait = diseaseTraitService.getDiseaseTrait(mongoDiseaseTrait.getTrait());
             Optional.ofNullable(diseaseTrait).ifPresent(study::setDiseaseTrait);
         }
+        log.info("Exiting DiseaseTrait block");
         String manufacturerString = mongoStudy.getArrayManufacturer();
 
         if(manufacturerString != null) {
@@ -57,7 +61,9 @@ public class StudyAssemblyServiceImpl implements StudyAssemblyService {
             String[] manufacturers = manufacturerString.split("\\||,");
             for (String manufacturer : manufacturers) {
                 Platform platform = platformService.findByManufacturer(manufacturer.trim());
-                platformList.add(platform);
+                if(platform != null) {
+                    platformList.add(platform);
+                }
             }
             study.setPlatforms(platformList);
         }
@@ -67,8 +73,11 @@ public class StudyAssemblyServiceImpl implements StudyAssemblyService {
             List<GenotypingTechnology> technologyList = new ArrayList<>();
             String[]  genoTypeTechnologies = genoTypeTechnologiesString.split("\\||,");
             for (String genoTypeTechnology : genoTypeTechnologies) {
-                GenotypingTechnology genotypingTechnology = genotypingTechnologyService.findByGenotypingTechnology(genoTypeTechnology.trim());
-                technologyList.add(genotypingTechnology);
+                log.info("Genotyping technology is {}", genoTypeTechnology);
+                GenotypingTechnology genotypingTechnology = genotypingTechnologyService.findByGenotypingTechnology(this.transformGenotypingTechnology(genoTypeTechnology).trim());
+                if(genotypingTechnology != null) {
+                    technologyList.add(genotypingTechnology);
+                }
             }
             study.setGenotypingTechnologies(technologyList);
         }
@@ -77,14 +86,18 @@ public class StudyAssemblyServiceImpl implements StudyAssemblyService {
         List<uk.ac.ebi.spot.gwas.model.EfoTrait> efoTraits =  Optional.ofNullable(mongoStudy.getEfoTraits())
                 .map(efoList ->  efoList.stream()
                         .map(efoId -> efoTraitService.findByMongoId(efoId))
+                        .filter(Objects::nonNull)
                         .map(EfoTrait::getShortForm)
                         .map(shortForm -> efoTraitService.findByShortForm(shortForm))
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList())).orElse(null);
         List<uk.ac.ebi.spot.gwas.model.EfoTrait> bgEfoTraits =  Optional.ofNullable(mongoStudy.getBackgroundEfoTraits())
                 .map(efoList ->  efoList.stream()
                         .map(efoId -> efoTraitService.findByMongoId(efoId))
+                        .filter(Objects::nonNull)
                         .map(EfoTrait::getShortForm)
                         .map(shortForm -> efoTraitService.findByShortForm(shortForm))
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList())).orElse(null);
         study.setEfoTraits(efoTraits);
         study.setMappedBackgroundTraits(bgEfoTraits);
@@ -120,4 +133,11 @@ public class StudyAssemblyServiceImpl implements StudyAssemblyService {
         return studyExtension;
     }
 
+
+    private String transformGenotypingTechnology(String input) {
+        if (input.equalsIgnoreCase("Whole genome sequencing")) {
+            return "Genome-wide sequencing";
+        }
+        return input;
+    }
 }

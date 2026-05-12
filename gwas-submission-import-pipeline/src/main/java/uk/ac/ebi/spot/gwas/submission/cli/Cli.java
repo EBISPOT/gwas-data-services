@@ -52,6 +52,7 @@ public class Cli implements CommandLineRunner {
     private String submissionId = null;
     private String curatorEmail = null;
     private String pmid = null;
+    private String submissionType = null;
 
 
     public void run(String... args) throws Exception {
@@ -105,11 +106,14 @@ public class Cli implements CommandLineRunner {
                     submissionId = pmidImportReporting.getSubmissionId();
                     curatorEmail = pmidImportReporting.getCuratorEmail();
                     pmid = pmidImportReporting.getPublication().getPubmedId();
+                    submissionType = pmidImportReporting.getSubmissionType();
                     List<StudyAccessionIdProjection> studyProjections = studiesService.findAccessionIdsByPubmedId(pmid);
                     List<Long> studyIds = studyProjections.stream().map(StudyAccessionIdProjection::getId).collect(Collectors.toList());
-                    log.info("Start of deleteStudies() start");
-                    studiesService.deleteStudies(studyIds);
-                    log.info("Start of deleteStudies() end");
+                    if(!submissionType.equals("SUMMARY_STATS")) {
+                        log.info("Start of deleteStudies() start");
+                        studiesService.deleteStudies(studyIds);
+                        log.info("Start of deleteStudies() end");
+                    }
                     log.info("submissionId in import pipeline is {}  Curator mail is {}", submissionId, curatorEmail);
                     submissionImportService.importSubmission(submissionId, curatorEmail);
                     log.info("Calling importSubmission() end");
