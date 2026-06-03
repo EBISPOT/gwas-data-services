@@ -43,4 +43,11 @@ association:
 script: /Users/sajo/Documents/git/projects/gwas-data-services/gwas-mapping-pipeline/src/main/scripts/run-bjobs-mapper-local.sh
 
 
+rabbitmq:
+  submission-import:
+    queue-name: submission-import-sandbox
+    exchange-name: submission-import-exchange-sandbox
+    routing-key: submission-import-route-sandbox
+
+
 

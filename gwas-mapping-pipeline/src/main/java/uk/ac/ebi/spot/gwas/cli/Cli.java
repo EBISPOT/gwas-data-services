@@ -50,6 +50,9 @@ public class Cli implements CommandLineRunner {
     @Autowired
     StudiesService studiesService;
 
+    @Autowired
+    SubmissionImportMessageService submissionImportMessageService;
+
     @Override
     public void run(String... args) throws ParseException, InterruptedException, ExecutionException, IOException, Exception {
        // CommandLine commandLine = parser.parse(options, args, true);
@@ -128,6 +131,8 @@ public class Cli implements CommandLineRunner {
                     for (PmidImportReporting pmidImportReporting : pmidImportReportingPartition) {
                         String pmid = pmidImportReporting.getPublication().getPubmedId();
                         String submissionId = pmidImportReporting.getSubmissionId();
+                        String submissionType = pmidImportReporting.getSubmissionType();
+                        String curatorMail = pmidImportReporting.getCuratorEmail();
                         log.info("Pmid to map assciation is {}", pmid);
                         try {
                             if(executionMode.equals("auto-import") || executionMode.equals("approve-snps")) {
@@ -137,21 +142,27 @@ public class Cli implements CommandLineRunner {
                             }
                             if(executionMode.equals("auto-import")) {
                                 associationService.savePmidReporting(submissionId, "MAPPING_COMPLETED");
+                                submissionImportMessageService.sendMessage(submissionId, submissionType, "mapping", "success", curatorMail);
                             } else if(executionMode.equals("publish-studies")) {
                                 associationService.savePmidReporting(submissionId, "PUBLISH_COMPLETED");
+                                submissionImportMessageService.sendMessage(submissionId, submissionType, "published", "success", curatorMail);
                             } else {
                                 associationService.savePmidReporting(submissionId, "SNP_APPROVAL_COMPLETED");
+                                submissionImportMessageService.sendMessage(submissionId, submissionType, "snp_approval","success", curatorMail);
                             }
                         } catch (SlurmProcessException ex) {
                             failed = true;
                             if(executionMode.equals("auto-import")) {
                                 associationService.savePmidReporting(submissionId, "MAPPING_FAILED");
+                                submissionImportMessageService.sendMessage(submissionId, submissionType, "mapping","failed", curatorMail);
                                 log.error("SlurmProcessException in mapping pipeline "+ex.getMessage(),ex);
                             } else if(executionMode.equals("publish-studies")) {
                                 associationService.savePmidReporting(submissionId, "PUBLISH_FAILED");
+                                submissionImportMessageService.sendMessage(submissionId, submissionType, "published","failed", curatorMail);
                                 log.error("SlurmProcessException in published studies "+ex.getMessage(),ex);
                             } else {
                                 associationService.savePmidReporting(submissionId, "SNP_APPROVAL_FAILED");
+                                submissionImportMessageService.sendMessage(submissionId, submissionType, "snp_approval","failed", curatorMail);
                                 log.error("SlurmProcessException in snp approval "+ex.getMessage(),ex);
                             }
 
@@ -159,13 +170,16 @@ public class Cli implements CommandLineRunner {
                             failed = true;
                             if(executionMode.equals("auto-import")) {
                                 associationService.savePmidReporting(submissionId, "MAPPING_FAILED");
+                                submissionImportMessageService.sendMessage(submissionId, submissionType, "mapping","failed", curatorMail);
                                 log.error("SlurmProcessException in mapping pipeline "+ex.getMessage(),ex);
                             }else if(executionMode.equals("publish-studies")) {
                                 associationService.savePmidReporting(submissionId, "PUBLISH_FAILED");
+                                submissionImportMessageService.sendMessage(submissionId, submissionType, "published","failed", curatorMail);
                                 log.error("SlurmProcessException in published studies "+ex.getMessage(),ex);
                             }
                             else{
                                 associationService.savePmidReporting(submissionId, "SNP_APPROVAL_FAILED");
+                                submissionImportMessageService.sendMessage(submissionId, submissionType, "snp_approval","failed", curatorMail);
                                 log.error("SlurmProcessException in snp approval "+ex.getMessage(),ex);
                             }
                             log.error("Exception in Snp Approval"+ex.getMessage(),ex);
