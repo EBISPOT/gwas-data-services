@@ -9,6 +9,7 @@ import uk.ac.ebi.spot.gwas.updateefo.domain.EfoTrait;
 import uk.ac.ebi.spot.gwas.updateefo.dto.OlsEfoTraitPage;
 import uk.ac.ebi.spot.gwas.updateefo.report.ReportTemplate;
 import uk.ac.ebi.spot.gwas.updateefo.repository.EfoTraitRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -23,13 +24,15 @@ public class UpdateAndObsoleteTask implements Runnable {
     private final EfoTraitRepository efoTraitRepository;
     private final ReportTemplate reportTemplate;
     private final CountDownLatch latch;
+    private final JdbcTemplate jdbcTemplate;
 
-    public UpdateAndObsoleteTask(int start, int size, EfoTraitRepository efoTraitRepository, CountDownLatch latch, ReportTemplate reportTemplate) {
+    public UpdateAndObsoleteTask(int start, int size, EfoTraitRepository efoTraitRepository, CountDownLatch latch, ReportTemplate reportTemplate, JdbcTemplate jdbcTemplate) {
         this.size = size;
         this.start = start;
         this.efoTraitRepository = efoTraitRepository;
         this.latch = latch;
         this.reportTemplate = reportTemplate;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -57,10 +60,14 @@ public class UpdateAndObsoleteTask implements Runnable {
                         }
                         newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), olsEfoTrait.getShortForm(), olsEfoTrait.getIri(), efoTrait.getCreated(), efoTrait.getUpdated());
                         efoTraitRepository.save(newEfo);
+                        jdbcTemplate.update("UPDATE EFO_TRAIT SET trait = ?, short_form = ?, uri = ? WHERE short_form = ?",
+                                newEfo.getTrait(), newEfo.getShortForm(), newEfo.getUri(), efoTrait.getShortForm());
                         reportTemplate.addObsolete(efoTrait, newEfo);
                     } else if (!olsEfoTrait.getLabel().equals(efoTrait.getTrait())) {
                         EfoTrait newEfo = new EfoTrait(efoTrait.getId(), olsEfoTrait.getLabel(), efoTrait.getShortForm(), efoTrait.getUri(), efoTrait.getCreated(), efoTrait.getUpdated());
                         efoTraitRepository.save(newEfo);
+                        jdbcTemplate.update("UPDATE EFO_TRAIT SET trait = ?, short_form = ?, uri = ? WHERE short_form = ?",
+                                newEfo.getTrait(), newEfo.getShortForm(), newEfo.getUri(), efoTrait.getShortForm());
                         reportTemplate.addUpdated(efoTrait, newEfo);
                     }
                 } catch (Exception e) {

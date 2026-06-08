@@ -1,5 +1,6 @@
 package uk.ac.ebi.spot.gwas.submission.nextflow.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.spot.gwas.model.Association;
 import uk.ac.ebi.spot.gwas.model.Locus;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
+@Slf4j
 @Service
 public class LociAttributesServiceImpl implements LociAttributesService {
 
@@ -35,9 +36,14 @@ public class LociAttributesServiceImpl implements LociAttributesService {
     }
 
     public SingleNucleotidePolymorphism createSnp(String curatorEnteredSnp) {
-         SingleNucleotidePolymorphism newSnp = new SingleNucleotidePolymorphism();
-         newSnp.setRsId(tidyCuratorEnteredString(curatorEnteredSnp));
-         return newSnp;
+            if(snpService.getSnp(curatorEnteredSnp) != null ) {
+                log.info("Inside existing Snp block {}",curatorEnteredSnp);
+                return snpService.getSnp(curatorEnteredSnp);
+            } else {
+                SingleNucleotidePolymorphism newSnp = new SingleNucleotidePolymorphism();
+                newSnp.setRsId(tidyCuratorEnteredString(curatorEnteredSnp));
+                return newSnp;
+            }
      }
 
 
