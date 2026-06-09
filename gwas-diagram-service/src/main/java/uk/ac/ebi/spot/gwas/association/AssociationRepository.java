@@ -26,7 +26,8 @@ public interface AssociationRepository extends JpaRepository<Association, Long> 
             "INNER JOIN ASSOCIATION ASSOC on ASV.ASSOCIATION_ID = ASSOC.ID " +
             "INNER JOIN ASSOCIATION_EFO_TRAIT AET on ASSOC.ID = AET.ASSOCIATION_ID " +
             "INNER JOIN EFO_TRAIT ET on AET.EFO_TRAIT_ID = ET.ID " +
-            "WHERE ASSOC.PVALUE_MANTISSA * POWER(10, ASSOC.PVALUE_EXPONENT) < 5 * POWER(10, -8) " +
+            "WHERE ((CAST(ASSOC.PVALUE_EXPONENT AS NUMERIC) < -8) OR " +
+            "(CAST(ASSOC.PVALUE_EXPONENT AS NUMERIC) = -8 AND CAST(ASSOC.PVALUE_MANTISSA AS NUMERIC) < 5)) " +
             "AND L.CHROMOSOME_NAME = ?1 AND R.NAME= ?2 ", nativeQuery = true)
     List<String> findByChromosomeNameAndRegion(String chromosomeName, String region);
 
