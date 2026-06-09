@@ -60,3 +60,4 @@ hs_err_pid*
 /.idea/
 *.iml
 *.DS_Store
+/gwas-diagram-service/solr-8.11.4/

@@ -1,0 +1,27 @@
+server:
+  port: 8685
+  servlet:
+    context-path: /gwas/diagram-api
+
+url:
+  efo: http://ves-oy-7e.ebi.ac.uk:8080/gwas/api/v2/efotraits/%s/traits/children
+  ols: https://www.ebi.ac.uk/ols4/api/ontologies/efo/hierarchicalDescendants?id=%s&size=1000
+  solr:
+  server:
+
+
+spring:
+  profiles:
+    active: local
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        dialect: org.hibernate.dialect.Oracle12cDialect
+  main:
+    allow-circular-references: true
+
+
+
