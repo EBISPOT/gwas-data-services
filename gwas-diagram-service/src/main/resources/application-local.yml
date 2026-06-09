@@ -1,5 +1,7 @@
 server:
   port: 8989
+  servlet:
+    context-path: /gwas/diagram-api
 
 url:
   solr: http://localhost:8983/solr/gwas_diagram/update?commitWithin=100
@@ -10,7 +12,7 @@ spring:
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-    driver-class-name: oracle.jdbc.driver.OracleDriver
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none
