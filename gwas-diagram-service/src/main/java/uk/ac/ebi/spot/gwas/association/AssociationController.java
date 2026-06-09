@@ -1,5 +1,7 @@
 package uk.ac.ebi.spot.gwas.association;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -7,6 +9,7 @@ import java.util.*;
 
 @Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Tag(name = "Association", description = "Endpoints for retrieving association whenever a trait dot is clicked in the diagram ui")
 @RestController
 public class AssociationController {
 
@@ -16,6 +19,7 @@ public class AssociationController {
         this.associationRepository = associationRepository;
     }
 
+    @Operation(summary = "Get associations for a specific EFO trait and region", description = "Retrieves a list of associations including SNP details, p-values, and related study information for a given EFO trait and cytogenetic region.")
     @GetMapping("/associations")
     public Object getAssociations(@RequestParam String efo, @RequestParam String region) {
 

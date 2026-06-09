@@ -2,6 +2,8 @@ package uk.ac.ebi.spot.gwas.chromosome;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ import java.util.*;
 
 @Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Tag(name = "Chromosome", description = "Endpoints for chromosome-related data retrieval.")
 @RestController
 public class ChromosomeController {
 
@@ -28,6 +31,7 @@ public class ChromosomeController {
     }
 
 
+    @Operation(summary = "Get Solr data for a specific chromosome", description = "Fetches chromosome data from Solr, optionally filtered by a parent trait.")
     @GetMapping("/chromosomes/{chrId}")
     public Object getSolrData(@PathVariable String chrId, @RequestParam(required = false) String parent) {
 
