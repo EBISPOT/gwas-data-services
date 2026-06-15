@@ -4,10 +4,12 @@ server:
 
 spring:
   datasource:
-    url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
+    #url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
+    url: jdbc:postgresql://pgsql-hlvm-117.ebi.ac.uk:5432/spogwaspro
     username:
     password:
-    driver-class-name: oracle.jdbc.driver.OracleDriver
+    #driver-class-name: oracle.jdbc.driver.OracleDriver
+    driver-class-name: org.postgresql.Driver
     hikari:
       maximumPoolSize: 80
   data:

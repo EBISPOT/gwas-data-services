@@ -19,22 +19,23 @@ public class AssociationReport {
 
     private Date lastUpdateDate;
 
-    @Lob
+    ////@Lob
+    @Column(columnDefinition = "TEXT")
     private String snpError;
-
-    @Lob
+    //@Lob
+    @Column(columnDefinition = "TEXT")
     private String snpGeneOnDiffChr;
-
-    @Lob
+    //@Lob
+   @Column(columnDefinition = "TEXT")
     private String noGeneForSymbol;
-
-    @Lob
+    //@Lob
+    @Column(columnDefinition = "TEXT")
     private String restServiceError;
-
-    @Lob
+    //@Lob
+    @Column(columnDefinition = "TEXT")
     private String suspectVariationError;
-
-    @Lob
+    //@Lob
+    @Column(columnDefinition = "TEXT")
     private String geneError;
 
     private Boolean errorCheckedByCurator = false;
@@ -144,5 +145,9 @@ public class AssociationReport {
 
     public void setGeneError(String geneError) {
         this.geneError = geneError;
+    }
+
+    public Throwable geA() {
+        return null;
     }
 }
