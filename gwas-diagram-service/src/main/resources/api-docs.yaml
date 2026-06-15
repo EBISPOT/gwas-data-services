@@ -1,0 +1,68 @@
+openapi: 3.0.1
+info:
+  title: Diagram Service API XX
+  description: GWAS Diagram Service API Documentation
+  version: v1
+servers:
+- url: http://localhost:8989/gwas/diagram-api
+  description: Generated server url
+paths:
+  /stats:
+    get:
+      tags:
+      - stats-controller
+      operationId: getStats
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /chromosomes/{chrId}:
+    get:
+      tags:
+      - chromosome-controller
+      operationId: getSolrData
+      parameters:
+      - name: chrId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: parent
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /associations:
+    get:
+      tags:
+      - association-controller
+      operationId: getAssociations
+      parameters:
+      - name: efo
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: region
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+components: {}
