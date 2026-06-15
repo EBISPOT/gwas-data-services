@@ -83,25 +83,25 @@ public class Cli {
 Local Diagram Build:
 --------------------
 DB_URL=jdbc:oracle:thin:@//ora-spot-pub-hl.ebi.ac.uk:1521/SPOTPUB \
-DB_USER=gwas_spotpub DB_PASSWORD=30Z3UaZs1VYV6kb0 \
+
 java -Dspring.profiles.active=local -jar gwas-diagram-service.jar start --mode refresh-data
 
 Dev Diagram Build:
 --------------------
 DB_URL=jdbc:oracle:thin:@//ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2 \
-DB_USER=gwas_spotdv2 DB_PASSWORD=w1cRUcK7f6q5s2vf \
+
 java -Dspring.profiles.active=dev -jar gwas-diagram-service.jar start --mode api-mode >/dev/null 2>&1 &
 
 
 Pre-staging Diagram Build:
 --------------------
 DB_URL=jdbc:oracle:thin:@//ora-spot-pub-hl.ebi.ac.uk:1521/SPOTPUB \
-DB_USER=gwas_spotpub DB_PASSWORD=30Z3UaZs1VYV6kb0 \
+
 java -Dspring.profiles.active=prestaging -jar gwas-diagram-service.jar start --mode api-mode
 
 
 DB_URL=jdbc:oracle:thin:@//ora-spot-pub-hl.ebi.ac.uk:1521/SPOTPUB \
-DB_USER=gwas_spotpub DB_PASSWORD=30Z3UaZs1VYV6kb0 \
+
 java -Dspring.profiles.active=staging -jar gwas-diagram-service.jar start --mode api-mode
 
 Deploy UI to github -> snoopy, garfield - Then deploy bakcend to prod -> Ui to prod
