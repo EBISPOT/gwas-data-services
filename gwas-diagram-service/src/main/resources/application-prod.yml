@@ -1,0 +1,20 @@
+server:
+  port: 8989
+
+url:
+  solr: http://ves-pg-7f.ebi.ac.uk:8990/solr/gwas_diagram/update?commitWithin=100
+  server: http://ves-pg-7f.ebi.ac.uk:8990/solr/gwas_diagram
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans:true
+

@@ -1,0 +1,15 @@
+efo_id,label
+MONDO_0005071,nervous system disease
+MONDO_0004335,digestive system disease
+MONDO_0004995,cardiovascular disease
+MONDO_0005066,metabolic disease
+MONDO_0005046,immune system disease
+OBA_VT0005584,liver enzyme measurement
+EFO_0005105,lipid or lipoprotein measurement
+EFO_0004872,inflammatory marker measurement
+EFO_0004503,hematological measurement
+EFO_0004324,body weights and measures
+EFO_0004298,cardiovascular measurement
+MONDO_0004992,cancer
+GO_0008150,biological process
+GO_0009410,response to drug
