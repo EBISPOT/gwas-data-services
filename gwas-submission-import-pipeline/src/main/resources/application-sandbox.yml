@@ -6,7 +6,7 @@ spring:
   datasource:
     #url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
     #url: jdbc:oracle:thin:@ora-spot-pro-hl.ebi.ac.uk:1531/SPOTPRO
-    url: jdbc:postgresql://pgsql-hlvm-117.ebi.ac.uk:5432/spogwaspro
+    url: jdbc:postgresql://pgsql-dlvm-091.ebi.ac.uk:5432/spogwasdv2
     username:
     password:
     #driver-class-name: oracle.jdbc.driver.OracleDriver
@@ -17,6 +17,11 @@ spring:
       #uri: mongodb-hx-gwasdepopro-001.ebi.ac.uk:27017,mongodb-hl-gwasdepopro-002.ebi.ac.uk:27017/admin?replicaSet=gwasdepoprors080
       #hikari:
       #maximumPoolSize: 80
+  rabbitmq:
+    host: hh-rke-wp-webadmin-09-worker-1.caas.ebi.ac.uk
+    port: 30672
+    username:
+    password:
   jpa:
     hibernate:
       ddl-auto: none
@@ -52,3 +57,8 @@ email-config:
   to-address: gwas-curator@ebi.ac.uk,gwas-dev-logs@ebi.ac.uk
 
 
+rabbitmq:
+  submission-import:
+    queue-name: submission-import-sandbox
+    exchange-name: submission-import-exchange-sandbox
+    routing-key: submission-import-route-sandbox

@@ -52,3 +52,8 @@ email-config:
   to-address: gwas-curator@ebi.ac.uk,gwas-dev-logs@ebi.ac.uk
 
 
+rabbitmq:
+  submission-import:
+    queue-name: submission-import
+    exchange-name: submission-import-exchange
+    routing-key: submission-import-route

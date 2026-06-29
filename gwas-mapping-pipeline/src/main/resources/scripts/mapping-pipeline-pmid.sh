@@ -39,6 +39,7 @@ export DB_USER=${DB_USER}
 export DB_PASSWORD=${DB_PASSWORD}
 
 java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster -Dexecutor.thread-pool.count=${POOL_SIZE} -Dassociation.partition.size=15 -Dspring.datasource.username=${ORACLE_DB_USER} -Dspring.datasource.password=${ORACLE_DB_PWD} \
+   -Dspring.rabbitmq.username=${RABBIT_USER} -Dspring.rabbitmq.password=${RABBIT_PWD} \
     ${documentParameters} \
     -jar ${jarLocation}/gwas-mapping-pipeline.jar -m ${mode} -i ${jarLocation}/Incorrecly_mapped_variants.tsv -o ${logslocation} -e ${logslocation}
 

@@ -130,17 +130,21 @@ public class Cli implements CommandLineRunner {
                     log.info("Calling deleteSubmissionInProgressEntry() start");
                     submissionImportService.deleteSubmissionInProgressEntry(submissionId);
                     log.info("Calling deleteSubmissionInProgressEntry() end");
+                    submissionImportService.sendMessage(submissionId, submissionType, "import","success", curatorEmail);
+                    log.info("Sending Event details for import {} {} {}",submissionId, submissionType, curatorEmail);
                     log.info("Total time taken to import {} {}", submissionId,  System.currentTimeMillis() - start);
                 }catch(SlurmProcessException ex) {
                     failed = true;
                     submissionService.updateSubmissionStatus(submissionId, DepositionCurationConstants.IMPORT_FAILED, curatorEmail);
                     submissionImportService.savePmidReporting(submissionId, PmidReportingStatus.IMPORT_FAILED.name());
+                    submissionImportService.sendMessage(submissionId, submissionType, "import","failed", curatorEmail);
                     status = DepositionCurationConstants.IMPORT_FAILED;
                     log.error("SlurmProcessException in import submission"+ex.getMessage(),ex);
                 } catch(Exception ex) {
                     failed = true;
                     submissionService.updateSubmissionStatus(submissionId, DepositionCurationConstants.IMPORT_FAILED, curatorEmail);
                     submissionImportService.savePmidReporting(submissionId, PmidReportingStatus.IMPORT_FAILED.name());
+                    submissionImportService.sendMessage(submissionId, submissionType, "import","failed", curatorEmail);
                     status = DepositionCurationConstants.IMPORT_FAILED;
                     log.error("Exception in import submission"+ex.getMessage(),ex);
                 }

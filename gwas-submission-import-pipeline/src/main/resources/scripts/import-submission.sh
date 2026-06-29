@@ -30,6 +30,7 @@ export DB_PASSWORD=${DB_PASSWORD}
 #    -jar ${jarLocation}/gwas-submission-import-pipeline.jar -s ${submissionid} -c ${curator} -p ${pmid}
 
 java -DentityExpansionLimit=100000000 -Dspring.profiles.active=cluster  -Dspring.datasource.username=${ORACLE_DB_USER} -Dspring.datasource.password=${ORACLE_DB_PWD} -Dsubmission.partition.size=${PARTITION_SIZE}  \
+   -Dspring.rabbitmq.username=${RABBIT_USER} -Dspring.rabbitmq.password=${RABBIT_PWD} \
     ${documentParameters} \
     -jar ${jarLocation}/gwas-submission-import-pipeline.jar
 
