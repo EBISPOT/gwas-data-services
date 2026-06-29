@@ -17,6 +17,11 @@ spring:
     mongodb:
       #uri: mongodb-hhvm-062.ebi.ac.uk:27017,mongodb-hxvm-063.ebi.ac.uk:27017/admin?replicaSet=gwasdepodevrs039
       uri: mongodb-hx-gwasdepopro-001.ebi.ac.uk:27017,mongodb-hl-gwasdepopro-002.ebi.ac.uk:27017/admin?replicaSet=gwasdepoprors080
+  rabbitmq:
+    host: hh-rke-wp-webadmin-09-worker-1.caas.ebi.ac.uk
+    port: 30672
+    username:
+    password:
   jpa:
     hibernate:
       ddl-auto: none
@@ -52,3 +57,8 @@ slurm:
   logslocation: /hps/nobackup/parkinso/spot/gwas/logs/mapping-pipeline/logs/bsub
 
 
+rabbitmq:
+  submission-import:
+    queue-name: submission-import
+    exchange-name: submission-import-exchange
+    routing-key: submission-import-route

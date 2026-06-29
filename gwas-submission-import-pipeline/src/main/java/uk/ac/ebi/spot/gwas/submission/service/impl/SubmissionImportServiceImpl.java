@@ -46,6 +46,11 @@ public class SubmissionImportServiceImpl implements SubmissionImportService {
 
     PmidImportReportingService pmidImportReportingService;
 
+    SubmissionImportMessageService submissionImportMessageService;
+
+
+
+
 
     public SubmissionImportServiceImpl(SubmissionService submissionService,
                                        PublicationService publicationService,
@@ -55,7 +60,8 @@ public class SubmissionImportServiceImpl implements SubmissionImportService {
                                        NextflowJobMapperService nextflowJobMapperService,
                                        NextflowSubmitterService nextflowSubmitterService,
                                        NextFlowJobConfig nextFlowJobConfig,
-                                       PmidImportReportingService pmidImportReportingService
+                                       PmidImportReportingService pmidImportReportingService,
+                                       SubmissionImportMessageService submissionImportMessageService
     ) {
         this.submissionService = submissionService;
         this.publicationService = publicationService;
@@ -66,6 +72,7 @@ public class SubmissionImportServiceImpl implements SubmissionImportService {
         this.nextflowSubmitterService = nextflowSubmitterService;
         this.nextFlowJobConfig = nextFlowJobConfig;
         this.pmidImportReportingService = pmidImportReportingService;
+        this.submissionImportMessageService = submissionImportMessageService;
 
     }
 
@@ -125,6 +132,10 @@ public class SubmissionImportServiceImpl implements SubmissionImportService {
        return pmidImportReportingService.save(pmidImportReporting);
     }
 
+
+    public void sendMessage(String submissionId, String submissionType, String event, String result, String email) {
+        submissionImportMessageService.sendMessage(submissionId, submissionType, event, result, email);
+    }
 
 
 

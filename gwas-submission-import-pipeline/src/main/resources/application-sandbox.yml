@@ -17,6 +17,11 @@ spring:
       #uri: mongodb-hx-gwasdepopro-001.ebi.ac.uk:27017,mongodb-hl-gwasdepopro-002.ebi.ac.uk:27017/admin?replicaSet=gwasdepoprors080
       #hikari:
       #maximumPoolSize: 80
+  rabbitmq:
+    host: hh-rke-wp-webadmin-09-worker-1.caas.ebi.ac.uk
+    port: 30672
+    username:
+    password:
   jpa:
     hibernate:
       ddl-auto: none
@@ -52,3 +57,8 @@ email-config:
   to-address: gwas-curator@ebi.ac.uk,gwas-dev-logs@ebi.ac.uk
 
 
+rabbitmq:
+  submission-import:
+    queue-name: submission-import-sandbox
+    exchange-name: submission-import-exchange-sandbox
+    routing-key: submission-import-route-sandbox

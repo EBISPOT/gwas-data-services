@@ -49,3 +49,9 @@ nextflow:
 
 email-config:
   to-address: sajo@ebi.ac.uk,sajo@ebi.ac.uk
+
+rabbitmq:
+  submission-import:
+    queue-name: submission-import-sandbox
+    exchange-name: submission-import-exchange-sandbox
+    routing-key: submission-import-route-sandbox

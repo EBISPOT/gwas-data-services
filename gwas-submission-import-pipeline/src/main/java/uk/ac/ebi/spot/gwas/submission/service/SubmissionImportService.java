@@ -14,4 +14,6 @@ public interface SubmissionImportService {
     void savePmidReporting(String submissionId, String status);
 
     PmidImportReporting savePmidReporting(PmidImportReporting pmidImportReporting);
+
+    void sendMessage(String submissionId, String submissionType, String event, String result, String email);
 }
