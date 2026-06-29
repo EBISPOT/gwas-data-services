@@ -30,7 +30,8 @@ public class EnsemblRestcallHistory {
     @NotBlank
     private String ensemblUrl;
 
-    @Lob
+    //@Lob
+    @Column(columnDefinition = "TEXT")
     private String ensemblResponse;
 
     private String ensemblError;
@@ -75,7 +76,8 @@ public class EnsemblRestcallHistory {
 
     public void setEnsemblUrl(String ensemblUrl) { this.ensemblUrl = ensemblUrl; }
 
-    @Lob
+    //@Lob
+    @Column(columnDefinition = "TEXT")
     public String getEnsemblResponse() { return ensemblResponse; }
 
     public void setEnsemblResponse(String ensemblResponse) { this.ensemblResponse = ensemblResponse; }

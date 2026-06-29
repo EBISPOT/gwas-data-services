@@ -69,6 +69,8 @@ public class StudiesServiceImpl implements StudiesService {
                               Curator curator,
                               Publication publication,
                               Submission submission) {
+        log.info("Accession Id in processStudy is {}", mongoStudy.getAccession());
+        log.info("PubmedId in processStudy is {}", publication.getPubmedId());
         Study oracleStudy = studyOracleRepository.findByAccessionIdAndPublicationIdPubmedId(mongoStudy.getAccession(),
                 publication.getPubmedId()).orElse(null);
         if(oracleStudy != null){

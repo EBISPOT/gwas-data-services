@@ -21,7 +21,8 @@ public abstract class Note {
     @OneToOne
     private NoteSubject noteSubject;
 
-    @Lob
+    //@Lob
+    @Column(columnDefinition = "TEXT")
     @NotNull
     private String textNote;
 

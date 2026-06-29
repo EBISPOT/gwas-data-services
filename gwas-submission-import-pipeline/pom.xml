@@ -51,7 +51,7 @@
         <dependency>
             <groupId>uk.ac.ebi.spot.gwas</groupId>
             <artifactId>gwas-data-commons</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.3-pg-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -86,6 +86,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
+
 <!--
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>

@@ -38,6 +38,7 @@
         <module>gwas-association-parent-trait-executor</module>
         <module>gwas-submission-import-pipeline</module>
         <module>gwas-submission-import-service</module>
+        <module>gwas-diagram-service</module>
     </modules>
 
 </project>
