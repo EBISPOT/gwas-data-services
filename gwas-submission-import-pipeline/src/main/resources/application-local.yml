@@ -4,6 +4,9 @@ server:
 
 
 spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
   datasource:
     #url: jdbc:oracle:thin:@ora-spot-dev2-hl.ebi.ac.uk:1521/SPOTDV2
     url: jdbc:postgresql://pgsql-dlvm-091.ebi.ac.uk:5432/spogwasdv2
